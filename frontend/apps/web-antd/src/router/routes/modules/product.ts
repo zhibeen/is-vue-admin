@@ -1,0 +1,46 @@
+import type { RouteRecordRaw } from 'vue-router';
+
+import { $t } from '#/locales';
+
+const routes: RouteRecordRaw[] = [
+  {
+    meta: {
+      icon: 'lucide:package',
+      order: 10,
+      title: '产品管理', 
+    },
+    name: 'Product',
+    path: '/product',
+    children: [
+      {
+        name: 'ProductCreate',
+        path: 'create',
+        component: () => import('#/views/product/create.vue'),
+        meta: {
+          icon: 'lucide:plus-circle',
+          title: '创建产品',
+        },
+      },
+      {
+        name: 'CategoryManagement',
+        path: 'category',
+        component: () => import('#/views/product/category/index.vue'),
+        meta: {
+          icon: 'lucide:folder-tree',
+          title: '品名分类管理',
+        },
+      },
+      {
+        name: 'VehicleManagement',
+        path: 'vehicle-aux',
+        component: () => import('#/views/product/vehicle-aux/index.vue'),
+        meta: {
+          icon: 'lucide:car',
+          title: '车型辅助目录',
+        },
+      },
+    ],
+  },
+];
+
+export default routes;

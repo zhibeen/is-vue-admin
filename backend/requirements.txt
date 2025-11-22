@@ -1,0 +1,19 @@
+APIFlask
+Flask-SQLAlchemy
+Flask-Migrate
+psycopg2-binary
+alembic
+python-dotenv
+flask-cors
+ruff
+flask-jwt-extended
+
+# Testing
+pytest
+pytest-flask
+factory-boy
+pytest-cov
+
+# Async Task Queue
+celery
+redis

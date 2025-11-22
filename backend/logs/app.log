@@ -1,0 +1,229 @@
+{"timestamp": "2025-11-22T03:42:15.164494Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T03:42:15.329893Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n * Running on all addresses (0.0.0.0)\n * Running on http://127.0.0.1:5000\n * Running on http://172.18.0.2:5000", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:42:15.330497Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[33mPress CTRL+C to quit\u001b[0m", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:42:15.333053Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:42:16.199354Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T03:42:16.244061Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:42:16.253593Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 101-453-152", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:44:04.881975Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /docs 200 0.0102s", "logger": "app"}
+{"timestamp": "2025-11-22T03:44:04.883481Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [22/Nov/2025 03:44:04] \"GET /docs HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:44:05.224549Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /.well-known/appspecific/com.chrome.devtools.json 404 0.0009s", "logger": "app"}
+{"timestamp": "2025-11-22T03:44:05.226675Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [22/Nov/2025 03:44:05] \"\u001b[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1\u001b[0m\" 404 -", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:44:05.554888Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /openapi.json 200 0.0076s", "logger": "app"}
+{"timestamp": "2025-11-22T03:44:05.555570Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [22/Nov/2025 03:44:05] \"GET /openapi.json HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:48:32.660380Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T03:48:43.814215Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T03:50:24.775945Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T03:50:59.765723Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T03:51:17.510661Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /docs 200 0.0038s", "logger": "app"}
+{"timestamp": "2025-11-22T03:51:17.511841Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [22/Nov/2025 03:51:17] \"GET /docs HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:51:17.546145Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /.well-known/appspecific/com.chrome.devtools.json 404 0.0006s", "logger": "app"}
+{"timestamp": "2025-11-22T03:51:17.547986Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [22/Nov/2025 03:51:17] \"\u001b[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1\u001b[0m\" 404 -", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:51:17.748616Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /openapi.json 200 0.0026s", "logger": "app"}
+{"timestamp": "2025-11-22T03:51:17.749440Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [22/Nov/2025 03:51:17] \"GET /openapi.json HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:55:21.960810Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.333s", "logger": "app"}
+{"timestamp": "2025-11-22T03:55:21.971077Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [22/Nov/2025 03:55:21] \"POST /api/v1/auth/login HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:55:46.202665Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/auth/me 200 0.0425s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-11-22T03:55:46.213197Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [22/Nov/2025 03:55:46] \"GET /api/v1/auth/me HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:57:38.438771Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/schemas/auth.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:57:40.552981Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:57:44.004128Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T03:57:44.232067Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:57:44.242484Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 101-453-152", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:57:53.657909Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/auth/routes.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:57:55.509054Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:57:59.576227Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T03:57:59.736434Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:57:59.751360Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 101-453-152", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:58:03.859772Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/auth/routes.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:58:04.031819Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:58:04.852365Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T03:58:04.881588Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T03:58:04.883313Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 101-453-152", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:02:19.067455Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/auth/routes.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:02:19.182587Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:02:20.053187Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:02:20.091316Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:02:20.092956Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 101-453-152", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:02:23.586610Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/auth/me 200 0.3391s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-11-22T04:02:23.602860Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [22/Nov/2025 04:02:23] \"GET /api/v1/auth/me HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:11:55.474639Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/__init__.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:11:57.250042Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:12:00.349329Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:12:00.372037Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:12:00.373583Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 101-453-152", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:15:13.707548Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/__init__.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:15:14.036588Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:15:15.475944Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:15:15.541572Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:15:15.548360Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 101-453-152", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:16:49.484301Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:16:49.525928Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n * Running on all addresses (0.0.0.0)\n * Running on http://127.0.0.1:5000\n * Running on http://172.18.0.2:5000", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:16:49.526440Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[33mPress CTRL+C to quit\u001b[0m", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:16:49.527502Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:16:50.228627Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:16:50.251946Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:16:50.253957Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 646-036-725", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:17:21.862445Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:17:21.950412Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n * Running on all addresses (0.0.0.0)\n * Running on http://127.0.0.1:5000\n * Running on http://172.18.0.2:5000", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:17:21.953102Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[33mPress CTRL+C to quit\u001b[0m", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:17:21.963013Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:17:22.993006Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:17:23.017881Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:17:23.019347Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 525-837-057", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:19:20.762835Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:19:20.808521Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n * Running on all addresses (0.0.0.0)\n * Running on http://127.0.0.1:5000\n * Running on http://172.18.0.2:5000", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:19:20.809252Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[33mPress CTRL+C to quit\u001b[0m", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:19:20.810690Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:19:21.410543Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:19:21.470328Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:19:21.471398Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 117-662-635", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:22:14.117285Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:22:14.164838Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n * Running on all addresses (0.0.0.0)\n * Running on http://127.0.0.1:5000\n * Running on http://172.18.0.2:5000", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:22:14.165400Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[33mPress CTRL+C to quit\u001b[0m", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:22:14.166754Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:22:14.897023Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:22:14.922273Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:22:14.923268Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 136-041-650", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:23:26.630899Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:23:26.680356Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n * Running on all addresses (0.0.0.0)\n * Running on http://127.0.0.1:5000\n * Running on http://172.18.0.2:5000", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:23:26.680944Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[33mPress CTRL+C to quit\u001b[0m", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:23:26.682461Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:23:27.588540Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:23:27.614510Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:23:27.615375Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 951-638-305", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:27:48.824145Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/tests/factories.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:27:50.585083Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:27:52.979516Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:27:53.014585Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:27:53.015994Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 951-638-305", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:28:43.621423Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:28:44.314238Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:28:44.786004Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:28:45.314861Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:28:45.928675Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:29:36.131965Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:29:36.825995Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:29:37.349783Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:29:37.871727Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:29:38.335682Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:30:25.151179Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/tests/conftest.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:30:26.990314Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:30:30.988815Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:30:31.022662Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:30:31.024183Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 951-638-305", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:31:37.998994Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:31:38.576474Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:31:39.050306Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:31:39.523186Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:31:39.996585Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:32:26.741229Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/tests/conftest.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:32:28.517409Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:32:32.067391Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:32:32.114740Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:32:32.116305Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 951-638-305", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:33:57.012997Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:33:57.572051Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:33:57.994730Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:33:58.383784Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:33:58.746120Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:35:14.631405Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:35:17.309101Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:35:19.863993Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:35:22.603651Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:35:24.504654Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:36:45.202880Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:36:47.924888Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:36:50.430986Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:36:52.369897Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:36:54.133239Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:37:24.282175Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/tests/factories.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:37:25.956282Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:37:29.704565Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:37:29.920733Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:37:29.928176Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 951-638-305", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:37:39.366475Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/tests/factories.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:37:41.040490Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:37:42.933320Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:37:42.954208Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:37:42.955297Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 951-638-305", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:38:43.716305Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:38:43.949692Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.0792s", "logger": "app"}
+{"timestamp": "2025-11-22T04:38:43.958385Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:38:44.154268Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 401 0.0712s", "logger": "app"}
+{"timestamp": "2025-11-22T04:38:44.167867Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:38:44.358752Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.0754s", "logger": "app"}
+{"timestamp": "2025-11-22T04:38:44.360576Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/auth/me 200 0.0006s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-11-22T04:38:44.372639Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:38:44.588897Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.0708s", "logger": "app"}
+{"timestamp": "2025-11-22T04:38:44.590448Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/products 403 0.0006s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-11-22T04:38:44.598962Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:38:44.780468Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.0701s", "logger": "app"}
+{"timestamp": "2025-11-22T04:40:47.478236Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:40:48.265388Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.2151s", "logger": "app"}
+{"timestamp": "2025-11-22T04:40:48.338915Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:40:48.762270Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 401 0.184s", "logger": "app"}
+{"timestamp": "2025-11-22T04:40:48.814637Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:40:49.354650Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.208s", "logger": "app"}
+{"timestamp": "2025-11-22T04:40:49.366023Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/auth/me 200 0.0038s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-11-22T04:40:49.425819Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:40:49.861673Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.1888s", "logger": "app"}
+{"timestamp": "2025-11-22T04:40:49.871342Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/products 403 0.0031s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-11-22T04:40:49.938397Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:40:50.484246Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.1959s", "logger": "app"}
+{"timestamp": "2025-11-22T04:41:17.413116Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/product/routes.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:41:19.304611Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:41:22.400267Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:41:22.426522Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:41:22.428418Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 951-638-305", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:41:28.217459Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/product/routes.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:41:30.056815Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:41:32.995625Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:41:33.052422Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:41:33.053547Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 951-638-305", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:53:30.626869Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/product/routes.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:53:30.767113Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:53:32.267130Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:53:32.300313Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:53:32.301932Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 951-638-305", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T04:53:57.998114Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:53:58.262255Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.0834s", "logger": "app"}
+{"timestamp": "2025-11-22T04:53:58.274461Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:53:58.447579Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 401 0.0671s", "logger": "app"}
+{"timestamp": "2025-11-22T04:53:58.458610Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:53:58.648291Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.0703s", "logger": "app"}
+{"timestamp": "2025-11-22T04:53:58.650280Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/auth/me 200 0.0005s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-11-22T04:53:58.659828Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:53:58.825335Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.0734s", "logger": "app"}
+{"timestamp": "2025-11-22T04:53:58.827472Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/products 403 0.0003s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-11-22T04:53:58.834663Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T04:53:59.052374Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.0783s", "logger": "app"}
+{"timestamp": "2025-11-22T04:53:59.059021Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/products 201 0.0046s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-11-22T05:08:55.943192Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/__init__.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:08:57.793315Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:09:06.826348Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:09:43.967880Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:09:49.895128Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:28:46.177085Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:36:31.382353Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T05:36:31.417500Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n * Running on all addresses (0.0.0.0)\n * Running on http://127.0.0.1:5000\n * Running on http://172.18.0.3:5000", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:36:31.417819Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[33mPress CTRL+C to quit\u001b[0m", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:36:31.418759Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:36:32.151793Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T05:36:32.172295Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:36:32.173467Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 513-872-658", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:46:28.739646Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/__init__.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:46:30.778406Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:46:35.690128Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T05:46:35.777268Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:46:35.778200Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 513-872-658", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:46:53.582024Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/__init__.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:46:53.685155Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:46:54.369017Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T05:46:54.395863Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:46:54.397215Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 513-872-658", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:49:28.767320Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/__init__.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:49:28.923682Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:49:29.951330Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-11-22T05:49:29.987563Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-11-22T05:49:29.988927Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 513-872-658", "logger": "werkzeug"}

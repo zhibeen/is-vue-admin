@@ -1,0 +1,9 @@
+# 数据库连接配置
+DATABASE_URL=postgresql+psycopg2://user:password@host:5432/dbname
+
+# Flask 配置
+FLASK_APP=run.py
+FLASK_DEBUG=1
+SECRET_KEY=dev-secret-key
+JWT_SECRET_KEY=jwt-secret-key
+
