@@ -1,0 +1,81 @@
+client:733 [vite] connecting...
+client:827 [vite] connected.
+prepare.js:1 🍍 "core-access" store installed 🆕
+prepare.js:1 🍍 "core-user" store installed 🆕
+prepare.js:1 🍍 "auth" store installed 🆕
+request.ts:34 Access token or refresh token is invalid or expired. 
+doReAuthenticate @ request.ts:34
+rejected @ preset-interceptors.ts:70
+Promise.then
+_request @ axios.js?v=956dd425:2310
+request @ axios.js?v=956dd425:2219
+wrap @ axios.js?v=956dd425:8
+request @ request-client.ts:150
+post @ request-client.ts:128
+loginApi @ auth.ts:29
+authLogin @ auth.ts:39
+wrappedAction @ pinia.js?v=956dd425:1092
+store.<computed> @ pinia.js?v=956dd425:789
+callWithErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1973
+callWithAsyncErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1980
+emit @ chunk-W3DDEFPZ.js?v=956dd425:7194
+（匿名） @ chunk-W3DDEFPZ.js?v=956dd425:8731
+handleSubmit @ login.vue:75
+await in handleSubmit
+callWithErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1973
+callWithAsyncErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1980
+invoker @ chunk-W3DDEFPZ.js?v=956dd425:11095
+auth.ts:86 [Auth] Login failed: {code: 401, data: null, message: 'Bad username or password'}
+authLogin @ auth.ts:86
+await in authLogin
+wrappedAction @ pinia.js?v=956dd425:1092
+store.<computed> @ pinia.js?v=956dd425:789
+callWithErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1973
+callWithAsyncErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1980
+emit @ chunk-W3DDEFPZ.js?v=956dd425:7194
+（匿名） @ chunk-W3DDEFPZ.js?v=956dd425:8731
+handleSubmit @ login.vue:75
+await in handleSubmit
+callWithErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1973
+callWithAsyncErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1980
+invoker @ chunk-W3DDEFPZ.js?v=956dd425:11095
+login.vue:75 [Vue warn]: Unhandled error during execution of component event handler 
+  at <AuthenticationLogin form-schema= (3) [{…}, {…}, {…}] loading=false onSubmit=fn  ... > 
+  at <Login onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > key="/auth/login?redirect=%252Fauth%252Flogin%253Fredirect%253D%2525252Fauth%2525252Flogin%2525253Fredirect%2525253D%25252525252Fauth%25252525252Flogin%25252525253Fredirect%25252525253D%252525252525252Fsystem%252525252525252Frole"  ... > 
+  at <KeepAlive include= ['Login'] > 
+  at <BaseTransition mode="out-in" appear=true persisted=false  ... > 
+  at <Transition appear="" mode="out-in" name="slide-right" > 
+  at <RouterView> 
+  at <AuthenticationFormView key=4 class="min-h-full w-2/5 flex-1" data-side="right" > 
+  at <Authentication app-name="Vben Admin Antd" logo="https://unpkg.com/@vbenjs/static-source@0.1.7/source/logo-v1.webp" logo-dark=undefined  ... > 
+  at <Auth onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) {__v_skip: true} > > 
+  at <RouterView> 
+  at <AApp> 
+  at <Anonymous value= {hashed: true, components: {…}, theme: Theme, token: {…}} > 
+  at <ALocaleProvider locale= {locale: 'zh-cn', Pagination: {…}, DatePicker: {…}, TimePicker: {…}, Calendar: {…}, …} ANT_MARK__="internalMark" > 
+  at <LocaleReceiver children=fn<children> > 
+  at <AConfigProvider locale= {locale: 'zh-cn', Pagination: {…}, DatePicker: {…}, TimePicker: {…}, Calendar: {…}, …} theme= {algorithm: Array(1), token: Proxy(Object)} > 
+  at <App>
+warn$1 @ chunk-W3DDEFPZ.js?v=956dd425:1889
+logError @ chunk-W3DDEFPZ.js?v=956dd425:2037
+handleError @ chunk-W3DDEFPZ.js?v=956dd425:2029
+（匿名） @ chunk-W3DDEFPZ.js?v=956dd425:1983
+Promise.catch
+callWithAsyncErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1982
+emit @ chunk-W3DDEFPZ.js?v=956dd425:7194
+（匿名） @ chunk-W3DDEFPZ.js?v=956dd425:8731
+handleSubmit @ login.vue:75
+await in handleSubmit
+callWithErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1973
+callWithAsyncErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1980
+invoker @ chunk-W3DDEFPZ.js?v=956dd425:11095
+:5666/auth/login?red…525252525252Frole:1 Uncaught (in promise) {code: 401, data: null, message: 'Bad username or password'}
+Promise.catch
+callWithAsyncErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1982
+emit @ chunk-W3DDEFPZ.js?v=956dd425:7194
+（匿名） @ chunk-W3DDEFPZ.js?v=956dd425:8731
+handleSubmit @ login.vue:75
+await in handleSubmit
+callWithErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1973
+callWithAsyncErrorHandling @ chunk-W3DDEFPZ.js?v=956dd425:1980
+invoker @ chunk-W3DDEFPZ.js?v=956dd425:11095

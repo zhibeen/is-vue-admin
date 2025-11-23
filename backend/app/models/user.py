@@ -24,7 +24,10 @@ class Permission(db.Model):
     
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50), unique=True) # e.g. 'product:create'
-    description: Mapped[Optional[str]] = mapped_column(String(200))
+    module: Mapped[str] = mapped_column(String(50), default='系统管理') # Module (e.g. 'System', 'Product')
+    resource: Mapped[str] = mapped_column(String(50), default='通用') # Resource/Sub-module (e.g. 'User', 'Brand')
+    action: Mapped[str] = mapped_column(String(50), default='view') # Action (e.g. 'view', 'create')
+    description: Mapped[Optional[str]] = mapped_column(String(200)) # Display Name
 
     def __repr__(self):
         return f"<Permission {self.name}>"
@@ -48,6 +51,7 @@ class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
     email: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    nickname: Mapped[Optional[str]] = mapped_column(String(50))  # Add nickname support
     password_hash: Mapped[str] = mapped_column(String(256))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())

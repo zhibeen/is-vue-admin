@@ -1,82 +1,33 @@
 from apiflask import Schema
-from apiflask.fields import Integer, String, Boolean, List, Nested, Dict, Float
-from apiflask.validators import Length, OneOf
-
-# --- Metadata Schemas ---
-
-class AttributeOptionSchema(Schema):
-    label = String()
-    value = String()
-
-class AttributeDefinitionSchema(Schema):
-    id = Integer(dump_only=True)
-    key_name = String()
-    label = String()
-    data_type = String(validate=OneOf(['text', 'number', 'select', 'boolean']))
-    options = List(Nested(AttributeOptionSchema))
-    is_global = Boolean()
-
-class CategoryAttributeSchema(Schema):
-    attribute = Nested(AttributeDefinitionSchema, attribute='attribute_definition')
-    is_required = Boolean()
-    display_order = Integer()
-
-# --- Category Schemas ---
-
-class CategoryBaseSchema(Schema):
-    id = Integer(dump_only=True)
-    name = String(required=True, validate=Length(min=1))
-    code = String(validate=Length(max=10))
-    is_leaf = Boolean()
-
-class CategoryTreeSchema(CategoryBaseSchema):
-    children = List(Nested(lambda: CategoryTreeSchema()))  # Recursive
-
-class CategoryDetailSchema(CategoryBaseSchema):
-    parent_id = Integer()
-    # attributes = List(Nested(CategoryAttributeSchema)) # Full details only when needed
-
-# --- VehicleAux Schemas ---
-
-class VehicleAuxSchema(Schema):
-    id = Integer(dump_only=True)
-    name = String()
-    level_type = String()
-    full_path = String()
-    parent_id = Integer()
+from apiflask.fields import Integer, String, List, Boolean, Nested, DateTime, Dict
+from .mixins import FieldPermissionMixin
 
 # --- Product Schemas ---
 
-class ProductFitmentIn(Schema):
-    vehicle_id = Integer(required=True)
-    notes = String()
-
 class ProductBaseSchema(Schema):
     name = String(required=True)
-    feature_code = String()
-    category_id = Integer(required=True)
+    sku = String(required=True)
+    description = String()
     
-    # Physical
-    length = Float()
-    width = Float()
-    height = Float()
-    weight = Float()
+    # Sensitive Fields with Permission Metadata
+    cost_price = String(metadata={
+        'permission_key': 'product:cost_price', 
+        'label': '采购成本',
+        'description': '产品的进货成本'
+    })
     
-    # Dynamic Attributes
-    attributes = Dict() # {"voltage": "12V"}
+    stock_price = String(metadata={
+        'permission_key': 'product:stock_price', 
+        'label': '库存单价',
+        'description': '库存平均单价'
+    })
+    
+    supplier = String(metadata={
+        'permission_key': 'product:supplier', 
+        'label': '供应商',
+        'description': '默认供应商信息'
+    })
 
-class ProductCreateSchema(ProductBaseSchema):
-    parent_sku_id = Integer(load_default=None)
-    suffix_code = String(load_default=None)
-    fitments = List(Nested(ProductFitmentIn), load_default=[])
-
-class ProductUpdateSchema(ProductBaseSchema):
-    category_id = Integer(dump_default=None) # Optional on update
-
-class ProductOutSchema(ProductBaseSchema):
+class ProductSchema(FieldPermissionMixin, ProductBaseSchema):
     id = Integer()
-    sku = String()
-    created_at = String()
-    updated_at = String()
-    # category = Nested(CategoryBaseSchema)
-
+    created_at = DateTime()

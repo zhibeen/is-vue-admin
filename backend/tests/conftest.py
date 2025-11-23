@@ -24,10 +24,15 @@ def app():
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
         'JWT_SECRET_KEY': 'test-secret',
-        'SECRET_KEY': 'test-secret'
+        'SECRET_KEY': 'test-secret',
+        'CELERY': {
+            'broker_url': 'memory://',
+            'result_backend': 'cache+memory://',
+            'task_always_eager': True
+        }
     }
     
-    app = create_app(config)
+    app = create_app(test_config=config)
     
     # Create application context
     with app.app_context():
@@ -60,10 +65,32 @@ def admin_user(app):
     """Create an admin user with all permissions"""
     with app.app_context():
         # 1. Create Permissions
-        perms = ['product:create', 'product:delete', 'vehicle:manage']
+        perms = [
+            'product:create', 'product:delete', 'product:view',
+            'vehicle:manage',
+            'system:view', 'system:role:view'
+        ]
         perm_objs = []
         for p in perms:
-            perm = Permission(name=p)
+            # Simple manual mapping for test data to match seed logic expectation
+            parts = p.split(':')
+            if 'product' in parts or 'vehicle' in parts:
+                mod = '商品中心'
+                res = '商品列表' if 'product' in parts else '车型管理'
+            elif 'system' in parts:
+                mod = '系统管理'
+                res = '角色管理' if 'role' in parts else '系统概览'
+            else:
+                mod = '默认模块'
+                res = '默认资源'
+                
+            perm = Permission(
+                name=p, 
+                description=f'Desc for {p}',
+                module=mod,
+                resource=res,
+                action=parts[-1]
+            )
             db.session.add(perm)
             perm_objs.append(perm)
             
@@ -89,7 +116,7 @@ def token_headers(client, admin_user):
         'username': 'admin',
         'password': 'password'
     })
-    token = response.json['access_token']
+    token = response.json['data']['access_token']
     return {
         'Authorization': f'Bearer {token}'
     }

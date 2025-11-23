@@ -24,7 +24,8 @@ def create_product(data):
     # Trigger Async Task
     send_email_task.delay('admin@example.com', 'New Product Created', f'Product {product.name} was created.')
     
-    return product
+    # Direct model return; Framework wraps in BaseResponse {code: 0, data: product}
+    return {'data': product}
 
 @product_bp.get('/<int:product_id>')
 @product_bp.auth_required(auth)
@@ -35,7 +36,7 @@ def create_product(data):
 @product_bp.output(ProductOutSchema)
 def get_product(product_id):
     """Get product details"""
-    return product_service.get_product(product_id)
+    return {'data': product_service.get_product(product_id)}
 
 @product_bp.get('')
 @product_bp.auth_required(auth)
@@ -44,9 +45,9 @@ def get_product(product_id):
 @product_bp.output(ProductPaginationSchema)
 def list_products(query_data):
     """List all products"""
-    return product_service.list_products(
+    return {'data': product_service.list_products(
         page=query_data['page'], 
         per_page=query_data['per_page'],
         q=query_data.get('q'),
         sort=query_data.get('sort')
-    )
+    )}

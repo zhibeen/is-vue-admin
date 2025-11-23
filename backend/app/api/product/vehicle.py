@@ -26,7 +26,8 @@ def get_brands():
     brands = db.session.scalars(
         select(VehicleAux).filter_by(level_type='brand').order_by(VehicleAux.code)
     ).all()
-    return brands
+    # Auto-wrapped by BaseResponse
+    return {'data': brands}
 
 @vehicle_bp.post('/brands')
 @vehicle_bp.auth_required(auth)
@@ -44,7 +45,7 @@ def create_brand(data):
     )
     db.session.add(brand)
     db.session.commit()
-    return brand
+    return {'data': brand}
 
 @vehicle_bp.put('/brands/<int:brand_id>')
 @vehicle_bp.auth_required(auth)
@@ -65,7 +66,7 @@ def update_brand(brand_id, data):
         setattr(brand, key, value)
         
     db.session.commit()
-    return brand
+    return {'data': brand}
 
 @vehicle_bp.delete('/brands/<int:brand_id>')
 @vehicle_bp.auth_required(auth)
@@ -88,7 +89,7 @@ def delete_brand(brand_id):
         
     db.session.delete(brand)
     db.session.commit()
-    return '', 204
+    return {'code': 0, 'message': 'success', 'data': None}
 
 # --- Models ---
 
@@ -108,7 +109,7 @@ def get_models(brand_id):
     models = db.session.scalars(
         select(VehicleAux).filter_by(parent_id=brand_id, level_type='model').order_by(VehicleAux.name)
     ).all()
-    return models
+    return {'data': models}
 
 @vehicle_bp.post('/models')
 @vehicle_bp.auth_required(auth)
@@ -129,7 +130,7 @@ def create_model(data):
     )
     db.session.add(model)
     db.session.commit()
-    return model
+    return {'data': model}
 
 @vehicle_bp.put('/models/<int:model_id>')
 @vehicle_bp.auth_required(auth)
@@ -148,7 +149,7 @@ def update_model(model_id, data):
         
     model.name = data['name']
     db.session.commit()
-    return model
+    return {'data': model}
 
 @vehicle_bp.delete('/models/<int:model_id>')
 @vehicle_bp.auth_required(auth)
@@ -165,7 +166,7 @@ def delete_model(model_id):
         
     db.session.delete(model)
     db.session.commit()
-    return '', 204
+    return {'code': 0, 'message': 'success', 'data': None}
 
 # --- Submodels ---
 
@@ -185,7 +186,7 @@ def get_submodels(model_id):
     submodels = db.session.scalars(
         select(VehicleAux).filter_by(parent_id=model_id, level_type='submodel').order_by(VehicleAux.name)
     ).all()
-    return submodels
+    return {'data': submodels}
 
 @vehicle_bp.post('/submodels')
 @vehicle_bp.auth_required(auth)
@@ -206,7 +207,7 @@ def create_submodel(data):
     )
     db.session.add(submodel)
     db.session.commit()
-    return submodel
+    return {'data': submodel}
 
 @vehicle_bp.put('/submodels/<int:submodel_id>')
 @vehicle_bp.auth_required(auth)
@@ -225,7 +226,7 @@ def update_submodel(submodel_id, data):
         
     submodel.name = data['name']
     db.session.commit()
-    return submodel
+    return {'data': submodel}
 
 @vehicle_bp.delete('/submodels/<int:submodel_id>')
 @vehicle_bp.auth_required(auth)
@@ -242,4 +243,4 @@ def delete_submodel(submodel_id):
         
     db.session.delete(submodel)
     db.session.commit()
-    return '', 204
+    return {'code': 0, 'message': 'success', 'data': None}

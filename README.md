@@ -56,7 +56,7 @@ exit
 1.  找到接口 `POST /api/v1/auth/login`。
 2.  使用默认管理员账号：
     - **Username**: `admin`
-    - **Password**: `admin123`
+    - **Password**: `password`
 3.  点击 Execute，应返回 `access_token`。
 
 ### 4.2 测试数据

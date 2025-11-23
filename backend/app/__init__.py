@@ -10,6 +10,7 @@ from .api import register_blueprints
 from .logging_config import configure_logging
 from .celery_utils import celery_init_app
 from .config import config
+from app.schemas.base import BaseResponseSchema
 
 def create_app(config_name=None, test_config=None):
     app = APIFlask(__name__, title='IS Vue Admin API', version='1.0.0')
@@ -27,6 +28,20 @@ def create_app(config_name=None, test_config=None):
         
         app.config.from_object(config[config_name])
 
+    # 1.1 Base Response Configuration
+    app.config['BASE_RESPONSE_SCHEMA'] = BaseResponseSchema
+    app.config['BASE_RESPONSE_DATA_KEY'] = 'data'
+
+    # 1.2 Unified Error Processor
+    @app.error_processor
+    def custom_error_processor(error):
+        # error is an instance of apiflask.exceptions.HTTPError
+        return {
+            'code': error.status_code,
+            'message': error.message,
+            'data': error.detail if error.detail else None
+        }, error.status_code, error.headers
+    
     # 2. Extensions
     CORS(app, supports_credentials=True)
     db.init_app(app)
@@ -69,13 +84,18 @@ def create_app(config_name=None, test_config=None):
     @app.before_request
     def start_timer():
         g.start_time = time.time()
-
+    
     # 4. Models
     with app.app_context():
         from app import models
 
     @app.get('/')
     def index():
-        return {'message': 'Hello from APIFlask backend!', 'version': '1.0.0'}
+        return {
+            'data': {
+                'message': 'Hello from APIFlask backend!', 
+                'version': '1.0.0'
+            }
+        }
         
     return app

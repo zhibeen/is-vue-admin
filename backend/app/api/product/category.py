@@ -18,7 +18,8 @@ def get_category_tree():
     # Optimized: Fetch all and build tree in memory or use CTE if needed.
     # For simplicity, we fetch roots and let Marshmallow recurse (N+1 risk, but ok for small trees)
     roots = db.session.scalars(select(Category).where(Category.parent_id.is_(None))).all()
-    return roots
+    # BaseResponse wrapper applied automatically
+    return {'data': roots}
 
 @category_bp.post('')
 @category_bp.auth_required(auth)
@@ -31,7 +32,7 @@ def create_category(data):
     cat = Category(**data)
     db.session.add(cat)
     db.session.commit()
-    return cat
+    return {'data': cat}
 
 @category_bp.get('/<int:category_id>/attributes')
 @category_bp.auth_required(auth)
@@ -50,4 +51,4 @@ def get_category_attributes(category_id):
         .where(CategoryAttribute.category_id == category_id)
         .order_by(CategoryAttribute.display_order)
     ).all()
-    return attributes
+    return {'data': attributes}

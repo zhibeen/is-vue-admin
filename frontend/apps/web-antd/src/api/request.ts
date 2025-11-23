@@ -7,6 +7,7 @@ import { useAppConfig } from '@vben/hooks';
 import { preferences } from '@vben/preferences';
 import {
   authenticateResponseInterceptor,
+  defaultResponseInterceptor,
   errorMessageResponseInterceptor,
   RequestClient,
 } from '@vben/request';
@@ -76,9 +77,13 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   });
 
   // 处理返回的响应数据格式
-  // MODIFIED: 移除 defaultResponseInterceptor，因为我们的后端直接返回数据，没有 {code, data} 包装
-  // 如果需要处理 HTTP 错误，axios 会自动抛出，被下面的错误拦截器捕获
-  // client.addResponseInterceptor(...) 
+  client.addResponseInterceptor(
+    defaultResponseInterceptor({
+      successCode: 0,
+      codeField: 'code',
+      dataField: 'data',
+    }),
+  );
 
   // token过期的处理
   client.addResponseInterceptor(

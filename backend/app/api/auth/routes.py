@@ -25,18 +25,24 @@ def login(data):
 
     # Create tokens
     # Include permissions in the token claims for frontend RBAC/Permission checks
-    permissions = list(user.permissions)
-    additional_claims = {"roles": user.role_names, "permissions": permissions}
+    # Ensure we are working with list of strings
+    permissions_list = list(user.permissions) if user.permissions else []
+    roles_list = list(user.role_names) if user.role_names else []
+    
+    additional_claims = {"roles": roles_list, "permissions": permissions_list}
     
     access_token = create_access_token(identity=str(user.id), additional_claims=additional_claims)
     refresh_token = create_refresh_token(identity=str(user.id))
     
     return {
-        'access_token': access_token,
-        'refresh_token': refresh_token,
-        'username': user.username,
-        'roles': user.role_names,
-        'permissions': permissions
+        'data': {
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'username': user.username,
+            'nickname': user.nickname,
+            'roles': roles_list,
+            'permissions': permissions_list
+        }
     }
 
 @auth_bp.get('/me')
@@ -49,8 +55,8 @@ def me():
     if not user:
         abort(404, 'User not found')
         
-    # user.role_names and user.permissions are handled by Schema attributes
-    return user
+    # Explicitly wrap in data key for BaseResponseSchema
+    return {'data': user}
 
 @auth_bp.post('/refresh')
 # Refresh Token 也是一种 JWT，但它的用途不同。
@@ -68,6 +74,28 @@ def refresh():
     if not user:
         abort(404)
         
-    new_access_token = create_access_token(identity=current_user_id, additional_claims={"roles": user.role_names})
-    return {'access_token': new_access_token}
+    # Include permissions in refresh token as well, or just roles?
+    # Usually refresh token just gets a new access token.
+    # The access token needs roles & permissions.
+    
+    permissions_list = list(user.permissions) if user.permissions else []
+    roles_list = list(user.role_names) if user.role_names else []
+    
+    new_access_token = create_access_token(
+        identity=current_user_id, 
+        additional_claims={
+            "roles": roles_list,
+            "permissions": permissions_list
+        }
+    )
+    # Add nickname to refresh response as well to keep frontend store updated if needed
+    return {
+        'data': {
+            'access_token': new_access_token,
+            'nickname': user.nickname,
+            'username': user.username, # Also return username for completeness
+            'roles': roles_list,
+            'permissions': permissions_list
+        }
+    }
 

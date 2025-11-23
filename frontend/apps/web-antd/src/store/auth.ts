@@ -36,31 +36,24 @@ export const useAuthStore = defineStore('auth', () => {
         password: params.password,
       };
 
-      console.log('[Auth] Requesting login api...');
-      // Change destructuring to variable assignment to debug response
       const response = await loginApi(cleanParams);
-      console.log('[Auth] Raw API Response:', response);
 
       // Handle both { access_token: ... } and { data: { access_token: ... } } just in case
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const access_token = (response as any).access_token || (response as any).data?.access_token;
 
-      console.log('[Auth] Extracted Access Token:', access_token);
 
       if (access_token) {
         accessStore.setAccessToken(access_token);
 
-        console.log('[Auth] Fetching user info...');
-        const [fetchUserInfoResult, accessCodes] = await Promise.all([
-          fetchUserInfo(),
-          Promise.resolve([] as string[]), 
-        ]);
-        console.log('[Auth] User info fetched:', fetchUserInfoResult);
-
-        userInfo = fetchUserInfoResult;
+        userInfo = await fetchUserInfo();
         
         const roles = userInfo.roles || [];
-        accessStore.setAccessCodes(roles);
+        // Combine roles and permissions into access codes
+        const permissions = (userInfo as any).permissions || [];
+        const accessCodes = [...roles, ...permissions];
+        
+        accessStore.setAccessCodes(accessCodes);
 
         userStore.setUserInfo(userInfo);
 

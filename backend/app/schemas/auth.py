@@ -8,19 +8,21 @@ class LoginInput(Schema):
     )
     password = String(
         required=True,
-        metadata={'description': '密码', 'example': 'admin123'}
+        metadata={'description': '密码', 'example': 'password'}
     )
 
 class TokenOutput(Schema):
     access_token = String(metadata={'description': 'JWT 访问令牌 (用于 Authorization 头)', 'example': 'eyJhbG...'})
     refresh_token = String(metadata={'description': 'JWT 刷新令牌 (用于获取新 Access Token)', 'example': 'eyJhbG...'})
     username = String(metadata={'description': '当前用户名', 'example': 'admin'})
+    nickname = String(metadata={'description': '用户昵称', 'example': '管理员'})
     roles = List(String(), metadata={'description': '用户角色列表', 'example': ['admin', 'editor']})
     permissions = List(String(), metadata={'description': '用户权限列表', 'example': ['product:create', 'product:delete']})
 
 class UserBaseSchema(Schema):
     id = Integer(dump_only=True, metadata={'description': '用户ID'})
     username = String(required=True, metadata={'description': '用户名'})
+    nickname = String(metadata={'description': '昵称', 'example': '张三'})
     email = String(required=True, metadata={'description': '邮箱地址'})
     is_active = Boolean(metadata={'description': '账号是否启用'})
     # attribute='role_names' tells marshmallow to use user.role_names property instead of user.roles
