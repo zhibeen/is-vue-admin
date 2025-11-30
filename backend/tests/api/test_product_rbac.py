@@ -14,7 +14,7 @@ def test_create_product_permission_denied(client, db_session):
         'username': 'guest',
         'password': 'password'
     })
-    token = login_resp.json['access_token']
+    token = login_resp.json['data']['access_token']
     headers = {'Authorization': f'Bearer {token}'}
     
     # 3. Attempt to create product
@@ -45,7 +45,7 @@ def test_create_product_permission_granted(client, db_session):
         'username': 'creator',
         'password': 'password'
     })
-    headers = {'Authorization': f'Bearer {login_resp.json["access_token"]}'}
+    headers = {'Authorization': f'Bearer {login_resp.json["data"]["access_token"]}'}
     
     # 4. Create Product
     payload = {
@@ -56,5 +56,10 @@ def test_create_product_permission_granted(client, db_session):
     response = client.post('/api/v1/products', json=payload, headers=headers)
     
     assert response.status_code == 201
-    assert response.json['name'] == 'Legit Item'
-
+    # Fix: check response structure
+    # Assuming create_product returns {'data': product}
+    # And if ProductSchema dumps flat, response.json['data'] is the product.
+    # But wait, check routes.py for product create.
+    # return {'data': product}
+    # So response.json['data']['name'] should be 'Legit Item'
+    assert response.json['data']['name'] == 'Legit Item'

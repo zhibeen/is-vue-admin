@@ -17,3 +17,9 @@ pytest-cov
 # Async Task Queue
 celery
 redis
+
+# PDF Generation
+WeasyPrint
+
+# Excel Generation
+openpyxl

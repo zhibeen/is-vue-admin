@@ -2,7 +2,7 @@ from apiflask import APIBlueprint, abort
 from sqlalchemy import select
 from app.extensions import db
 from app.models.category import Category, AttributeDefinition, CategoryAttribute
-from app.schemas.product import CategoryTreeSchema, CategoryDetailSchema, AttributeDefinitionSchema, CategoryBaseSchema
+from app.schemas.product.category import CategoryTreeSchema, CategoryDetailSchema, AttributeDefinitionSchema, CategoryBaseSchema
 from app.security import auth
 from app.decorators import permission_required
 

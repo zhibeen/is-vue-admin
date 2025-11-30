@@ -1,5 +1,5 @@
 from apiflask import APIBlueprint
-from app.schemas.product import ProductCreateSchema, ProductOutSchema
+from app.schemas.product.product import ProductCreateSchema, ProductOutSchema
 from app.schemas.pagination import make_pagination_schema, PaginationQuerySchema
 from app.services.product_service import ProductService
 from app.security import auth

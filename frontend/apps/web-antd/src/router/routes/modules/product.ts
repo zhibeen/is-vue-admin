@@ -39,6 +39,15 @@ const routes: RouteRecordRaw[] = [
           title: '车型辅助目录',
         },
       },
+      {
+        name: 'HSCodeManagement',
+        path: 'hscode',
+        component: () => import('#/views/product/hscode/index.vue'),
+        meta: {
+          icon: 'lucide:book',
+          title: 'HS编码库',
+        },
+      },
     ],
   },
 ];

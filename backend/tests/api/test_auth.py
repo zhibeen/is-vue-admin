@@ -13,7 +13,8 @@ def test_login_success(client, db_session):
     })
     
     assert response.status_code == 200
-    data = response.json
+    # Fix: Response is {code: 0, data: {access_token: ...}, message: success}
+    data = response.json['data']
     assert 'access_token' in data
     assert 'refresh_token' in data
     assert data['username'] == 'tester'
@@ -43,16 +44,15 @@ def test_me_with_permissions(client, db_session):
         'username': 'manager',
         'password': 'password'
     })
-    token = login_resp.json['access_token']
+    token = login_resp.json['data']['access_token']
     headers = {'Authorization': f'Bearer {token}'}
     
     # 3. Call /me
     response = client.get('/api/v1/auth/me', headers=headers)
     
     assert response.status_code == 200
-    data = response.json
+    data = response.json['data']
     assert data['username'] == 'manager'
     assert 'manager' in data['roles']
     assert 'product:read' in data['permissions']
     assert 'product:write' in data['permissions']
-

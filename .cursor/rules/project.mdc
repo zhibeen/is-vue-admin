@@ -1,0 +1,534 @@
+---
+alwaysApply: true
+---
+
+# IS-Vue-Admin 项目开发规范
+
+## 项目架构概览
+
+这是一个基于 **前后端分离** 的企业级中后台管理系统，采用 Monorepo 架构。
+
+### 技术栈
+- **前端**: Vben Admin 5.0 (Vue 3 + TypeScript + Ant Design Vue + Vite + Pinia)
+- **后端**: Python 3.10+ + APIFlask + SQLAlchemy 2.0 + PostgreSQL
+- **认证**: JWT (Bearer Token)
+- **异步任务**: Celery + Redis
+- **部署**: Docker + Docker Compose
+
+### 统一响应格式
+所有 API 响应遵循统一格式：
+```json
+{
+  "code": 0,           // 0=成功, 非0=失败
+  "message": "success",
+  "data": {}           // 业务数据
+}
+```
+
+---
+
+## 后端开发规范 (Backend)
+
+### 1. 代码组织原则
+
+#### 1.1 分层架构 (强制)
+```
+routes.py (路由层)
+  ↓ 仅负责: 参数解析、调用Service、返回响应
+services/*.py (业务逻辑层)
+  ↓ 负责: 业务逻辑、数据库操作、异常抛出
+models/*.py (数据模型层)
+  ↓ SQLAlchemy 2.0 Mapped Class
+```
+
+**严禁在 routes.py 中编写复杂业务逻辑！**
+
+#### 1.2 目录结构
+```
+backend/app/
+├── __init__.py          # App 工厂函数
+├── api/                 # API 路由 (按业务模块拆分)
+│   ├── __init__.py      # 注册 api_v1 Blueprint
+│   ├── auth/            # 认证模块
+│   └── product/         # 产品模块
+├── models/              # SQLAlchemy Models
+├── services/            # 业务逻辑层
+├── schemas/             # Marshmallow/APIFlask Schemas
+├── extensions.py        # 扩展实例 (db, jwt)
+├── security.py          # 认证回调
+├── errors.py            # 统一异常类
+└── decorators.py        # 权限装饰器
+```
+
+### 2. API 开发规范
+
+#### 2.1 视图编写 (推荐 MethodView)
+
+**使用 Class-Based Views + MethodView**:
+
+```python
+from apiflask import APIBlueprint
+from apiflask.views import MethodView
+from app.security import auth
+
+bp = APIBlueprint('demo', __name__, url_prefix='/demo', tag='Demo资源')
+
+class DemoListAPI(MethodView):
+    decorators = [bp.auth_required(auth)]  # 统一认证
+    
+    @bp.doc(summary='获取列表', description='获取Demo资源列表')
+    @bp.output(DemoSchema(many=True))
+    def get(self):
+        """列表查询"""
+        return []  # 直接返回列表
+    
+    @bp.doc(summary='创建资源')
+    @bp.input(DemoSchema, arg_name='data')  # 显式指定参数名
+    @bp.output(DemoSchema, status_code=201)
+    def post(self, data):  # 参数名与 arg_name 一致
+        """创建资源"""
+        return model_instance  # 直接返回 Model 对象
+
+class DemoItemAPI(MethodView):
+    decorators = [bp.auth_required(auth)]
+    
+    @bp.doc(summary='删除资源')
+    def delete(self, item_id):
+        """删除资源"""
+        return None  # 返回 None，框架生成标准响应
+```
+
+#### 2.2 返回值规范 (重要!)
+
+后端已启用全局 `BASE_RESPONSE_SCHEMA`，**必须遵循以下规范**：
+
+1. **返回字典 (Dict)**: 必须手动包装在 `data` 键中
+   ```python
+   return {'data': {'token': '...'}}  # ✅ 正确
+   return {'token': '...'}            # ❌ 错误 - 会导致 500
+   ```
+
+2. **返回模型对象 (Model)**: 直接返回，无需包装
+   ```python
+   return user_model  # ✅ 框架自动序列化
+   ```
+
+3. **返回列表 (List)**: 必须手动包装在 `data` 键中 (为了兼容 APIFlask 和前端 Vben)
+   ```python
+   return {'data': [item1, item2]}  # ✅ 推荐做法
+   ```
+
+4. **删除/无内容**: 返回 `None` (200 OK)
+   ```python
+   return None  # ✅ 生成 {code: 0, data: null}
+   # 避免: return '', 204  # ❌ 前端收不到 JSON
+   ```
+
+#### 2.3 Schema 定义规范
+
+**所有字段必须包含 metadata**:
+
+```python
+from apiflask import Schema
+from apiflask.fields import String, Integer
+
+class ProductSchema(Schema):
+    name = String(
+        required=True,
+        metadata={
+            'description': '商品名称',
+            'example': 'iPhone 15'
+        }
+    )
+    price = Integer(
+        metadata={
+            'description': '价格(分)',
+            'example': 999900
+        }
+    )
+```
+
+#### 2.4 文档注释 (强制)
+
+**所有 API 方法必须使用 `@doc` 装饰器**:
+
+```python
+@bp.doc(
+    summary='获取商品列表',  # 简短标题
+    description='支持分页和关键词搜索，返回商品基本信息'  # 详细说明
+)
+```
+
+### 3. 数据库开发规范
+
+#### 3.1 ORM 写法 (SQLAlchemy 2.0)
+
+**使用 Mapped Class + mapped_column**:
+
+```python
+from sqlalchemy.orm import Mapped, mapped_column
+from app.extensions import db
+
+class Product(db.Model):
+    __tablename__ = 'products'
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(db.String(100))
+    price: Mapped[int] = mapped_column(db.Integer, nullable=True)
+```
+
+#### 3.2 查询优化 (防止 N+1)
+
+**严禁在循环中查询数据库！必须使用 Eager Loading**:
+
+```python
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload, joinedload
+
+# ✅ 正确: 预加载关联
+stmt = select(Product).options(
+    selectinload(Product.category),      # 一对多/多对多
+    joinedload(Product.supplier)         # 多对一/一对一
+)
+products = db.session.execute(stmt).scalars().all()
+
+# ❌ 错误: N+1 查询
+products = Product.query.all()
+for p in products:
+    print(p.category.name)  # 每次循环都查询数据库!
+```
+
+#### 3.3 数据迁移 (Alembic)
+
+**禁止手动修改数据库！所有变更必须通过 Alembic**:
+
+**注意**: 由于后端运行在 Docker 容器中，必须使用 `docker compose exec backend` 前缀来执行 flask 命令。
+
+```bash
+# 生成迁移文件
+docker compose exec backend flask db migrate -m "添加商品表"
+
+# 应用迁移
+docker compose exec backend flask db upgrade
+
+# 回滚
+docker compose exec backend flask db downgrade
+```
+
+### 4. 认证与权限
+
+#### 4.1 认证方式
+
+**使用 JWT Bearer Token**:
+
+```python
+from app.security import auth
+
+@bp.route('/protected')
+@bp.auth_required(auth)  # 需要认证
+def protected_route():
+    from flask_jwt_extended import get_jwt_identity
+    user_id = get_jwt_identity()
+    return {'user_id': user_id}
+```
+
+**重要**: HTTPTokenAuth 实例化时**严禁**指定 `header` 参数:
+```python
+# ✅ 正确
+auth = HTTPTokenAuth(scheme='Bearer')
+
+# ❌ 错误 - 会导致 Swagger UI 无法正确处理 Bearer 前缀
+auth = HTTPTokenAuth(scheme='Bearer', header='Authorization')
+```
+
+#### 4.2 权限控制 (RBAC)
+
+**使用装饰器进行权限检查**:
+
+```python
+from app.decorators import permission_required
+
+@bp.route('/products', methods=['POST'])
+@bp.auth_required(auth)
+@permission_required('product:create')  # 功能权限
+def create_product():
+    pass
+```
+
+### 5. 异常处理
+
+**使用统一异常类**:
+
+```python
+from app.errors import BusinessError
+
+def create_product(data):
+    if Product.query.filter_by(name=data['name']).first():
+        raise BusinessError('商品名称已存在', code=400)
+    # 业务逻辑...
+```
+
+**禁止在视图层随意 `abort` 且不记录日志！**
+
+### 6. 分页与搜索
+
+**列表接口必须支持分页**:
+
+```python
+from app.schemas.pagination import PaginationQuerySchema, PaginationSchema
+
+@bp.input(PaginationQuerySchema, location='query', arg_name='pagination')
+@bp.output(PaginationSchema)
+def get_list(pagination):
+    page = pagination['page']
+    per_page = pagination['per_page']
+    q = pagination.get('q')  # 搜索关键词
+    # 实现分页逻辑...
+```
+
+### 7. 日志规范
+
+**使用结构化日志**:
+
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+
+# ✅ 使用 extra 传递结构化数据
+logger.info('用户登录成功', extra={
+    'user_id': user.id,
+    'ip': request.remote_addr
+})
+
+# ❌ 避免字符串拼接
+logger.info(f'用户 {user.id} 登录成功')
+```
+
+---
+
+## 前端开发规范 (Frontend)
+
+### 1. 项目结构
+
+```
+frontend/
+├── apps/
+│   └── web-antd/          # 主应用
+│       ├── src/
+│       │   ├── api/       # API 接口定义
+│       │   ├── views/     # 页面组件
+│       │   ├── router/    # 路由配置
+│       │   └── store/     # Pinia 状态管理
+└── packages/              # 共享包
+```
+
+### 2. 技术栈
+
+- **框架**: Vue 3 + TypeScript
+- **UI 库**: Ant Design Vue (Vben Admin 深度集成)
+- **状态管理**: Pinia
+- **构建工具**: Vite
+- **包管理器**: pnpm (version >= 9)
+
+### 3. API 调用规范
+
+**基于 OpenAPI 自动生成 TypeScript 接口**:
+
+```typescript
+// src/api/serc/product.ts
+import { request } from '@vben/request';
+
+export interface Product {
+  id: number;
+  name: string;
+  price: number;
+}
+
+export function getProductList(params: { page: number; per_page: number }) {
+  return request<{ items: Product[]; total: number }>({
+    url: '/api/v1/products',
+    method: 'GET',
+    params,
+  });
+}
+```
+
+### 4. 权限控制
+
+**使用 `v-auth` 指令**:
+
+```vue
+<template>
+  <a-button v-auth="'product:create'" @click="handleCreate">
+    新建商品
+  </a-button>
+</template>
+```
+
+### 5. Vben Admin 5 表格使用规范 (Grid & Table)
+
+为避免 `proxyConfig` 的黑盒问题，推荐使用 **手动控制模式**。
+
+**标准模板 (Standard Pattern)**:
+
+```vue
+<script setup lang="ts">
+import { useVbenVxeGrid, type VxeGridProps } from '#/adapter/vxe-table';
+import { getListApi } from '#/api/demo';
+import { onMounted } from 'vue';
+
+// 1. 定义 Grid Options
+const gridOptions: VxeGridProps = {
+  columns: [
+    { field: 'id', title: 'ID', width: 80 },
+    { field: 'name', title: 'Name' },
+  ],
+  data: [], // 初始空数据
+  pagerConfig: {
+    enabled: true, // 如果后端支持分页
+  },
+  toolbarConfig: {
+    refresh: { code: 'query' }, // 绑定刷新按钮
+  },
+};
+
+// 2. 初始化 Grid
+const [Grid, gridApi] = useVbenVxeGrid({ 
+  gridOptions,
+  gridEvents: {
+    toolbarToolClick: (params) => {
+      if (params.code === 'query') loadData();
+    }
+  }
+});
+
+// 3. 数据加载函数
+async function loadData() {
+  try {
+    gridApi.setLoading(true);
+    const res = await getListApi();
+    // 显式更新 Grid 数据
+    gridApi.setGridOptions({ data: res });
+  } catch (e) {
+    console.error(e);
+  } finally {
+    gridApi.setLoading(false);
+  }
+}
+
+// 4. 挂载时触发
+onMounted(() => {
+  loadData();
+});
+</script>
+
+<template>
+  <div class="p-4">
+    <Grid />
+  </div>
+</template>
+```
+
+**关键点**:
+1.  **引入 Adapter**: 使用 `#/adapter/vxe-table`。
+2.  **手动加载**: 使用 `loadData` 函数 + `gridApi.setGridOptions({ data })`。
+3.  **生命周期**: 在 `onMounted` 中显式调用 `loadData()`。
+4.  **刷新绑定**: 通过 `gridEvents.toolbarToolClick` 绑定刷新按钮。
+
+---
+
+## 开发环境配置
+
+### 1. 数据库连接
+
+- **Host**: `pgm-bp14ze6w2u23d65bco.pg.rds.aliyuncs.com`
+- **User**: `zhibeen`
+- **Password**: `Eade2025+`
+- **Database**: PostgreSQL 15+
+
+### 2. 默认账号
+
+- **用户名**: `admin`
+- **密码**: `password`
+- **角色**: 管理员
+
+### 3. 启动方式
+
+**后端 (Docker)**:
+```bash
+cd backend
+docker compose up -d
+```
+
+**后端命令执行 (重要)**:
+由于使用 Docker Compose，所有 Flask 命令必须在容器内执行：
+```bash
+# 示例
+docker compose exec backend flask routes
+docker compose exec backend flask shell
+```
+
+**前端 (本地 Node)**:
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+---
+
+## 代码质量要求
+
+### 1. 后端
+
+- **格式化**: 使用 Ruff
+- **类型提示**: 所有函数必须有类型注解
+- **文档字符串**: 复杂函数必须有 docstring
+- **代码注释**: 关键业务逻辑必须添加行内注释，解释"为什么这样做"
+
+### 2. 前端
+
+- **格式化**: ESLint + Prettier
+- **类型安全**: 严格模式 TypeScript
+- **组件规范**: 使用 `<script setup>` 语法
+- **代码注释**: 
+    - 组件顶部需注释组件用途
+    - 复杂函数/逻辑需添加注释
+    - 接口调用处需简要说明
+
+---
+
+## 重要提醒
+
+1. **数据迁移**: 所有数据库变更必须通过 Alembic，且必须使用 `docker compose exec backend flask ...` 执行，禁止手动修改
+2. **返回值规范**: 注意 BASE_RESPONSE_SCHEMA 的返回值包装规则，List 必须包装在 `data` 中。
+3. **N+1 查询**: 使用 selectinload/joinedload 预加载关联
+4. **权限控制**: 敏感操作必须添加权限检查
+5. **异常处理**: 使用 BusinessError 统一抛出业务异常
+6. **API 文档**: 所有接口必须有 @doc 装饰器和完整的 metadata
+
+---
+
+## 架构演进状态
+
+### 已实装
+- ✅ JWT 认证
+- ✅ RBAC 权限控制
+- ✅ 数据权限 (4层结构)
+- ✅ 字段权限 (列级控制)
+- ✅ 结构化日志 (JSON + 文件轮转)
+- ✅ Celery 异步任务
+- ✅ 自动化测试 (pytest + factory_boy)
+
+### 待实施 (按需启用)
+- ⏳ API 限流 (Flask-Limiter) - 日调用量 >10万 时启用
+- ⏳ 软删除 (SoftDeleteMixin) - 正式运营后启用
+- ⏳ Pre-commit Hooks - 团队 ≥2人 时启用
+- ⏳ 全链路追踪 - 微服务化后启用
+
+---
+
+## 参考文档
+
+完整技术框架说明请查看: `开发设计文档/技术框架.md`

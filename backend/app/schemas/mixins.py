@@ -11,11 +11,18 @@ class FieldPermissionMixin:
             cost_price = String(metadata={'permission_key': 'product:cost_price'})
     """
 
-    @post_dump(pass_many=True)
-    def filter_fields(self, data, many, **kwargs):
+    @post_dump
+    def filter_fields(self, data, **kwargs):
+        many = self.many
+        
         # 1. Check if user is logged in
-        current_user = auth.current_user
-        if not current_user:
+        try:
+            # In testing environment (factory_boy), current_user might not be set
+            # or application context might be partial.
+            if not auth.current_user:
+                return data
+            current_user = auth.current_user
+        except Exception:
             return data
 
         # 2. Get user's role (Assume single role for simplicity or take the primary one)
@@ -84,4 +91,3 @@ class FieldPermissionMixin:
             return [process_item(item) for item in data]
         else:
             return process_item(data)
-

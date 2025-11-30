@@ -52,6 +52,11 @@ class Product(db.Model):
     # Structure: {"voltage": "12V", "lens_color": "Clear"}
     attributes: Mapped[Dict[str, Any]] = mapped_column(JSONB, default={})
     
+    # SERC Fields (Tax & Compliance)
+    declared_name: Mapped[Optional[str]] = mapped_column(String(200))
+    declared_unit: Mapped[Optional[str]] = mapped_column(String(20))
+    hs_code_id: Mapped[Optional[int]] = mapped_column(ForeignKey("sys_hs_codes.id"))
+
     # Search & Meta
     full_text_description: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
@@ -60,6 +65,7 @@ class Product(db.Model):
     # Relationships
     category: Mapped["Category"] = relationship("Category", back_populates="products")
     fitments: Mapped[List["ProductFitment"]] = relationship(backref="product", cascade="all, delete-orphan")
+    hs_code: Mapped["SysHSCode"] = relationship("SysHSCode")
     
     # Self-referential relationship for Variants
     variants: Mapped[List["Product"]] = relationship("Product", 

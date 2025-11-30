@@ -5,6 +5,10 @@ from app.models.user import User, Role, Permission
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.types import JSON
 import sqlalchemy.dialects.sqlite
+from tests.factories import (
+    UserFactory, RoleFactory, PermissionFactory, 
+    SysSupplierFactory, ProductFactory, CategoryFactory
+)
 
 # Monkey-patch JSONB for SQLite
 sqlalchemy.dialects.sqlite.base.SQLiteDialect.supports_json = True
@@ -121,3 +125,10 @@ def token_headers(client, admin_user):
         'Authorization': f'Bearer {token}'
     }
 
+@pytest.fixture
+def supplier_factory():
+    return SysSupplierFactory
+
+@pytest.fixture
+def product_factory():
+    return ProductFactory

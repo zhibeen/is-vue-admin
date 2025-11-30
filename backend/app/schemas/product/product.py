@@ -1,6 +1,6 @@
 from apiflask import Schema
 from apiflask.fields import Integer, String, List, Boolean, Nested, DateTime, Dict
-from .mixins import FieldPermissionMixin
+from app.schemas.mixins import FieldPermissionMixin
 
 # --- Product Schemas ---
 
@@ -28,6 +28,15 @@ class ProductBaseSchema(Schema):
         'description': '默认供应商信息'
     })
 
+class ProductCreateSchema(ProductBaseSchema):
+    # 用于创建时的 Schema，可能需要额外的验证
+    pass
+
 class ProductSchema(FieldPermissionMixin, ProductBaseSchema):
     id = Integer()
     created_at = DateTime()
+
+class ProductOutSchema(ProductSchema):
+    # 输出 Schema 别名
+    pass
+

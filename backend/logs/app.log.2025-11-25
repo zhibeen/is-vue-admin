@@ -1,0 +1,1 @@
+{"timestamp": "2025-11-26T00:00:18.677838Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/models/serc/foundation.py', reloading", "logger": "werkzeug"}

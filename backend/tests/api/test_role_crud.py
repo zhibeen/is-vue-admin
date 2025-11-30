@@ -49,10 +49,11 @@ def test_delete_role(client, admin_user, token_headers, db_session):
     
     role_id = role.id # Store ID before delete
     response = client.delete(f'/api/v1/system/roles/{role_id}', headers=token_headers)
-    assert response.status_code == 204
+    # 2025-11-27 Fix: API returns 200 OK with null data, not 204 No Content
+    # Reference: BaseResponse schema behavior
+    assert response.status_code == 200
     
     # Verify deletion
     # Need to expire/refresh session or query anew
     db_session.expire_all()
     assert db_session.get(Role, role_id) is None
-

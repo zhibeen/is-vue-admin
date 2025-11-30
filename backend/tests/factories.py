@@ -4,6 +4,9 @@ from app.models.user import User, Role, Permission
 from app.models.product import Product
 from app.models.category import Category
 from app.models.vehicle import VehicleAux
+from app.models.purchase.supplier import SysSupplier
+from app.models.supply.delivery import ScmDeliveryContract, ScmDeliveryContractItem, ScmSourceDoc
+from app.models.serc.enums import ContractStatus, SourceDocType
 
 class PermissionFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
@@ -79,3 +82,65 @@ class VehicleAuxFactory(factory.alchemy.SQLAlchemyModelFactory):
     level_type = 'brand'
     code = factory.Sequence(lambda n: f'V{n}')
 
+# --- SERC Factories ---
+
+class SysSupplierFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = SysSupplier
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = 'commit'
+    
+    code = factory.Sequence(lambda n: f'SUP-{n:03d}')
+    name = factory.Sequence(lambda n: f'Supplier_{n}')
+    short_name = factory.Sequence(lambda n: f'SUP_{n}')
+    supplier_type = 'manufacturer'
+    status = 'active'
+    currency = 'CNY'
+    contacts = []
+    bank_accounts = []
+    tags = []
+
+class ProductFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = Product
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = 'commit'
+
+    name = factory.Sequence(lambda n: f'Product_{n}')
+    sku = factory.Sequence(lambda n: f'SKU-{n}')
+    category = factory.SubFactory(CategoryFactory)
+
+class ScmSourceDocFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = ScmSourceDoc
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = 'commit'
+    
+    doc_no = factory.Sequence(lambda n: f'VGRN-{n}')
+    type = SourceDocType.GRN_STOCK.value
+    event_date = factory.Faker('date_object')
+    supplier = factory.SubFactory(SysSupplierFactory)
+
+class ScmDeliveryContractFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = ScmDeliveryContract
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = 'commit'
+
+    contract_no = factory.Sequence(lambda n: f'L1-{n}')
+    supplier = factory.SubFactory(SysSupplierFactory)
+    source_doc = factory.SubFactory(ScmSourceDocFactory)
+    status = ContractStatus.PENDING.value
+    total_amount = 0
+
+class ScmDeliveryContractItemFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = ScmDeliveryContractItem
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = 'commit'
+    
+    contract = factory.SubFactory(ScmDeliveryContractFactory)
+    product = factory.SubFactory(ProductFactory)
+    confirmed_qty = 10
+    unit_price = 100
+    total_price = 1000

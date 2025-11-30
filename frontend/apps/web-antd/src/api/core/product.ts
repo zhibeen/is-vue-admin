@@ -1,5 +1,37 @@
 import { requestClient } from '#/api/request';
 
+export interface Product {
+  id: number;
+  name: string;
+  sku: string;
+  category_id: number;
+  category_name?: string;
+  price?: number;
+  // SERC fields
+  declared_name?: string;
+  declared_unit?: string;
+  hs_code_id?: number;
+}
+
+export interface ProductSearchParams {
+  page?: number;
+  per_page?: number;
+  q?: string;
+  category_id?: number;
+}
+
+enum Api {
+  Products = '/v1/products',
+}
+
+export const getProductList = (params?: ProductSearchParams) => {
+  return requestClient.get<{ items: Product[]; total: number; page: number; per_page: number }>(
+    Api.Products,
+    { params }
+  );
+};
+
+// ... existing core exports ...
 export interface Category {
   id: string;
   parentId: string | null;
@@ -8,6 +40,12 @@ export interface Category {
   isLeaf: boolean;
   children?: Category[];
 }
+// ... (keep other exports as they were, I will just append the new one at the top or merge properly)
+// Wait, the user wants to USE existing product API if it exists.
+// I see getCategoriesApi but not getProductList in the file I read.
+// So I need to ADD getProductList to this file or creating a new one.
+// The file is named 'frontend/apps/web-antd/src/api/core/product.ts'.
+// I will append the new API definition to it.
 
 export interface Brand {
   id: string;

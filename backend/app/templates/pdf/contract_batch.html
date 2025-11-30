@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>交付合同</title>
+    <style>
+        @page { 
+            size: A4; 
+            margin: 2cm; 
+            @bottom-center {
+                content: "第 " counter(page) " 页";
+                font-size: 10px;
+                color: #666;
+            }
+        }
+        body { 
+            /* 优先使用系统安装的中文字体 */
+            font-family: "WenQuanYi Micro Hei", "Droid Sans Fallback", sans-serif;
+            font-size: 12px; 
+            line-height: 1.5;
+            color: #000;
+        }
+        .page-break { page-break-before: always; }
+        
+        .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+        .title { 
+            font-size: 24px; 
+            font-weight: bold; 
+            letter-spacing: 5px;
+        }
+        
+        .section-box {
+            border: 1px solid #000;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        /* Grid Layout using Table for PDF compatibility */
+        .layout-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .layout-table td {
+            vertical-align: top;
+        }
+        
+        .label { color: #555; display: inline-block; width: 70px; }
+        
+        table.items { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 20px; 
+            border: 1px solid #000;
+        }
+        table.items th, table.items td { 
+            border: 1px solid #000; 
+            padding: 8px; 
+            text-align: center; 
+            font-size: 11px;
+        }
+        table.items th { background-color: #f0f0f0; }
+        
+        .total-row { 
+            text-align: right; 
+            font-weight: bold; 
+            font-size: 14px; 
+            margin-bottom: 40px;
+        }
+
+        .signatures {
+            width: 100%;
+            margin-top: 50px;
+        }
+        .sign-box {
+            width: 45%;
+            display: inline-block;
+            vertical-align: top;
+        }
+        .sign-line {
+            border-bottom: 1px solid #000;
+            margin-top: 50px;
+            margin-bottom: 10px;
+            width: 90%;
+        }
+    </style>
+</head>
+<body>
+    {% for contract in contracts %}
+    <div class="{{ 'page-break' if not loop.first else '' }}">
+        
+        <div class="header">
+            <div class="title">采购交付合同</div>
+            <div style="text-align: right; font-size: 12px; font-weight: normal; margin-top: 10px;">
+                合同编号：<strong>{{ contract.contract_no }}</strong>
+            </div>
+        </div>
+
+        <!-- 供需双方 -->
+        <div class="section-box">
+            <table class="layout-table">
+                <tr>
+                    <td width="50%" style="padding-right: 20px; border-right: 1px solid #ddd;">
+                        <div style="font-weight: bold; margin-bottom: 10px; font-size: 14px;">甲方 (采购方)</div>
+                        <div style="margin-bottom: 5px;"><span class="label">单位名称：</span><strong>{{ contract.company.legal_name if contract.company else '—' }}</strong></div>
+                        <div style="margin-bottom: 5px;"><span class="label">地址：</span>{{ contract.company.registered_address or '—' }}</div>
+                        <div style="margin-bottom: 5px;"><span class="label">联系人：</span>{{ contract.company.contact_person or '—' }}</div>
+                        <div><span class="label">电话：</span>{{ contract.company.contact_phone or '—' }}</div>
+                    </td>
+                    <td width="50%" style="padding-left: 20px;">
+                        <div style="font-weight: bold; margin-bottom: 10px; font-size: 14px;">乙方 (供应商)</div>
+                        <div style="margin-bottom: 5px;"><span class="label">单位名称：</span><strong>{{ contract.supplier.name }}</strong></div>
+                        <div style="margin-bottom: 5px;"><span class="label">联系人：</span>{{ contract.supplier.primary_contact or '—' }}</div>
+                        <div style="margin-bottom: 5px;"><span class="label">电话：</span>{{ contract.supplier.primary_phone or '—' }}</div>
+                        <div><span class="label">付款方式：</span>{{ contract.supplier.payment_terms or '—' }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 交付信息 -->
+        <div class="section-box" style="background-color: #fcfcfc;">
+            <div style="font-weight: bold; margin-bottom: 10px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">交付要求</div>
+            <table class="layout-table">
+                <tr>
+                    <td><span class="label">业务日期：</span>{{ contract.source_doc.event_date }}</td>
+                    <td><span class="label">送货日期：</span>{{ contract.delivery_date or '—' }}</td>
+                    <td><span class="label">交付地点：</span>{{ contract.delivery_address or '—' }}</td>
+                </tr>
+            </table>
+            {% if contract.notes %}
+            <div style="margin-top: 10px; border-top: 1px dashed #ddd; padding-top: 5px;">
+                <span class="label">合同备注：</span>{{ contract.notes }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 明细表 -->
+        <table class="items">
+            <thead>
+                <tr>
+                    <th width="40">序号</th>
+                    <th>商品名称 / 规格 (SKU)</th>
+                    <th width="60">单位</th>
+                    <th width="80">数量</th>
+                    <th width="100">含税单价 ({{ contract.currency }})</th>
+                    <th width="100">金额 ({{ contract.currency }})</th>
+                    <th width="100">备注</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in contract.items %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td style="text-align: left;">
+                        <div style="font-weight: bold;">{{ item.product.name }}</div>
+                        {% if item.product.sku %}<div style="color: #666; font-size: 10px;">{{ item.product.sku }}</div>{% endif %}
+                    </td>
+                    <td>{{ item.product.declared_unit or '—' }}</td>
+                    <td>{{ "{:,.0f}".format(item.confirmed_qty) }}</td>
+                    <td style="text-align: right;">{{ "{:,.2f}".format(item.unit_price) }}</td>
+                    <td style="text-align: right;">{{ "{:,.2f}".format(item.total_price) }}</td>
+                    <td style="text-align: left;">{{ item.notes or '' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- 合计 -->
+        <div class="total-row">
+            <div>合同总额 (Total)：{{ contract.currency }} {{ "{:,.2f}".format(contract.total_amount) }}</div>
+            <div style="font-size: 12px; font-weight: normal; margin-top: 5px; color: #666;">(大写金额请财务核对)</div>
+        </div>
+
+        <!-- 签字栏 (增强版) -->
+        <div class="footer-signatures" style="margin-top: 40px; border: 1px solid #000; padding: 10px;">
+            <div style="font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">现场交接签字 (Handover Signatures)</div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 33%; vertical-align: top; padding: 10px; border-right: 1px dashed #999;">
+                        <div style="font-weight: bold; margin-bottom: 30px;">送货方代表 (Supplier):</div>
+                        <div style="border-bottom: 1px solid #000; margin-bottom: 10px; width: 80%;"></div>
+                        <div style="font-size: 11px;">日期 (Date): _____________</div>
+                    </td>
+                    <td style="width: 33%; vertical-align: top; padding: 10px; border-right: 1px dashed #999;">
+                        <div style="font-weight: bold; margin-bottom: 30px;">收货方代表 (Receiver):</div>
+                        <div style="border-bottom: 1px solid #000; margin-bottom: 10px; width: 80%;"></div>
+                        <div style="font-size: 11px;">日期 (Date): _____________</div>
+                    </td>
+                    <td style="width: 33%; vertical-align: top; padding: 10px;">
+                        <div style="font-weight: bold; margin-bottom: 10px;">质检结果 (QC Result):</div>
+                        <div style="margin-bottom: 20px;">
+                            <span style="border: 1px solid #000; display: inline-block; width: 12px; height: 12px; margin-right: 5px;"></span>合格
+                            <span style="border: 1px solid #000; display: inline-block; width: 12px; height: 12px; margin-left: 10px; margin-right: 5px;"></span>不合格
+                        </div>
+                        <div style="font-size: 11px;">质检员签字: ________________</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+    {% endfor %}
+</body>
+</html>

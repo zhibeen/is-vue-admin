@@ -18,10 +18,20 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels gunicorn
 FROM python:3.10-slim
 
 WORKDIR /app
+ENV PYTHONPATH=/app
 
-# Install runtime dependencies (libpq for postgres)
+# Install runtime dependencies (libpq for postgres, and WeasyPrint deps)
+# Corrected package names for Debian
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
+    libcairo2 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf-2.0-0 \
+    libffi-dev \
+    shared-mime-info \
+    fonts-wqy-microhei \
+    fonts-wqy-zenhei \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy wheels from builder

@@ -30,6 +30,14 @@ const routes: RouteRecordRaw[] = [
           title: '角色管理',
         },
       },
+      {
+        name: 'CompanyManagement',
+        path: 'company',
+        component: () => import('#/views/system/company/index.vue'),
+        meta: {
+          title: '采购主体',
+        },
+      },
     ],
   },
 ];
