@@ -199,3 +199,11 @@ class HSCodeSimpleSchema(Schema):
     code = String()
     name = String()
     refund_rate = Decimal(places=4)
+
+class TaxCategorySchema(Schema):
+    id = Integer()
+    code = String()
+    name = String()
+    short_name = String()
+    description = String()
+    reference_rate = Decimal(places=4)

@@ -529,6 +529,24 @@ pnpm dev
 
 ---
 
+## 常用测试命令
+
+- **运行所有测试**:
+  ```bash
+  # 在 Docker 中运行 (推荐)
+  docker compose exec backend env PYTHONPATH=/app pytest
+  ```
+- **运行特定测试文件**:
+  ```bash
+  docker compose exec backend env PYTHONPATH=/app pytest tests/api/test_auth.py
+  ```
+- **查看覆盖率报告**:
+  ```bash
+  docker compose exec backend env PYTHONPATH=/app pytest --cov=app
+  ```
+
+---
+
 ## 参考文档
 
 完整技术框架说明请查看: `开发设计文档/技术框架.md`

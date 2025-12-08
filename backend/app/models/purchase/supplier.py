@@ -1,5 +1,6 @@
 from typing import Optional, List, Dict, Any, TYPE_CHECKING
-from sqlalchemy import String, DateTime, func, Text, Integer, ForeignKey
+from decimal import Decimal
+from sqlalchemy import String, DateTime, func, Text, Integer, ForeignKey, Numeric, DECIMAL
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.extensions import db
@@ -44,6 +45,10 @@ class SysSupplier(db.Model):
 
     payment_method: Mapped[Optional[str]] = mapped_column(String(50), comment='付款方式')
     
+    # 纳税人属性
+    taxpayer_type: Mapped[Optional[str]] = mapped_column(String(20), comment='纳税人类型: general(一般), small(小规模)')
+    default_vat_rate: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 4), comment='默认开票税率')
+    
     # 银行账户列表 [{"bank_name": "...", "account": "...", "currency": "..."}]
     bank_accounts: Mapped[List[Dict[str, Any]]] = mapped_column(JSONB, default=[], comment='银行账户')
 
@@ -75,4 +80,3 @@ class SysSupplier(db.Model):
 
     def __repr__(self):
         return f"<SysSupplier {self.name}>"
-

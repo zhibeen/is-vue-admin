@@ -38,6 +38,14 @@ const routes: RouteRecordRaw[] = [
           title: '采购主体',
         },
       },
+      {
+        name: 'DictManagement',
+        path: 'dict',
+        component: () => import('#/views/system/dict/index.vue'),
+        meta: {
+          title: '字典管理',
+        },
+      },
     ],
   },
 ];

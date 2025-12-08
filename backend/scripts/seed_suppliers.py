@@ -3,6 +3,7 @@
 """
 import random
 from faker import Faker
+from decimal import Decimal
 from app import create_app
 from app.extensions import db
 from app.models.purchase.supplier import SysSupplier
@@ -130,6 +131,12 @@ def seed_suppliers(count=50):
             status = random.choices(STATUSES, weights=[50, 20, 25, 5])[0]
             grade = random.choices(GRADES, weights=[10, 30, 40, 10, 10])[0]
         
+        # New Tax Fields Logic
+        taxpayer_type = random.choice(['general', 'small'])
+        default_vat_rate = Decimal('0.13') if taxpayer_type == 'general' else Decimal('0.03')
+        if random.random() < 0.1: # 10% chance of 0 or other rate
+            default_vat_rate = Decimal('0')
+
         supplier = SysSupplier(
             code=generate_supplier_code(i),
             name=name,
@@ -157,6 +164,10 @@ def seed_suppliers(count=50):
             payment_method=random.choice(['电汇', '信用证', '承兑汇票', '现金', '支票']),
             bank_accounts=generate_bank_accounts(),
             
+            # Tax Info
+            taxpayer_type=taxpayer_type,
+            default_vat_rate=default_vat_rate,
+
             # 运营参数
             lead_time_days=random.randint(7, 90),
             moq=f"{random.randint(100, 10000)} 件",
@@ -166,25 +177,37 @@ def seed_suppliers(count=50):
             tags=[random.choice(['优质', '长期合作', '新供应商', '重点关注', 'VIP'])] if random.random() > 0.3 else []
         )
         
-        suppliers.append(supplier)
+        
+        # 查找是否存在
+        existing = db.session.query(SysSupplier).filter_by(code=supplier.code).first()
+        if existing:
+            # 更新字段
+            existing.taxpayer_type = taxpayer_type
+            existing.default_vat_rate = default_vat_rate
+            # 也可以更新其他字段，但为了保留历史数据可能不动关键信息
+            # 这里简单处理：仅更新我们需要的税务字段
+        else:
+            suppliers.append(supplier)
         
         # 每10条打印一次进度
         if i % 10 == 0:
-            print(f"已生成 {i}/{count} 条数据...")
+            print(f"处理中 {i}/{count} ...")
     
-    # 批量插入
-    db.session.bulk_save_objects(suppliers)
+    # 批量插入新数据
+    if suppliers:
+        db.session.bulk_save_objects(suppliers)
+    
     db.session.commit()
-    print(f"✅ 成功生成 {count} 条虚拟供应商数据！")
+    print(f"✅ 成功同步 {count} 条虚拟供应商数据！")
 
 def main():
     """主函数"""
     app = create_app()
     with app.app_context():
-        # 清除旧数据
-        clear_suppliers()
+        # 不再清除旧数据，避免外键约束问题
+        # clear_suppliers()
         
-        # 生成新数据
+        # 生成/更新数据
         seed_suppliers(50)
 
 if __name__ == '__main__':

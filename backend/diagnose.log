@@ -1,0 +1,9 @@
+Starting diagnosis...
+[2025-12-02 06:42:10,587] INFO in logging_config: Logging configured successfully
+App created.
+Database URL Host: pgm-bp14ze6w2u23d65bco.pg.rds.aliyuncs.com:5432/is_admin_db
+Inspecting table...
+Current columns in sys_dictionaries: ['id', 'code', 'name', 'description', 'is_system', 'value_options']
+Column 'value_options' ALREADY EXISTS.
+Columns after operation: ['id', 'code', 'name', 'description', 'is_system', 'value_options']
+Diagnosis finished.

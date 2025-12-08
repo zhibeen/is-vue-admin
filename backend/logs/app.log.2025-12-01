@@ -1,0 +1,19 @@
+{"timestamp": "2025-12-02T01:13:50.623206Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/auth/me 401 0.0208s", "logger": "app"}
+{"timestamp": "2025-12-02T01:13:50.634702Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [02/Dec/2025 01:13:50] \"\u001b[31m\u001b[1mGET /api/v1/auth/me HTTP/1.1\u001b[0m\" 401 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-02T01:14:40.691055Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/auth/me 401 0.0069s", "logger": "app"}
+{"timestamp": "2025-12-02T01:14:40.696849Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [02/Dec/2025 01:14:40] \"\u001b[31m\u001b[1mGET /api/v1/auth/me HTTP/1.1\u001b[0m\" 401 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-02T01:49:15.141899Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "POST /api/v1/auth/login 200 0.6269s", "logger": "app"}
+{"timestamp": "2025-12-02T01:49:15.153621Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [02/Dec/2025 01:49:15] \"POST /api/v1/auth/login HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-02T01:49:15.225181Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/auth/me 200 0.0454s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-12-02T01:49:15.238577Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [02/Dec/2025 01:49:15] \"GET /api/v1/auth/me HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-02T01:49:19.042324Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/categories/tree 200 0.539s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-12-02T01:49:19.052499Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [02/Dec/2025 01:49:19] \"GET /api/v1/categories/tree HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-02T01:49:27.937547Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "PUT /api/v1/categories/7 200 0.1062s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-12-02T01:49:27.951796Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [02/Dec/2025 01:49:27] \"PUT /api/v1/categories/7 HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-02T01:49:28.404941Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/categories/tree 200 0.4008s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-12-02T01:49:28.419532Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [02/Dec/2025 01:49:28] \"GET /api/v1/categories/tree HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-02T01:49:34.278053Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/auth/me 200 0.0623s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-12-02T01:49:34.293650Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [02/Dec/2025 01:49:34] \"GET /api/v1/auth/me HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-02T01:49:36.305717Z", "level": "INFO", "module": "__init__", "function": "log_request", "message": "GET /api/v1/categories/tree 200 0.3979s", "logger": "app", "user_id": "1"}
+{"timestamp": "2025-12-02T01:49:36.315914Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [02/Dec/2025 01:49:36] \"GET /api/v1/categories/tree HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-02T02:10:20.638517Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/schemas/product/category.py', reloading", "logger": "werkzeug"}

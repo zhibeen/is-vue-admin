@@ -22,6 +22,14 @@ onMounted(async () => {
   try {
     const res = await getPaymentTerms();
     paymentTermOptions.value = res || [];
+    // Set default payment term (NET30)
+    const net30 = paymentTermOptions.value.find(term => term.code === 'NET30');
+    if (net30 && !isUpdate.value) {
+        formState.payment_term_id = net30.id;
+    }
+    if (!isUpdate.value && !formState.payment_method) {
+        formState.payment_method = 'T/T';
+    }
   } catch (e) {
     console.error('Failed to load payment terms', e);
   }
@@ -47,10 +55,13 @@ const formState = reactive<Partial<SysSupplier>>({
   tax_id: '',
   currency: 'CNY',
   payment_term_id: undefined,
-  payment_terms: '',
-  payment_method: '',
-  bank_accounts: [],
-  lead_time_days: undefined,
+    payment_terms: '',
+    payment_method: '',
+    bank_accounts: [],
+    // Added Tax fields
+    taxpayer_type: 'general',
+    default_vat_rate: 0.13,
+    lead_time_days: undefined,
   moq: '',
   notes: '',
   tags: []
@@ -61,7 +72,13 @@ const rules = {
   name: [{ required: true, message: '请输入供应商名称', trigger: 'blur' }],
   code: [{ required: true, message: '请输入供应商代码', trigger: 'blur' }],
   status: [{ required: true, message: '请选择状态', trigger: 'change' }],
-  supplier_type: [{ required: true, message: '请选择类型', trigger: 'change' }]
+  supplier_type: [{ required: true, message: '请选择类型', trigger: 'change' }],
+  // New Required Fields
+  tax_id: [{ required: true, message: '请输入税号/VAT号', trigger: 'blur' }],
+  taxpayer_type: [{ required: true, message: '请选择纳税人类型', trigger: 'change' }],
+  default_vat_rate: [{ required: true, message: '请输入默认开票税率', trigger: 'blur' }],
+  payment_term_id: [{ required: true, message: '请选择付款条款', trigger: 'change' }],
+  payment_method: [{ required: true, message: '请选择付款方式', trigger: 'change' }],
 };
 
 const [Modal, modalApi] = useVbenModal({
@@ -74,7 +91,7 @@ const [Modal, modalApi] = useVbenModal({
       isUpdate.value = update;
       data.value = record;
       
-      // Reset form
+        // Reset form
       Object.assign(formState, {
         code: '',
         name: '',
@@ -93,10 +110,12 @@ const [Modal, modalApi] = useVbenModal({
         contacts: [],
         tax_id: '',
         currency: 'CNY',
-        payment_term_id: undefined,
+        payment_term_id: paymentTermOptions.value.find(term => term.code === 'NET30')?.id, // Default to NET30
         payment_terms: '',
-        payment_method: '',
+        payment_method: 'T/T', // Default to T/T
         bank_accounts: [],
+        taxpayer_type: 'general',
+        default_vat_rate: 0.13,
         lead_time_days: undefined,
         moq: '',
         notes: '',
@@ -201,6 +220,25 @@ const currencyOptions = [
   { label: '欧元 (EUR)', value: 'EUR' },
   { label: '港币 (HKD)', value: 'HKD' }
 ];
+
+const taxpayerTypeOptions = [
+  { label: '一般纳税人', value: 'general' },
+  { label: '小规模纳税人', value: 'small' },
+  { label: '境外企业', value: 'overseas' },
+  { label: '个人', value: 'individual' }
+];
+
+const handleTaxpayerTypeChange = (value: string) => {
+    if (value === 'general') {
+        formState.default_vat_rate = 0.13;
+    } else if (value === 'small') {
+        formState.default_vat_rate = 0.03;
+    } else if (value === 'overseas') {
+        formState.default_vat_rate = 0.00;
+    } else {
+        formState.default_vat_rate = 0;
+    }
+};
 </script>
 
 <template>
@@ -209,13 +247,14 @@ const currencyOptions = [
       <Tabs v-model:activeKey="activeTab">
         
         <!-- 基础信息 -->
-        <TabPane key="1" tab="基础信息">
-          <Row :gutter="16">
-            <Col :span="12">
-              <Form.Item label="供应商代码" name="code">
-                <Input v-model:value="formState.code" placeholder="如：SUP-001" :disabled="isUpdate" />
-              </Form.Item>
-            </Col>
+          <TabPane key="1" tab="基础信息">
+            <Row :gutter="16">
+              <!-- 仅在编辑模式下显示供应商代码，且不可编辑 -->
+              <Col :span="12" v-if="isUpdate">
+                <Form.Item label="供应商代码" name="code">
+                  <Input v-model:value="formState.code" disabled />
+                </Form.Item>
+              </Col>
             <Col :span="12">
               <Form.Item label="供应商名称" name="name">
                 <Input v-model:value="formState.name" placeholder="完整注册名称" />
@@ -334,6 +373,30 @@ const currencyOptions = [
                 <Select v-model:value="formState.currency" :options="currencyOptions" />
               </Form.Item>
             </Col>
+            <!-- New Fields -->
+            <Col :span="12">
+              <Form.Item label="纳税人类型" name="taxpayer_type">
+                <Select 
+                    v-model:value="formState.taxpayer_type" 
+                    :options="taxpayerTypeOptions" 
+                    @change="handleTaxpayerTypeChange"
+                />
+              </Form.Item>
+            </Col>
+            <Col :span="12">
+              <Form.Item label="默认开票税率" name="default_vat_rate">
+                <InputNumber 
+                  v-model:value="formState.default_vat_rate" 
+                  :min="0" :max="1" :step="0.01" 
+                  style="width: 100%"
+                  :formatter="value => `${(Number(value) * 100).toFixed(0)}`"
+                  :parser="value => Number(value) / 100"
+                >
+                  <template #addonAfter>%</template>
+                </InputNumber>
+              </Form.Item>
+            </Col>
+            
             <Col :span="12">
               <Form.Item label="付款条款" name="payment_term_id">
                 <Select 

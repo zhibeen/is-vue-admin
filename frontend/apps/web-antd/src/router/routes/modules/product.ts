@@ -31,6 +31,15 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        name: 'AttributeManagement',
+        path: 'attribute',
+        component: () => import('#/views/product/attribute/index.vue'),
+        meta: {
+          icon: 'lucide:list',
+          title: '商品属性管理',
+        },
+      },
+      {
         name: 'VehicleManagement',
         path: 'vehicle-aux',
         component: () => import('#/views/product/vehicle-aux/index.vue'),
@@ -46,6 +55,15 @@ const routes: RouteRecordRaw[] = [
         meta: {
           icon: 'lucide:book',
           title: 'HS编码库',
+        },
+      },
+      {
+        name: 'ProductRules',
+        path: 'rules',
+        component: () => import('#/views/product/rules/index.vue'),
+        meta: {
+          icon: 'lucide:settings',
+          title: '业务规则配置',
         },
       },
     ],

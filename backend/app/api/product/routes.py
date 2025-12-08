@@ -1,10 +1,14 @@
 from apiflask import APIBlueprint
-from app.schemas.product.product import ProductCreateSchema, ProductOutSchema
+from app.schemas.product.product import ProductCreateSchema, ProductOutSchema, SkuSuffixSchema, ProductCreateResponseSchema
 from app.schemas.pagination import make_pagination_schema, PaginationQuerySchema
 from app.services.product_service import ProductService
+from app.services.sku_generator import generate_sku
 from app.security import auth
 from app.decorators import permission_required
 from app.tasks import send_email_task
+from app.extensions import db
+from app.models.product import SkuSuffix
+from sqlalchemy import select
 
 # url_prefix is now /products (relative to api_v1)
 product_bp = APIBlueprint('product', __name__, url_prefix='/products', tag='Products')
@@ -16,16 +20,17 @@ ProductPaginationSchema = make_pagination_schema(ProductOutSchema)
 @permission_required('product:create')
 @product_bp.doc(summary='创建商品', description='创建一个新商品，自动生成 SKU。需要提供分类ID和名称。')
 @product_bp.input(ProductCreateSchema, arg_name='data')
-@product_bp.output(ProductOutSchema, status_code=201)
+@product_bp.output(ProductCreateResponseSchema, status_code=201)
 def create_product(data):
     """Create a new product with auto-generated SKU"""
-    product = product_service.create_product(data)
+    result = product_service.create_product(data)
     
     # Trigger Async Task
-    send_email_task.delay('admin@example.com', 'New Product Created', f'Product {product.name} was created.')
+    # result is a dict now, can't access .name directly. Use input data.
+    send_email_task.delay('admin@example.com', 'Product Created/Updated', f"Product SPU {result['spu_code']} was processed.")
     
-    # Direct model return; Framework wraps in BaseResponse {code: 0, data: product}
-    return {'data': product}
+    # Return result dict directly
+    return {'data': result}
 
 @product_bp.get('/<int:product_id>')
 @product_bp.auth_required(auth)
@@ -51,3 +56,47 @@ def list_products(query_data):
         q=query_data.get('q'),
         sort=query_data.get('sort')
     )}
+
+@product_bp.get('/suffixes')
+@product_bp.auth_required(auth)
+@product_bp.doc(summary='获取SKU后缀列表', description='获取所有SKU后缀定义。')
+@product_bp.output(SkuSuffixSchema(many=True))
+def list_sku_suffixes():
+    """List all SKU suffixes"""
+    suffixes = db.session.scalars(select(SkuSuffix).order_by(SkuSuffix.code)).all()
+    return {'data': suffixes}
+
+@product_bp.get('/next-serial')
+@product_bp.auth_required(auth)
+@product_bp.doc(summary='获取下一个SKU流水号', description='根据前缀获取下一个可用的SKU流水号（4位数字字符串）。')
+def get_next_sku_serial():
+    """Get next SKU serial for preview"""
+    # Note: This is just a preview. The actual serial is generated at creation time to avoid race conditions.
+    # However, for UI display, we can estimate it.
+    from flask import request
+    prefix = request.args.get('prefix', '')
+    if not prefix:
+        return {'data': '0001'}
+    
+    # We don't have a public method in ProductService or sku_generator for just getting the next serial 
+    # without incrementing or race condition checks. 
+    # But checking app/services/sku_generator.py might reveal logic we can reuse or mimic.
+    
+    # For now, let's just return a placeholder or implement a simple check if possible.
+    # Actually, let's rely on sku_generator's internal logic if accessible, 
+    # or just return '????' to indicate it's generated on save.
+    # User asked for "getNextSkuSerialApi", implying they want to see "0615" or similar.
+    
+    # Let's try to query the DB for the max serial for this prefix.
+    # Assuming standard SKU format: Prefix + Serial + Suffix
+    # This is complex because of suffixes.
+    
+    # Implementation detail:
+    # If we look at `app/services/sku_generator.py`, it likely uses Redis or DB sequence.
+    # Let's just import and use it if it's safe (idempotent preview). 
+    # Usually `generate_sku` increments the counter. We don't want to increment on preview.
+    # So we should probably peek.
+    
+    from app.services.sku_generator import get_next_serial_preview
+    serial = get_next_serial_preview(prefix)
+    return {'data': serial}

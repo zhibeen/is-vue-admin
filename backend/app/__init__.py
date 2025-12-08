@@ -36,10 +36,35 @@ def create_app(config_name=None, test_config=None):
     @app.error_processor
     def custom_error_processor(error):
         # error is an instance of apiflask.exceptions.HTTPError
+        
+        # Default values
+        business_code = 10500 if error.status_code == 500 else 10400 + (error.status_code % 1000)
+        data = error.detail
+        
+        # Extract from extra_data if available (set by BusinessError)
+        extra_data = getattr(error, 'extra_data', {})
+        if extra_data:
+            if 'code' in extra_data:
+                business_code = extra_data['code']
+            if 'data' in extra_data:
+                data = extra_data['data']
+        
+        # Specific mappings for standard HTTP errors if not overridden
+        if not extra_data:
+            if error.status_code == 404:
+                business_code = 10404
+            elif error.status_code == 401:
+                business_code = 20101
+            elif error.status_code == 403:
+                business_code = 20403
+            elif error.status_code == 422:
+                business_code = 10400 # Bad Request / Validation Error
+                # For 422, detail is usually a dict of validation errors
+        
         return {
-            'code': error.status_code,
+            'code': business_code,
             'message': error.message,
-            'data': error.detail if error.detail else None
+            'data': data
         }, error.status_code, error.headers
     
     # 2. Extensions
@@ -90,7 +115,7 @@ def create_app(config_name=None, test_config=None):
         from app import models
     
     # 5. CLI Commands
-    from app.cli import register_commands
+    from app.commands import register_commands
     register_commands(app)
 
     @app.get('/')

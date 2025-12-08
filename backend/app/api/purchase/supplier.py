@@ -10,8 +10,9 @@ from app.extensions import db
 from sqlalchemy import select, or_
 from sqlalchemy.orm import joinedload
 from math import ceil
+from app.services.serc.common import generate_seq_no
 
-purchase_supplier_bp = APIBlueprint('purchase_supplier', __name__, tag='Purchase-供应商')
+purchase_supplier_bp = APIBlueprint('purchase_supplier', __name__, url_prefix='/suppliers', tag='Purchase-供应商')
 
 class SupplierListAPI(MethodView):
     @purchase_supplier_bp.doc(summary='获取供应商列表', description='支持分页和搜索的供应商列表')
@@ -77,6 +78,10 @@ class SupplierListAPI(MethodView):
     @purchase_supplier_bp.output(SupplierDetailSchema, status_code=201)
     def post(self, data):
         """创建供应商"""
+        # 自动生成供应商代码 SUP-XXXX (如果未提供或提供空值)
+        if not data.get('code'):
+            data['code'] = generate_seq_no("SUP", None) # Global sequence
+            
         supplier = SysSupplier(**data)
         db.session.add(supplier)
         db.session.commit()
@@ -117,5 +122,5 @@ class SupplierDetailAPI(MethodView):
             db.session.commit()
         return None
 
-purchase_supplier_bp.add_url_rule('/suppliers', view_func=SupplierListAPI.as_view('supplier_list'))
-purchase_supplier_bp.add_url_rule('/suppliers/<int:supplier_id>', view_func=SupplierDetailAPI.as_view('supplier_detail'))
+purchase_supplier_bp.add_url_rule('', view_func=SupplierListAPI.as_view('supplier_list'))
+purchase_supplier_bp.add_url_rule('/<int:supplier_id>', view_func=SupplierDetailAPI.as_view('supplier_detail'))

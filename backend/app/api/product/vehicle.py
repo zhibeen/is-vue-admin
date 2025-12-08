@@ -1,246 +1,104 @@
 from apiflask import APIBlueprint, abort
 from sqlalchemy import select
 from app.extensions import db
-from app.models.vehicle import VehicleAux
-from app.schemas.vehicle import (
-    BrandCreateSchema, BrandUpdateSchema, BrandOutSchema,
-    ModelCreateSchema, ModelOutSchema,
-    SubmodelCreateSchema, SubmodelOutSchema,
-    VehicleAuxBaseSchema
-)
+from app.models.product import ProductVehicle
+from app.schemas.product.vehicle import ProductVehicleBaseSchema, ProductVehicleTreeSchema
 from app.security import auth
-
 from app.decorators import permission_required
 
-# url_prefix is now /vehiclesaux (relative to api_v1)
-vehicle_bp = APIBlueprint('vehicle_aux', __name__, url_prefix='/vehiclesaux', tag='VehicleAux')
+# url_prefix is now /vehicles (relative to api_v1)
+vehicle_bp = APIBlueprint('vehicle', __name__, url_prefix='/vehicles', tag='Vehicles')
 
-# --- Brands ---
+@vehicle_bp.get('/tree')
+@vehicle_bp.auth_required(auth)
+@vehicle_bp.doc(summary='获取车辆层级树', description='获取完整的车辆层级树 (Brand -> Model -> Year)。')
+@vehicle_bp.output(ProductVehicleTreeSchema(many=True))
+def get_vehicle_tree():
+    """Get full vehicle tree structure"""
+    # Fetch roots (brands)
+    roots = db.session.scalars(
+        select(ProductVehicle)
+        .where(ProductVehicle.parent_id.is_(None))
+        .order_by(ProductVehicle.sort_order, ProductVehicle.name)
+    ).all()
+    return {'data': roots}
+
+# --- Lazy Loading Endpoints ---
 
 @vehicle_bp.get('/brands')
 @vehicle_bp.auth_required(auth)
-@vehicle_bp.doc(summary='获取品牌列表', description='获取所有车辆品牌，按代码排序。')
-@vehicle_bp.output(BrandOutSchema(many=True))
-def get_brands():
-    """List all brands"""
+@vehicle_bp.doc(summary='获取所有品牌', description='获取第一级车辆品牌列表。')
+@vehicle_bp.output(ProductVehicleBaseSchema(many=True))
+def get_vehicle_brands():
+    """Get vehicle brands (Level 1)"""
     brands = db.session.scalars(
-        select(VehicleAux).filter_by(level_type='brand').order_by(VehicleAux.code)
+        select(ProductVehicle)
+        .where(ProductVehicle.level_type == 'make') # or parent_id is None
+        .order_by(ProductVehicle.sort_order, ProductVehicle.name)
     ).all()
-    # Auto-wrapped by BaseResponse
     return {'data': brands}
-
-@vehicle_bp.post('/brands')
-@vehicle_bp.auth_required(auth)
-@permission_required('vehicle:manage')
-@vehicle_bp.doc(summary='创建品牌', description='创建一个新的车辆品牌。需要提供名称、代码和缩写。')
-@vehicle_bp.input(BrandCreateSchema)
-@vehicle_bp.output(BrandOutSchema, status_code=201)
-def create_brand(data):
-    """Create a brand"""
-    brand = VehicleAux(
-        name=data['name'],
-        code=data['code'],
-        abbr=data['abbr'],
-        level_type='brand'
-    )
-    db.session.add(brand)
-    db.session.commit()
-    return {'data': brand}
-
-@vehicle_bp.put('/brands/<int:brand_id>')
-@vehicle_bp.auth_required(auth)
-@permission_required('vehicle:manage')
-@vehicle_bp.doc(
-    summary='更新品牌', 
-    description='更新指定品牌的名称、代码或缩写。'
-)
-@vehicle_bp.input(BrandUpdateSchema)
-@vehicle_bp.output(BrandOutSchema)
-def update_brand(brand_id, data):
-    """Update a brand"""
-    brand = db.session.get(VehicleAux, brand_id)
-    if not brand or brand.level_type != 'brand':
-        abort(404)
-    
-    for key, value in data.items():
-        setattr(brand, key, value)
-        
-    db.session.commit()
-    return {'data': brand}
-
-@vehicle_bp.delete('/brands/<int:brand_id>')
-@vehicle_bp.auth_required(auth)
-@permission_required('vehicle:manage')
-@vehicle_bp.doc(
-    summary='删除品牌', 
-    description='删除指定品牌。如果该品牌下有车型，可能会失败（取决于数据库约束）。'
-)
-def delete_brand(brand_id):
-    """Delete a brand"""
-    brand = db.session.get(VehicleAux, brand_id)
-    if not brand or brand.level_type != 'brand':
-        abort(404)
-    
-    # Check if children exist (optional, usually database constraints or cascade)
-    # But for safety, we can check
-    # children = db.session.scalars(select(VehicleAux).filter_by(parent_id=brand_id)).first()
-    # if children:
-    #    abort(400, 'Cannot delete brand with models')
-        
-    db.session.delete(brand)
-    db.session.commit()
-    return {'code': 0, 'message': 'success', 'data': None}
-
-# --- Models ---
 
 @vehicle_bp.get('/brands/<int:brand_id>/models')
 @vehicle_bp.auth_required(auth)
-@vehicle_bp.doc(
-    summary='获取品牌车型列表', 
-    description='获取指定品牌下的所有车型。'
-)
-@vehicle_bp.output(ModelOutSchema(many=True))
-def get_models(brand_id):
-    """List models for a brand"""
-    brand = db.session.get(VehicleAux, brand_id)
-    if not brand or brand.level_type != 'brand':
-        abort(404, 'Brand not found')
-        
+@vehicle_bp.doc(summary='获取品牌下的车型', description='获取指定品牌下的车型列表。')
+@vehicle_bp.output(ProductVehicleBaseSchema(many=True))
+def get_vehicle_models(brand_id):
+    """Get vehicle models (Level 2)"""
     models = db.session.scalars(
-        select(VehicleAux).filter_by(parent_id=brand_id, level_type='model').order_by(VehicleAux.name)
+        select(ProductVehicle)
+        .where(ProductVehicle.parent_id == brand_id)
+        .order_by(ProductVehicle.sort_order, ProductVehicle.name)
     ).all()
     return {'data': models}
 
-@vehicle_bp.post('/models')
+@vehicle_bp.get('/models/<int:model_id>/years')
 @vehicle_bp.auth_required(auth)
-@permission_required('vehicle:manage')
-@vehicle_bp.doc(summary='创建车型', description='为指定品牌创建一个新车型。')
-@vehicle_bp.input(ModelCreateSchema)
-@vehicle_bp.output(ModelOutSchema, status_code=201)
-def create_model(data):
-    """Create a model"""
-    brand = db.session.get(VehicleAux, data['brand_id'])
-    if not brand or brand.level_type != 'brand':
-        abort(404, 'Brand not found')
-
-    model = VehicleAux(
-        name=data['name'],
-        parent_id=data['brand_id'],
-        level_type='model'
-    )
-    db.session.add(model)
-    db.session.commit()
-    return {'data': model}
-
-@vehicle_bp.put('/models/<int:model_id>')
-@vehicle_bp.auth_required(auth)
-@permission_required('vehicle:manage')
-@vehicle_bp.doc(
-    summary='更新车型', 
-    description='更新指定车型的名称。'
-)
-@vehicle_bp.input(VehicleAuxBaseSchema)
-@vehicle_bp.output(ModelOutSchema)
-def update_model(model_id, data):
-    """Update a model"""
-    model = db.session.get(VehicleAux, model_id)
-    if not model or model.level_type != 'model':
-        abort(404)
-        
-    model.name = data['name']
-    db.session.commit()
-    return {'data': model}
-
-@vehicle_bp.delete('/models/<int:model_id>')
-@vehicle_bp.auth_required(auth)
-@permission_required('vehicle:manage')
-@vehicle_bp.doc(
-    summary='删除车型', 
-    description='删除指定车型。'
-)
-def delete_model(model_id):
-    """Delete a model"""
-    model = db.session.get(VehicleAux, model_id)
-    if not model or model.level_type != 'model':
-        abort(404)
-        
-    db.session.delete(model)
-    db.session.commit()
-    return {'code': 0, 'message': 'success', 'data': None}
-
-# --- Submodels ---
-
-@vehicle_bp.get('/models/<int:model_id>/submodels')
-@vehicle_bp.auth_required(auth)
-@vehicle_bp.doc(
-    summary='获取车型子型号列表', 
-    description='获取指定车型下的所有子型号（如具体排量、年份配置）。'
-)
-@vehicle_bp.output(SubmodelOutSchema(many=True))
-def get_submodels(model_id):
-    """List submodels for a model"""
-    model = db.session.get(VehicleAux, model_id)
-    if not model or model.level_type != 'model':
-        abort(404, 'Model not found')
-        
-    submodels = db.session.scalars(
-        select(VehicleAux).filter_by(parent_id=model_id, level_type='submodel').order_by(VehicleAux.name)
+@vehicle_bp.doc(summary='获取车型下的年份', description='获取指定车型下的年份列表。')
+@vehicle_bp.output(ProductVehicleBaseSchema(many=True))
+def get_vehicle_years(model_id):
+    """Get vehicle years (Level 3)"""
+    years = db.session.scalars(
+        select(ProductVehicle)
+        .where(ProductVehicle.parent_id == model_id)
+        .order_by(ProductVehicle.sort_order, ProductVehicle.name)
     ).all()
-    return {'data': submodels}
+    return {'data': years}
 
-@vehicle_bp.post('/submodels')
+@vehicle_bp.post('')
 @vehicle_bp.auth_required(auth)
 @permission_required('vehicle:manage')
-@vehicle_bp.doc(summary='创建子型号', description='为指定车型创建一个新子型号。')
-@vehicle_bp.input(SubmodelCreateSchema)
-@vehicle_bp.output(SubmodelOutSchema, status_code=201)
-def create_submodel(data):
-    """Create a submodel"""
-    model = db.session.get(VehicleAux, data['model_id'])
-    if not model or model.level_type != 'model':
-        abort(404, 'Model not found')
-
-    submodel = VehicleAux(
-        name=data['name'],
-        parent_id=data['model_id'],
-        level_type='submodel'
+@vehicle_bp.doc(summary='创建车辆节点', description='创建 Brand, Model 或 Year 节点。')
+@vehicle_bp.input(ProductVehicleBaseSchema, arg_name='data')
+@vehicle_bp.output(ProductVehicleBaseSchema, status_code=201)
+def create_vehicle_node(data):
+    """Create a new vehicle node"""
+    # Check uniqueness of abbreviation within the same level/parent
+    stmt = select(ProductVehicle).where(
+        ProductVehicle.abbreviation == data['abbreviation'],
+        ProductVehicle.parent_id == data.get('parent_id')
     )
-    db.session.add(submodel)
-    db.session.commit()
-    return {'data': submodel}
+    if db.session.scalars(stmt).first():
+        abort(400, 'Abbreviation already exists in this level')
 
-@vehicle_bp.put('/submodels/<int:submodel_id>')
+    node = ProductVehicle(**data)
+    db.session.add(node)
+    db.session.commit()
+    return {'data': node}
+
+@vehicle_bp.delete('/<int:node_id>')
 @vehicle_bp.auth_required(auth)
 @permission_required('vehicle:manage')
-@vehicle_bp.doc(
-    summary='更新子型号', 
-    description='更新指定子型号的名称。'
-)
-@vehicle_bp.input(VehicleAuxBaseSchema)
-@vehicle_bp.output(SubmodelOutSchema)
-def update_submodel(submodel_id, data):
-    """Update a submodel"""
-    submodel = db.session.get(VehicleAux, submodel_id)
-    if not submodel or submodel.level_type != 'submodel':
+@vehicle_bp.doc(summary='删除节点', description='删除指定节点。如果有子节点则无法删除。')
+def delete_vehicle_node(node_id):
+    """Delete a vehicle node"""
+    node = db.session.get(ProductVehicle, node_id)
+    if not node:
         abort(404)
+    
+    # Check children
+    if node.children:
+        abort(400, 'Cannot delete node with children')
         
-    submodel.name = data['name']
-    db.session.commit()
-    return {'data': submodel}
-
-@vehicle_bp.delete('/submodels/<int:submodel_id>')
-@vehicle_bp.auth_required(auth)
-@permission_required('vehicle:manage')
-@vehicle_bp.doc(
-    summary='删除子型号', 
-    description='删除指定子型号。'
-)
-def delete_submodel(submodel_id):
-    """Delete a submodel"""
-    submodel = db.session.get(VehicleAux, submodel_id)
-    if not submodel or submodel.level_type != 'submodel':
-        abort(404)
-        
-    db.session.delete(submodel)
+    db.session.delete(node)
     db.session.commit()
     return {'code': 0, 'message': 'success', 'data': None}

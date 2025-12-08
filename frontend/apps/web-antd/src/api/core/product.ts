@@ -1,221 +1,296 @@
 import { requestClient } from '#/api/request';
+import type { ProductBusinessRule } from '#/api/core/product-rule';
 
-export interface Product {
-  id: number;
-  name: string;
-  sku: string;
-  category_id: number;
-  category_name?: string;
-  price?: number;
-  // SERC fields
-  declared_name?: string;
-  declared_unit?: string;
-  hs_code_id?: number;
-}
+// --- Interfaces ---
 
-export interface ProductSearchParams {
-  page?: number;
-  per_page?: number;
-  q?: string;
-  category_id?: number;
-}
-
-enum Api {
-  Products = '/v1/products',
-}
-
-export const getProductList = (params?: ProductSearchParams) => {
-  return requestClient.get<{ items: Product[]; total: number; page: number; per_page: number }>(
-    Api.Products,
-    { params }
-  );
-};
-
-// ... existing core exports ...
 export interface Category {
   id: string;
-  parentId: string | null;
+  parent_id: string | null;
   name: string;
-  code: string;
-  isLeaf: boolean;
+  name_en?: string;     // 英文名称
+  code: string;         // SKU数字编码 (3位) - was skuCode
+  abbreviation: string; // SPU字符缩写 (如 HL)
+  business_type?: 'vehicle' | 'general' | 'electronics'; // 新增
+  description?: string;
+  icon?: string;
+  is_active: boolean;
+  sort_order: number;
+  is_leaf: boolean;     // was isLeaf
   children?: Category[];
+  
+  // NEW: Schema Form Config
+  spu_config?: {
+    template?: string; // SPU 生成模板
+    
+    // 模式 A: 传统自定义字段
+    fields?: {
+      key: string;
+      label: string;
+      type: 'input' | 'select' | 'year_range' | 'number';
+      required?: boolean;
+      options?: string[] | { label: string; value: any }[];
+      placeholder?: string;
+    }[];
+    
+    // 模式 B: 关联车辆层级 (Explicit Level Chain)
+    vehicle_link?: {
+      enabled: boolean;
+      levels: string[]; // e.g. ["brand", "model", "year"]
+      root_filter?: string; // Optional: restrict to specific root code
+    };
+  };
 }
-// ... (keep other exports as they were, I will just append the new one at the top or merge properly)
-// Wait, the user wants to USE existing product API if it exists.
-// I see getCategoriesApi but not getProductList in the file I read.
-// So I need to ADD getProductList to this file or creating a new one.
-// The file is named 'frontend/apps/web-antd/src/api/core/product.ts'.
-// I will append the new API definition to it.
 
 export interface Brand {
   id: string;
   name: string;
   code: string;
+  abbr: string;
 }
 
 export interface Model {
-    id: string;
-    brandId: string;
-    name: string;
+  id: string;
+  name: string;
+  brand_id: string;
+}
+
+export interface VehicleNode {
+  id: number;
+  parent_id: number | null;
+  name: string;
+  abbreviation: string; 
+  code?: string;
+  level_type: 'brand' | 'model' | 'year'; // or custom string
+  children?: VehicleNode[];
 }
 
 export interface SkuSuffix {
-    code: string;
-    meaning: string;
+  code: string;
+  meaning_cn: string;
+  meaning_en: string;
+  category_ids?: number[];
 }
 
 export interface CategoryAttribute {
-    id: string;
-    key: string;
-    label: string;
-    type: 'text' | 'number' | 'select' | 'boolean';
-    options?: { label: string; value: string | number }[];
-    required: boolean;
+  id: string;
+  key: string;
+  label: string;
+  name_en?: string; // New
+  description?: string; // New
+  type: 'text' | 'number' | 'boolean' | 'select' | 'textarea'; // Added textarea
+  // options can be simpler or complex
+  options?: { label: string; value: any; code?: string }[]; // Added code
+  code_weight?: number; // NEW: 排序权重
+  group_name?: string; // NEW: 属性分组
+}
+
+export interface CategoryAttributeMapping {
+  category_id: number;
+  attribute_id: number;
+  is_required: boolean;
+  display_order: number;
+  attribute: CategoryAttribute;
+  attribute_scope?: 'spu' | 'sku';
+}
+
+export interface TaxCategory {
+  id: number;
+  code: string;
+  name: string;
+  short_name?: string;
+  reference_rate?: number;
+}
+
+export interface Product {
+    id: number;
+    name: string;
+    sku: string;
+    spu_code?: string; // NEW
+    category_id: number;
+    tax_category_id?: number;
+    // ... other fields
+}
+
+export interface DictItem {
+  value: string;
+  label: string;
+  meta_data?: Record<string, any>;
+  sort_order: number;
+}
+
+// --- API Functions ---
+
+/**
+ * 获取字典项列表
+ */
+export function getDictItemsApi(dictCode: string) {
+  return requestClient.get<DictItem[]>(`/v1/system/dicts/${dictCode}/items`);
 }
 
 /**
- * 获取分类列表（模拟树形结构）
+ * 获取分类树
  */
-export async function getCategoriesApi() {
-  // 模拟数据，实际应请求后端
-  const mockData: Category[] = [
-    {
-      id: '1',
-      parentId: null,
-      name: '汽车照明 (Lighting)',
-      code: 'LGT',
-      isLeaf: false,
-      children: [
-        {
-          id: '11',
-          parentId: '1',
-          name: '前大灯 (Headlight)',
-          code: 'HL',
-          isLeaf: true,
-        },
-        {
-          id: '12',
-          parentId: '1',
-          name: '尾灯 (Tail Light)',
-          code: 'TL',
-          isLeaf: true,
-        },
-      ],
-    },
-    {
-      id: '2',
-      parentId: null,
-      name: '车身覆盖件 (Body Parts)',
-      code: 'BDY',
-      isLeaf: false,
-      children: [
-        {
-          id: '21',
-          parentId: '2',
-          name: '保险杠 (Bumper)',
-          code: '188',
-          isLeaf: true,
-        },
-      ],
-    },
-  ];
-  
-  return Promise.resolve(mockData);
+export function getCategoriesApi() {
+  return requestClient.get<Category[]>('/v1/categories/tree');
 }
 
 /**
- * 获取品牌列表
+ * 获取品牌列表 (VehiclesAux 基础数据 - 真实车型品牌)
  */
-export async function getBrandsApi() {
-  const mockData: Brand[] = [
-    { id: '01', name: '宝马 (BMW)', code: '01' },
-    { id: '02', name: '奔驰 (Mercedes)', code: '02' },
-    { id: '03', name: '奥迪 (Audi)', code: '03' },
-    { id: '04', name: '丰田 (Toyota)', code: '04' },
-  ];
-  return Promise.resolve(mockData);
+export function getBrandsApi() {
+  return requestClient.get<Brand[]>('/v1/vehicles/brands');
 }
 
 /**
  * 获取车型列表
  */
-export async function getModelsApi(brandId: string) {
-    // 模拟数据
-    const allModels: Model[] = [
-        // BMW
-        { id: '101', brandId: '01', name: '3 Series (3系)' },
-        { id: '102', brandId: '01', name: '5 Series (5系)' },
-        { id: '103', brandId: '01', name: 'X3' },
-        { id: '104', brandId: '01', name: 'X5' },
-        { id: '105', brandId: '01', name: '7 Series (7系)' },
-        
-        // Mercedes
-        { id: '201', brandId: '02', name: 'C-Class (C级)' },
-        { id: '202', brandId: '02', name: 'E-Class (E级)' },
-        { id: '203', brandId: '02', name: 'S-Class (S级)' },
-        { id: '204', brandId: '02', name: 'GLC' },
-        { id: '205', brandId: '02', name: 'GLE' },
-        
-        // Audi
-        { id: '301', brandId: '03', name: 'A3' },
-        { id: '302', brandId: '03', name: 'A4L' },
-        { id: '303', brandId: '03', name: 'A6L' },
-        { id: '304', brandId: '03', name: 'Q5L' },
-        { id: '305', brandId: '03', name: 'Q7' },
-        
-        // Toyota
-        { id: '401', brandId: '04', name: 'Camry (凯美瑞)' },
-        { id: '402', brandId: '04', name: 'Corolla (卡罗拉)' },
-        { id: '403', brandId: '04', name: 'RAV4 (荣放)' },
-        { id: '404', brandId: '04', name: 'Highlander (汉兰达)' },
-        { id: '405', brandId: '04', name: 'Sienna (赛那)' },
-    ];
-    return Promise.resolve(allModels.filter(m => m.brandId === brandId));
+export function getModelsApi(brandId: string | number) {
+  return requestClient.get<Model[]>(`/v1/vehicles/brands/${brandId}/models`);
 }
 
 /**
- * 获取SKU后缀字典
+ * 获取年份列表 (New)
  */
-export async function getSkuSuffixesApi() {
-    const mockData: SkuSuffix[] = [
-        { code: 'L', meaning: '左侧/驾驶位 (Left)' },
-        { code: 'R', meaning: '右侧/副驾位 (Right)' },
-        { code: 'S', meaning: '套装 (Set)' },
-        { code: 'B', meaning: '黑色 (Black)' },
-    ];
-    return Promise.resolve(mockData);
+export function getYearsApi(modelId: string | number) {
+  return requestClient.get<VehicleNode[]>(`/v1/vehicles/models/${modelId}/years`);
 }
 
 /**
- * 获取下一个SKU流水号（模拟）
+ * 获取车辆层级树 (New: Brand -> Model -> Year)
  */
-export async function getNextSkuSerialApi(prefix: string) {
-    // 模拟：简单随机生成或者自增
-    // 实际：后端查询数据库
-    const mockSerial = Math.floor(Math.random() * 1000).toString().padStart(4, '0');
-    return Promise.resolve(mockSerial);
+export function getVehicleTreeApi() {
+  return requestClient.get<VehicleNode[]>('/v1/vehicles/tree', { timeout: 60000 }); // Increase timeout to 60s
 }
-export async function getCategoryAttributesApi(categoryId: string) {
-    // 模拟不同分类返回不同属性
-    const commonAttrs: CategoryAttribute[] = [
-        { id: 'a1', key: 'material', label: '材质', type: 'text', required: true }
-    ];
-    
-    let specificAttrs: CategoryAttribute[] = [];
-    
-    if (categoryId === '11' || categoryId === '12') { // 车灯
-        specificAttrs = [
-            { id: 'b1', key: 'voltage', label: '电压', type: 'select', options: [{label:'12V', value:'12V'}, {label:'24V', value:'24V'}], required: true },
-            { id: 'b2', key: 'bulb_type', label: '灯泡类型', type: 'text', required: false },
-            { id: 'b3', key: 'lens_color', label: '透镜颜色', type: 'select', options: [{label:'透明', value:'Clear'}, {label:'烟熏', value:'Smoke'}, {label:'琥珀', value:'Amber'}], required: true }
-        ];
-    } else if (categoryId === '21') { // 保险杠
-         specificAttrs = [
-             { id: 'c1', key: 'color', label: '颜色', type: 'text', required: true },
-             { id: 'c2', key: 'finish', label: '表面处理', type: 'select', options: [{label:'底漆', value:'Primed'}, {label:'镀铬', value:'Chrome'}, {label:'纹理黑', value:'Textured Black'}], required: true },
-             { id: 'c3', key: 'parking_sensor_holes', label: '雷达孔', type: 'boolean', required: true }
-         ];
-    }
 
-    return Promise.resolve([...commonAttrs, ...specificAttrs]);
+/**
+ * 获取SKU后缀列表
+ */
+export function getSkuSuffixesApi() {
+  return requestClient.get<SkuSuffix[]>('/v1/products/aux/suffixes');
+}
+
+/**
+ * 获取分类属性 (Legacy: Per Category)
+ */
+export function getCategoryAttributesApi(categoryId: string, params?: any) {
+  return requestClient.get<CategoryAttribute[]>(`/v1/categories/${categoryId}/attributes`, { params });
+}
+
+/**
+ * 获取所有分类属性映射 (For Local Filtering)
+ */
+export function getAllCategoryAttributesMappingsApi() {
+  return requestClient.get<CategoryAttributeMapping[]>('/v1/categories/attributes/mappings');
+}
+
+/**
+ * 获取下一个SKU流水号预览
+ */
+export function getNextSkuSerialApi(prefix: string) {
+  return requestClient.get<{ serial: string }>('/v1/products/aux/next-serial', {
+    params: { prefix },
+  });
+}
+
+/**
+ * 预览产品编码 (Preview API)
+ */
+export function previewProductCodesApi(data: any) {
+  return requestClient.post<{ spu_code: string; variants: any[] }>('/v1/products/aux/preview', data);
+}
+
+/**
+ * 获取税收分类列表
+ */
+export function getTaxCategories() {
+  return requestClient.get<TaxCategory[]>('/v1/products/aux/tax-categories');
+}
+
+/**
+ * 获取产品列表
+ */
+export function getProductListApi(params: any) {
+  return requestClient.get<{ items: Product[]; total: number }>('/v1/products', { params });
+}
+
+/**
+ * 创建产品
+ */
+export function createProduct(data: any) {
+  return requestClient.post<Product>('/v1/products', data);
+}
+
+/**
+ * 创建分类
+ */
+export function createCategoryApi(data: any) {
+  return requestClient.post<Category>('/v1/categories', data);
+}
+
+/**
+ * 更新分类
+ */
+export function updateCategoryApi(id: string, data: any) {
+  return requestClient.put<Category>(`/v1/categories/${id}`, data);
+}
+
+/**
+ * 删除分类
+ */
+export function deleteCategoryApi(id: string) {
+  return requestClient.delete<void>(`/v1/categories/${id}`);
+}
+
+/**
+ * 迁移并更新分类
+ */
+export function migrateCategoryApi(id: string) {
+  return requestClient.post<Category>(`/v1/categories/${id}/migrate`);
+}
+
+/**
+ * 获取产品业务规则列表
+ */
+export function getProductRulesApi() {
+  return requestClient.get<ProductBusinessRule[]>('/v1/product/rules').then(res => {
+    // Handle both direct array or { data: [] } format
+    return (res as any).data || res;
+  });
+}
+
+// --- Attribute Management ---
+
+export function getAttributeDefinitionsApi() {
+  return requestClient.get<CategoryAttribute[]>('/v1/categories/attributes/definitions');
+}
+
+export function createAttributeDefinitionApi(data: Partial<CategoryAttribute>) {
+  return requestClient.post('/v1/categories/attributes/definitions', data);
+}
+
+export function updateAttributeDefinitionApi(id: string | number, data: Partial<CategoryAttribute>) {
+  return requestClient.put(`/v1/categories/attributes/definitions/${id}`, data);
+}
+
+export function deleteAttributeDefinitionApi(id: string | number) {
+  return requestClient.delete(`/v1/categories/attributes/definitions/${id}`);
+}
+
+export function addCategoryAttributeApi(categoryId: string, data: any) {
+  return requestClient.post(`/v1/categories/${categoryId}/attributes`, data);
+}
+
+export function updateCategoryAttributeApi(categoryId: string, attributeId: string, data: any) {
+  return requestClient.put(`/v1/categories/${categoryId}/attributes/${attributeId}`, data);
+}
+
+export function removeCategoryAttributeApi(categoryId: string, attributeId: string) {
+  return requestClient.delete(`/v1/categories/${categoryId}/attributes/${attributeId}`);
+}
+
+/**
+ * 复制属性配置
+ */
+export function copyCategoryAttributesApi(categoryId: string, sourceCategoryId: string) {
+  return requestClient.post(`/v1/categories/${categoryId}/attributes/copy_from/${sourceCategoryId}`);
 }

@@ -1,7 +1,7 @@
 from typing import Optional, List, Dict
 from decimal import Decimal
 from datetime import date, datetime
-from sqlalchemy import String, Date, DateTime, func, DECIMAL, Text, Float, Integer, ForeignKey
+from sqlalchemy import String, Date, DateTime, func, DECIMAL, Text, Float, Integer, ForeignKey, Numeric
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.extensions import db
@@ -53,9 +53,36 @@ class FinSupplyContract(db.Model):
     paid_amount: Mapped[Decimal] = mapped_column(DECIMAL(18, 2), default=0, comment="实付金额")
     
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
     l1_contract = relationship("ScmDeliveryContract", backref="fin_contract")
+    items: Mapped[List["FinSupplyContractItem"]] = relationship(backref="supply_contract", cascade="all, delete-orphan")
+
+class FinSupplyContractItem(db.Model):
+    """L1.5: 供货合同明细 (票据视角)"""
+    __tablename__ = "fin_supply_contract_items"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    supply_contract_id: Mapped[int] = mapped_column(ForeignKey("fin_supply_contracts.id"), nullable=False)
+    
+    # 聚合后的票据信息
+    invoice_name: Mapped[str] = mapped_column(String(200), comment="开票品名") # 来自 Product.declared_name
+    invoice_unit: Mapped[str] = mapped_column(String(20), comment="开票单位")
+    specs: Mapped[Optional[str]] = mapped_column(String(200), comment="规格型号")
+    
+    # 量价税
+    quantity: Mapped[Decimal] = mapped_column(DECIMAL(18, 4), comment="聚合数量")
+    price_unit: Mapped[Decimal] = mapped_column(DECIMAL(18, 4), comment="含税单价")
+    amount: Mapped[Decimal] = mapped_column(DECIMAL(18, 2), comment="行总价")
+    
+    # 税务信息
+    # 来自 Supplier.default_vat_rate
+    tax_rate: Mapped[Decimal] = mapped_column(Numeric(5, 4), comment="进项税率")
+    # 来自 Product.tax_category.code
+    tax_code: Mapped[str] = mapped_column(String(50), comment="税收分类编码") 
+    
+    created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
 
 class FinPurchaseSOA(db.Model):
     """L2: 采购对账单 (Statement of Account)"""

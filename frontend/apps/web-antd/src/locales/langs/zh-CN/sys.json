@@ -1,0 +1,15 @@
+{
+  "dict": {
+    "category": {
+      "product": "产品管理",
+      "purchase": "采购管理",
+      "finance": "财务管理",
+      "system": "系统设置",
+      "supply": "供应链",
+      "all": "全部"
+    }
+  }
+}
+
+
+

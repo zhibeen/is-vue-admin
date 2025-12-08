@@ -2,7 +2,7 @@ import factory
 from app import db
 from app.models.user import User, Role, Permission
 from app.models.product import Product
-from app.models.category import Category
+from app.models.product import Category
 from app.models.vehicle import VehicleAux
 from app.models.purchase.supplier import SysSupplier
 from app.models.supply.delivery import ScmDeliveryContract, ScmDeliveryContractItem, ScmSourceDoc

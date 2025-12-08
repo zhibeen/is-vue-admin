@@ -1,5 +1,5 @@
 from apiflask import Schema
-from apiflask.fields import Integer, String, Date, Dict, List
+from apiflask.fields import Integer, String, Date, Dict, List, Decimal as DecimalField
 from app.schemas.pagination import PaginationQuerySchema
 
 class SupplierSearchSchema(PaginationQuerySchema):
@@ -38,6 +38,10 @@ class SupplierDetailSchema(Schema):
     payment_method = String(metadata={'description': '付款方式'})
     bank_accounts = List(Dict(), metadata={'description': '银行账户'})
     
+    # 新增纳税人信息 (Detail)
+    taxpayer_type = String(metadata={'description': '纳税人类型'})
+    default_vat_rate = DecimalField(metadata={'description': '默认开票税率'})
+
     # 运营
     lead_time_days = Integer(metadata={'description': '交货天数'})
     moq = String(metadata={'description': 'MOQ'})
@@ -62,12 +66,12 @@ class SupplierSimpleSchema(Schema):
     primary_phone = String()
     currency = String()
     grade = String()
-    payment_terms = String(attribute='payment_term_name', dump_default='') # Smart resolve
+    # Smart resolve
     payment_term_id = Integer()
 
 class SupplierCreateSchema(Schema):
     """创建供应商 Schema"""
-    code = String(required=True, metadata={'description': '供应商代码', 'example': 'SUP001'})
+    code = String(required=False, load_default='', metadata={'description': '供应商代码 (留空自动生成)', 'example': 'SUP001'})
     name = String(required=True, metadata={'description': '供应商名称'})
     short_name = String()
     supplier_type = String(load_default='manufacturer')
@@ -92,6 +96,10 @@ class SupplierCreateSchema(Schema):
     payment_method = String()
     bank_accounts = List(Dict())
     
+    # 新增纳税人信息 (Create/Update)
+    taxpayer_type = String(metadata={'description': '纳税人类型 (general, small)'})
+    default_vat_rate = DecimalField(metadata={'description': '默认开票税率 (0.13, 0.03)'})
+
     lead_time_days = Integer()
     moq = String()
     
@@ -103,4 +111,3 @@ class SupplierUpdateSchema(SupplierCreateSchema):
     """更新供应商 Schema"""
     code = String(required=False)
     name = String(required=False)
-

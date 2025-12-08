@@ -10,6 +10,7 @@ import { Page } from '@vben/common-ui';
 import type { VbenFormProps } from '#/adapter/form';
 import ContractCreateModal from './ContractCreateModal.vue';
 import ContractDetailDrawer from './ContractDetailDrawer.vue';
+import SupplyContractBuilder from './SupplyContractBuilder.vue'; // New component
 
 // --- Form Configuration ---
 const formOptions: VbenFormProps = {
@@ -231,8 +232,18 @@ const [DetailDrawer, drawerApi] = useVbenDrawer({
   connectedComponent: ContractDetailDrawer,
 });
 
+// --- Supply Contract Builder ---
+const [BuilderDrawer, builderApi] = useVbenDrawer({
+  connectedComponent: SupplyContractBuilder,
+});
+
 function handleCreate() {
   modalApi.open();
+}
+
+function handleGenerateStatement(row: any) {
+  builderApi.setData({ l1Contract: row });
+  builderApi.open();
 }
 
 function handleCreateSuccess() {
@@ -335,6 +346,8 @@ async function handlePrintBatch() {
       <!-- Action Column Slot -->
       <template #action_default="{ row }">
         <Button type="link" size="small" @click="handleView(row)">查看</Button>
+        <!-- New Button: Prepare Statement -->
+        <Button type="link" size="small" @click="handleGenerateStatement(row)">编制结算</Button>
         <Popconfirm title="确定要删除吗?" @confirm="handleDelete(row)">
            <Button type="link" danger size="small">删除</Button>
         </Popconfirm>
@@ -343,6 +356,7 @@ async function handlePrintBatch() {
     
     <CreateModal @success="handleCreateSuccess" />
     <DetailDrawer />
+    <BuilderDrawer /> <!-- Added -->
 
     <!-- Custom Export Modal -->
     <Modal

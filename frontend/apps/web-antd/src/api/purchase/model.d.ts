@@ -30,6 +30,10 @@ export interface SysSupplier {
   payment_terms?: string;
   payment_method?: string;
   
+  // 新增纳税人信息
+  taxpayer_type?: string;
+  default_vat_rate?: number;
+
   bank_accounts?: Array<{
     bank_name: string;
     account: string;

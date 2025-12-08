@@ -5,7 +5,9 @@ from .auth.routes import auth_bp
 from .product.routes import product_bp
 from .product.category import category_bp
 from .product.vehicle import vehicle_bp as vehicle_aux_bp
-from .system import system_bp
+from .product.auxiliary import aux_bp as product_aux_bp
+from .product.rule import rule_bp
+from .system.dict import system_bp
 from .serc import serc_bp  # 导入 SERC
 from .purchase import purchase_bp # 导入 Purchase
 from .supply import supply_bp # 导入 Supply
@@ -19,6 +21,8 @@ api_v1.register_blueprint(auth_bp)
 api_v1.register_blueprint(product_bp)
 api_v1.register_blueprint(category_bp)
 api_v1.register_blueprint(vehicle_aux_bp)
+api_v1.register_blueprint(product_aux_bp)
+api_v1.register_blueprint(rule_bp)
 api_v1.register_blueprint(system_bp)
 api_v1.register_blueprint(serc_bp)  # 注册 SERC /api/v1/serc/
 api_v1.register_blueprint(purchase_bp) # 注册 Purchase /api/v1/purchase/

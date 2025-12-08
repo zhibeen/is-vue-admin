@@ -1,0 +1,67 @@
+make_code,make_en,model_code,model_en,platform_code,platform_en,year
+01,Volkswagen,01,Amarok,,,2010-2022
+01,Volkswagen,02,Arteon,,,2017-2023
+01,Volkswagen,03,Atlas,,,2017-2023
+01,Volkswagen,04,Beetle,,,2011-2019
+01,Volkswagen,05,Bora,,,1998-2005
+01,Volkswagen,06,Caddy,,,2003-2020
+01,Volkswagen,07,CC,,,2008-2017
+01,Volkswagen,08,Golf,01,Mk4,1997-2003
+01,Volkswagen,08,Golf,02,Mk5,2003-2008
+01,Volkswagen,08,Golf,03,Mk6,2008-2012
+01,Volkswagen,08,Golf,04,Mk7,2012-2019
+01,Volkswagen,08,Golf,05,Mk8,2019-2024
+01,Volkswagen,09,ID.3,,,2019-2024
+01,Volkswagen,10,ID.4,,,2020-2024
+01,Volkswagen,11,Jetta,01,A2,1984-1992
+01,Volkswagen,11,Jetta,02,A3,1992-1999
+01,Volkswagen,11,Jetta,03,A4,1999-2005
+01,Volkswagen,11,Jetta,04,A5,2005-2011
+01,Volkswagen,11,Jetta,05,A6,2011-2018
+01,Volkswagen,11,Jetta,06,A7,2018-2024
+02,BMW,01,1 Series,01,E81,2004-2011
+02,BMW,01,1 Series,02,E82,2007-2013
+02,BMW,01,1 Series,03,E87,2004-2011
+02,BMW,01,1 Series,04,E88,2007-2013
+02,BMW,01,1 Series,05,F20,2011-2019
+02,BMW,01,1 Series,06,F21,2011-2019
+02,BMW,01,1 Series,07,F40,2019-2024
+02,BMW,03,3 Series,01,E36,1990-2000
+02,BMW,03,3 Series,02,E46,1998-2006
+02,BMW,03,3 Series,03,E90,2005-2011
+02,BMW,03,3 Series,04,E91,2005-2012
+02,BMW,03,3 Series,05,E92,2006-2013
+02,BMW,03,3 Series,06,E93,2007-2013
+02,BMW,03,3 Series,07,F30,2011-2018
+02,BMW,03,3 Series,08,F31,2012-2019
+02,BMW,03,3 Series,09,F34,2013-2020
+02,BMW,03,3 Series,10,F35,2012-2019
+02,BMW,03,3 Series,11,G20,2018-2024
+02,BMW,03,3 Series,12,G21,2019-2024
+02,BMW,05,5 Series,01,E39,1995-2004
+02,BMW,05,5 Series,02,E60,2003-2010
+02,BMW,05,5 Series,03,E61,2004-2010
+02,BMW,05,5 Series,04,F10,2010-2017
+02,BMW,05,5 Series,05,F11,2010-2017
+02,BMW,05,5 Series,06,G30,2017-2023
+02,BMW,05,5 Series,07,G31,2017-2023
+03,Mercedes-Benz,04,C-Class,01,W202,1993-2000
+03,Mercedes-Benz,04,C-Class,02,W203,2000-2007
+03,Mercedes-Benz,04,C-Class,03,W204,2007-2014
+03,Mercedes-Benz,04,C-Class,04,W205,2014-2021
+03,Mercedes-Benz,04,C-Class,05,W206,2021-2024
+03,Mercedes-Benz,07,E-Class,01,W210,1995-2002
+03,Mercedes-Benz,07,E-Class,02,W211,2002-2009
+03,Mercedes-Benz,07,E-Class,03,W212,2009-2016
+03,Mercedes-Benz,07,E-Class,04,W213,2016-2023
+03,Mercedes-Benz,11,GLC,01,X253,2015-2022
+03,Mercedes-Benz,11,GLC,02,C253,2016-2022
+03,Mercedes-Benz,11,GLC,03,X254,2022-2024
+12,Toyota,07,Camry,01,XV30,2001-2006
+12,Toyota,07,Camry,02,XV40,2006-2011
+12,Toyota,07,Camry,03,XV50,2011-2017
+12,Toyota,07,Camry,04,XV70,2017-2024
+12,Toyota,09,Corolla,01,E120,2000-2006
+12,Toyota,09,Corolla,02,E140,2006-2013
+12,Toyota,09,Corolla,03,E170,2013-2019
+12,Toyota,09,Corolla,04,E210,2018-2024

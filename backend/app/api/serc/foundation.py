@@ -2,9 +2,10 @@ from apiflask import APIBlueprint, abort
 from apiflask.views import MethodView
 from app.schemas.serc.foundation import (
     CompanySimpleSchema, CompanyDetailSchema, HSCodeSimpleSchema,
-    CompanyCreateSchema, CompanyUpdateSchema
+    CompanyCreateSchema, CompanyUpdateSchema, TaxCategorySchema
 )
 from app.models.serc.foundation import SysCompany, SysHSCode
+from app.models.product import SysTaxCategory
 from app.extensions import db
 from sqlalchemy import select
 
@@ -69,6 +70,15 @@ class HSCodeListAPI(MethodView):
         codes = db.session.scalars(select(SysHSCode).order_by(SysHSCode.code)).all()
         return {'data': codes}
 
+class TaxCategoryListAPI(MethodView):
+    @serc_foundation_bp.output(TaxCategorySchema(many=True))
+    def get(self):
+        """获取税收分类列表"""
+        # order by code
+        cats = db.session.scalars(select(SysTaxCategory).order_by(SysTaxCategory.code)).all()
+        return {'data': cats}
+
 serc_foundation_bp.add_url_rule('/companies', view_func=CompanyListAPI.as_view('company_list'))
 serc_foundation_bp.add_url_rule('/companies/<int:company_id>', view_func=CompanyDetailAPI.as_view('company_detail'))
 serc_foundation_bp.add_url_rule('/hscodes', view_func=HSCodeListAPI.as_view('hscode_list'))
+serc_foundation_bp.add_url_rule('/tax-categories', view_func=TaxCategoryListAPI.as_view('tax_category_list'))

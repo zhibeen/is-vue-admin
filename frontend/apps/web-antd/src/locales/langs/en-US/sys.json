@@ -1,0 +1,15 @@
+{
+  "dict": {
+    "category": {
+      "product": "Product",
+      "purchase": "Purchase",
+      "finance": "Finance",
+      "system": "System",
+      "supply": "Supply Chain",
+      "all": "All"
+    }
+  }
+}
+
+
+
