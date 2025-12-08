@@ -82,6 +82,7 @@ export interface CategoryAttribute {
   options?: { label: string; value: any; code?: string }[]; // Added code
   code_weight?: number; // NEW: 排序权重
   group_name?: string; // NEW: 属性分组
+  allow_custom?: boolean; // NEW: 是否允许自定义值
 }
 
 export interface CategoryAttributeMapping {

@@ -9,6 +9,7 @@ def register_commands(app: Flask):
     from .product import product_cli
     from .supply import supply_cli
     from .core import init_dev_cmd, forge_mock_cmd
+    from .rebuild import rebuild_cmd
     
     # 2. 注册 Command Groups (带前缀)
     # flask user seed-users
@@ -26,6 +27,7 @@ def register_commands(app: Flask):
     # 同时也保留原来的 seed-* 命令作为顶级命令（为了兼容性，如果团队已经习惯了）
     app.cli.add_command(init_dev_cmd)
     app.cli.add_command(forge_mock_cmd)
+    app.cli.add_command(rebuild_cmd)
     
     # 可选：如果你希望旧的 seed-* 命令也能直接在顶级访问 (兼容旧脚本)
     app.cli.add_command(seed_users_cmd)

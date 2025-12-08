@@ -28,6 +28,7 @@ class AttributeDefinitionSchema(Schema):
     code_weight = Integer() # Added code_weight to schema as it's in model
     
     is_global = Boolean()
+    allow_custom = Boolean() # New field
 
 # 用于返回 CategoryAttribute 关联信息的 Schema
 class CategoryAttributeMappingSchema(Schema):
@@ -39,6 +40,8 @@ class CategoryAttributeMappingSchema(Schema):
     options = Raw(allow_none=True, metadata={'description': 'Override global options if set'}) # New override field
     group_name = String(allow_none=True, metadata={'description': 'Override attribute group'}) # New override field
     attribute_scope = String(load_default='spu', validate=OneOf(['spu', 'sku']), metadata={'description': '属性作用域: spu/sku'}) # New field
+    allow_custom = Boolean(allow_none=True, metadata={'description': 'Override allow_custom'}) # New override field
+
 
     # 包含完整属性定义
     attribute = Nested(AttributeDefinitionSchema, attribute='attribute_definition', allow_none=True)

@@ -219,6 +219,35 @@ def seed_system_dicts_cmd(clear):
                     "meta": {"order": 50, "parent": "year", "required": False}
                 }
             ]
+        },
+        {
+            "name": "商品属性分组",
+            "code": "product_attribute_group",
+            "category": "product",
+            "description": "用于商品属性定义的逻辑分组，如：基本信息、技术参数等",
+            "is_system": True,
+            "value_options": [
+                {
+                    "label": "基本信息",
+                    "value": "Basic",
+                    "sort_order": 1
+                },
+                {
+                    "label": "技术参数",
+                    "value": "Technical",
+                    "sort_order": 2
+                },
+                {
+                    "label": "包装规格",
+                    "value": "Packaging",
+                    "sort_order": 3
+                },
+                {
+                    "label": "物流信息",
+                    "value": "Logistics",
+                    "sort_order": 4
+                }
+            ]
         }
     ]
 

@@ -24,6 +24,9 @@ class CategoryAttribute(db.Model):
 
     # 新增: 属性作用域 (spu=公共属性, sku=变体属性)
     attribute_scope: Mapped[Optional[str]] = mapped_column(String(10), default='spu', comment="属性作用域: spu/sku")
+    
+    # 新增: 是否允许自定义值 (覆盖全局配置)
+    allow_custom: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True, comment="Override allow_custom")
 
     # Relationships
     attribute_definition: Mapped["AttributeDefinition"] = relationship()
@@ -103,6 +106,9 @@ class AttributeDefinition(db.Model):
     
     # 新增: 属性描述
     description: Mapped[Optional[str]] = mapped_column(db.Text, nullable=True, comment="属性详细描述")
+
+    # 新增: 是否允许自定义值 (仅对 select/radio 有效)
+    allow_custom: Mapped[bool] = mapped_column(Boolean, default=False, comment="是否允许输入自定义值")
 
     def __repr__(self):
         return f"<Attribute {self.key_name}>"
