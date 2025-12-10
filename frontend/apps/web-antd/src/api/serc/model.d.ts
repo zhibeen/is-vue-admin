@@ -113,7 +113,26 @@ export interface SysHSCode {
   id: number;
   code: string;
   name: string;
+  
+  // 计量单位
+  unit_1?: string; // 第一法定单位
+  unit_2?: string; // 第二法定单位
+  default_transaction_unit?: string; // 建议申报单位
+  
+  // 税率信息
   refund_rate: number;
+  import_mfn_rate?: number; // 进口最惠国税率
+  import_general_rate?: number; // 进口普通税率
+  vat_rate?: number; // 增值税率
+  
+  // 监管与检疫
+  regulatory_code?: string; // 监管条件
+  inspection_code?: string; // 检验检疫
+  
+  // 其他
+  elements?: string; // 申报要素
+  note?: string;
+  updated_at?: string;
 }
 
 // --- Supply (L1) ---

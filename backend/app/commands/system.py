@@ -375,7 +375,117 @@ def seed_companies_cmd(clear):
     db.session.commit()
     click.echo("✅ 内部公司数据生成完成！")
 
+@click.command('seed-hscodes')
+@click.option('--clear', is_flag=True, help='清除现有数据')
+def seed_hscodes_cmd(clear):
+    """生成 HS Code 模拟数据 (中国海关标准)"""
+    from app.models.serc.foundation import SysHSCode
+    
+    # 模拟数据源
+    hscodes_data = [
+        {
+            "code": "8512201000",
+            "name": "机动车辆用照明装置",
+            "unit_1": "千克",
+            "unit_2": "个",
+            "default_transaction_unit": "个",
+            "refund_rate": 0.1300,
+            "import_mfn_rate": 0.1000,
+            "import_general_rate": 0.3500,
+            "vat_rate": 0.1300,
+            "regulatory_code": "A",
+            "inspection_code": "M",
+            "elements": "1:品名;2:适用车型;3:品牌;4:型号;5:电压;6:功率;7:材质",
+            "note": "主要包含前大灯、尾灯等，需注意是否带光源"
+        },
+        {
+            "code": "8708999990",
+            "name": "其他未列名机动车辆零件、附件",
+            "unit_1": "千克",
+            "unit_2": None,
+            "default_transaction_unit": "个",
+            "refund_rate": 0.1300,
+            "import_mfn_rate": 0.0600,
+            "import_general_rate": 0.4500,
+            "vat_rate": 0.1300,
+            "regulatory_code": None,
+            "inspection_code": None,
+            "elements": "1:品名;2:品牌;3:适用车型;4:型号;5:零部件编号",
+            "note": "通用兜底编码，适用于无明确归类的汽配零件"
+        },
+        {
+            "code": "3926909090",
+            "name": "其他塑料制品",
+            "unit_1": "千克",
+            "unit_2": None,
+            "default_transaction_unit": "个",
+            "refund_rate": 0.1300,
+            "import_mfn_rate": 0.0650,
+            "import_general_rate": 0.8000,
+            "vat_rate": 0.1300,
+            "regulatory_code": None,
+            "inspection_code": None,
+            "elements": "1:品名;2:用途;3:材质;4:品牌;5:型号",
+            "note": "适用于塑料材质的内饰件、卡扣等"
+        },
+        {
+            "code": "8708299000",
+            "name": "其他车身未列名零部件",
+            "unit_1": "千克",
+            "unit_2": None,
+            "default_transaction_unit": "个",
+            "refund_rate": 0.1300,
+            "import_mfn_rate": 0.0600,
+            "import_general_rate": 0.4500,
+            "vat_rate": 0.1300,
+            "regulatory_code": "AB",
+            "inspection_code": "M/N",
+            "elements": "1:品名;2:适用车型;3:品牌;4:型号;5:材质",
+            "note": "适用于叶子板、保险杠支架等车身结构件"
+        },
+        {
+            "code": "8544302000",
+            "name": "机动车辆用点火布线组及其他布线组",
+            "unit_1": "千克",
+            "unit_2": "组",
+            "default_transaction_unit": "套",
+            "refund_rate": 0.1300,
+            "import_mfn_rate": 0.1000,
+            "import_general_rate": 0.3500,
+            "vat_rate": 0.1300,
+            "regulatory_code": None,
+            "inspection_code": None,
+            "elements": "1:品名;2:用途;3:电压;4:品牌;5:型号",
+            "note": "线束类产品"
+        }
+    ]
+
+    if clear:
+        click.echo("正在清除现有 HS Code 数据...")
+        db.session.query(SysHSCode).delete()
+        db.session.commit()
+        click.echo("✅ 已清除 HS Code 数据")
+
+    for data in hscodes_data:
+        existing = db.session.scalar(select(SysHSCode).where(SysHSCode.code == data['code']))
+        if existing:
+            click.echo(f"Updating HS Code: {data['code']}")
+            stmt = (
+                update(SysHSCode)
+                .where(SysHSCode.code == data['code'])
+                .values(**data)
+            )
+            db.session.execute(stmt)
+        else:
+            click.echo(f"Creating HS Code: {data['code']}")
+            hs = SysHSCode(**data)
+            db.session.add(hs)
+    
+    db.session.commit()
+    click.echo("✅ HS Code 模拟数据生成完成！")
+
 # 注册到 Group
 system_cli.add_command(seed_system_dicts_cmd)
 system_cli.add_command(seed_companies_cmd)
+system_cli.add_command(seed_hscodes_cmd)
 

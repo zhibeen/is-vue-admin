@@ -121,10 +121,28 @@ class ProductVariant(db.Model):
     cost_price: Mapped[Optional[Decimal]] = mapped_column(DECIMAL(10, 2))
     
     # Physical
-    weight: Mapped[Optional[float]] = mapped_column(DECIMAL(10,2), comment="Weight in KG")
-    length: Mapped[Optional[Decimal]] = mapped_column(DECIMAL(10, 2), comment="Length in CM")
-    width: Mapped[Optional[Decimal]] = mapped_column(DECIMAL(10, 2), comment="Width in CM")
-    height: Mapped[Optional[Decimal]] = mapped_column(DECIMAL(10, 2), comment="Height in CM")
+    # Net Weight: 产品本身重量 (用于报关法定数量计算)
+    net_weight: Mapped[Optional[float]] = mapped_column(DECIMAL(10,3), comment="Net Weight (KG)")
+    # Gross Weight: 含包装重量 (用于物流计费)
+    gross_weight: Mapped[Optional[float]] = mapped_column(DECIMAL(10,3), comment="Gross Weight (KG)")
+
+    # Package Dimensions (包装尺寸 - 用于计算体积和抛重)
+    pack_length: Mapped[Optional[float]] = mapped_column(DECIMAL(10, 1), comment="Package Length (CM)")
+    pack_width: Mapped[Optional[float]] = mapped_column(DECIMAL(10, 1), comment="Package Width (CM)")
+    pack_height: Mapped[Optional[float]] = mapped_column(DECIMAL(10, 1), comment="Package Height (CM)")
+
+    # Helper Property: 计算体积 (CBM - 立方米)
+    @property
+    def volume_cbm(self):
+        if self.pack_length and self.pack_width and self.pack_height:
+            # CM * CM * CM / 1,000,000 = M3
+            # Use float conversion to ensure calculation works if Decimal is returned
+            l = float(self.pack_length)
+            w = float(self.pack_width)
+            h = float(self.pack_height)
+            vol = (l * w * h) / 1000000.0
+            return round(vol, 4)
+        return 0.0
     
     # Compliance (Moved from Product/SPU if variants differ, otherwise keep on SPU. Usually SPU level for HS Code)
     # Keeping HS Code on SPU for now or Variant? Let's put on Variant for max flexibility.

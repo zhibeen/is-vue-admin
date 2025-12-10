@@ -8,6 +8,9 @@ flask-cors
 ruff
 flask-jwt-extended
 
+# HTTP Requests
+requests
+
 # Testing
 pytest
 pytest-flask

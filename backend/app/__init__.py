@@ -7,6 +7,7 @@ from flask_jwt_extended import JWTManager
 from flask import g, request
 from .extensions import db
 from .api import register_blueprints
+from .commands import register_commands
 from .logging_config import configure_logging
 from .celery_utils import celery_init_app
 from .config import config
@@ -32,7 +33,16 @@ def create_app(config_name=None, test_config=None):
     app.config['BASE_RESPONSE_SCHEMA'] = BaseResponseSchema
     app.config['BASE_RESPONSE_DATA_KEY'] = 'data'
 
-    # 1.2 Unified Error Processor
+    # 1.2 Celery Configuration
+    app.config.update(
+        CELERY={
+            'broker_url': app.config.get('REDIS_URL', 'redis://redis:6379/0'),
+            'result_backend': app.config.get('REDIS_URL', 'redis://redis:6379/0'),
+            'task_ignore_result': True,
+        }
+    )
+
+    # 1.3 Unified Error Processor
     @app.error_processor
     def custom_error_processor(error):
         # error is an instance of apiflask.exceptions.HTTPError
@@ -49,82 +59,72 @@ def create_app(config_name=None, test_config=None):
             if 'data' in extra_data:
                 data = extra_data['data']
         
-        # Specific mappings for standard HTTP errors if not overridden
-        if not extra_data:
-            if error.status_code == 404:
-                business_code = 10404
-            elif error.status_code == 401:
-                business_code = 20101
-            elif error.status_code == 403:
-                business_code = 20403
-            elif error.status_code == 422:
-                business_code = 10400 # Bad Request / Validation Error
-                # For 422, detail is usually a dict of validation errors
-        
-        return {
+        # Build response
+        response = {
             'code': business_code,
             'message': error.message,
             'data': data
-        }, error.status_code, error.headers
-    
-    # 2. Extensions
-    CORS(app, supports_credentials=True)
-    db.init_app(app)
-    migrate = Migrate(app, db)
-    jwt = JWTManager(app)
-    celery_init_app(app)
-    
-    # 3. Blueprints
-    register_blueprints(app)
-    
-    # 3.1 Request Logging Hook
-    @app.after_request
-    def log_request(response):
-        if request.path == '/favicon.ico':
-            return response
-            
-        now = time.time()
-        duration = round(now - g.start_time, 4) if hasattr(g, 'start_time') else 0
-        
-        log_data = {
-            'method': request.method,
-            'path': request.path,
-            'status': response.status_code,
-            'duration': duration,
-            'ip': request.remote_addr,
         }
         
-        # Try to get user identity if available
-        try:
-            from flask_jwt_extended import get_jwt_identity
-            user_id = get_jwt_identity()
-            if user_id:
-                log_data['user_id'] = user_id
-        except Exception:
-            pass
-            
-        app.logger.info(f"{request.method} {request.path} {response.status_code} {duration}s", extra=log_data)
-        return response
+        # Remove null data
+        if data is None:
+            response.pop('data')
+        
+        return response, error.status_code, error.headers
 
-    @app.before_request
-    def start_timer():
-        g.start_time = time.time()
-    
-    # 4. Models
-    with app.app_context():
-        from app import models
-    
-    # 5. CLI Commands
-    from app.commands import register_commands
+    # 2. CORS
+    CORS(app, supports_credentials=True)
+
+    # 3. Database
+    db.init_app(app)
+    Migrate(app, db)
+
+    # 4. JWT
+    jwt = JWTManager(app)
+    from .security import auth
+    app.extensions['auth'] = auth
+
+    # 5. Celery
+    celery_app = celery_init_app(app)
+    app.extensions['celery'] = celery_app
+
+    # 6. Blueprints
+    register_blueprints(app)
+
+    # 6.5. Commands
     register_commands(app)
 
-    @app.get('/')
-    def index():
-        return {
-            'data': {
-                'message': 'Hello from APIFlask backend!', 
-                'version': '1.0.0'
-            }
-        }
+    # 7. Request logging middleware
+    @app.before_request
+    def before_request():
+        g.start_time = time.time()
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            app.logger.info('Request started', extra={
+                'method': request.method,
+                'path': request.path,
+                'content_type': request.content_type,
+                'content_length': request.content_length
+            })
+
+    @app.after_request
+    def after_request(response):
+        if hasattr(g, 'start_time'):
+            duration = time.time() - g.start_time
+            response.headers['X-Response-Time'] = f'{duration:.3f}s'
+            
+            if request.method in ['POST', 'PUT', 'PATCH']:
+                app.logger.info('Request completed', extra={
+                    'method': request.method,
+                    'path': request.path,
+                    'status': response.status_code,
+                    'duration': f'{duration:.3f}s'
+                })
         
+        return response
+
+    # 8. Health check
+    @app.get('/health')
+    def health():
+        return {'status': 'healthy', 'timestamp': time.time()}
+
     return app

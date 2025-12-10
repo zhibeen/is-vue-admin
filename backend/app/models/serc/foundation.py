@@ -80,10 +80,32 @@ class SysHSCode(db.Model):
     __tablename__ = "sys_hs_codes"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    code: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
-    name: Mapped[str] = mapped_column(String(200))
-    refund_rate: Mapped[float] = mapped_column(DECIMAL(5, 4))  # e.g. 0.1300
+    
+    # 基础信息
+    code: Mapped[str] = mapped_column(String(20), unique=True, nullable=False, comment="HS编码(10位)")
+    name: Mapped[str] = mapped_column(String(500), comment="商品名称")
+    
+    # 计量单位
+    unit_1: Mapped[Optional[str]] = mapped_column(String(20), comment="第一法定单位")
+    unit_2: Mapped[Optional[str]] = mapped_column(String(20), comment="第二法定单位")
+    default_transaction_unit: Mapped[Optional[str]] = mapped_column(String(20), comment="建议成交/申报单位")
+    
+    # 税率信息
+    refund_rate: Mapped[float] = mapped_column(DECIMAL(6, 4), comment="出口退税率")
+    import_mfn_rate: Mapped[Optional[float]] = mapped_column(DECIMAL(6, 4), comment="进口最惠国税率")
+    import_general_rate: Mapped[Optional[float]] = mapped_column(DECIMAL(6, 4), comment="进口普通税率")
+    vat_rate: Mapped[Optional[float]] = mapped_column(DECIMAL(6, 4), comment="增值税率")
+    
+    # 监管与检疫
+    regulatory_code: Mapped[Optional[str]] = mapped_column(String(50), comment="监管条件代码")
+    inspection_code: Mapped[Optional[str]] = mapped_column(String(50), comment="检验检疫类别")
+    
+    # 申报要素与备注
+    elements: Mapped[Optional[str]] = mapped_column(Text, comment="申报要素")
+    note: Mapped[Optional[str]] = mapped_column(Text, comment="备注")
+    
     effective_date: Mapped[Optional[Date]] = mapped_column(Date)
     expiry_date: Mapped[Optional[Date]] = mapped_column(Date)
     
-    created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), server_default=func.now())
+    updated_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), server_default=func.now(), onupdate=func.now())

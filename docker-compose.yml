@@ -26,8 +26,8 @@ services:
   celery_worker:
     build: ./backend
     container_name: is_admin_worker
-    # 启动 Celery Worker
-    command: celery -A app.celery worker --loglevel=info
+    # 启动 Celery Worker，使用独立的celery_config模块
+    command: celery -A app.celery_config.celery_app worker --loglevel=info
     volumes:
       - ./backend:/app
     env_file:

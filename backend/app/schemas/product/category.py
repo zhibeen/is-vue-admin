@@ -78,7 +78,7 @@ class CategoryBaseSchema(Schema):
     )
     spu_config = Dict(
         allow_none=True,
-        metadata={'description': 'SPU表单配置与生成模板', 'example': {'template': '...', 'fields': [...]}}
+        metadata={'description': 'SPU表单配置与生成模板', 'example': {'template': '...', 'fields': ['...']}}
     )
     parent_id = Integer(allow_none=True)
     description = String()

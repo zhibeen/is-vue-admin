@@ -27,3 +27,15 @@ export const deleteCompany = (id: number) => {
 export const getHSCodeList = () => {
   return requestClient.get<SysHSCode[]>(Api.HSCodes);
 };
+
+export const createHSCode = (data: any) => {
+  return requestClient.post<SysHSCode>(Api.HSCodes, data);
+};
+
+export const updateHSCode = (id: number, data: any) => {
+  return requestClient.put<SysHSCode>(`${Api.HSCodes}/${id}`, data);
+};
+
+export const deleteHSCode = (id: number) => {
+  return requestClient.delete(`${Api.HSCodes}/${id}`);
+};

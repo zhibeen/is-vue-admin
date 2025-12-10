@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from sqlalchemy import select
+from sqlalchemy import select, or_, and_
 from sqlalchemy.orm import selectinload
 from app.extensions import db
 from app.models.product import Product, ProductVariant, ProductReferenceCode, ProductFitment, Category
@@ -271,3 +271,309 @@ class ProductService:
         
         db.session.commit()
         return product
+
+    def list_skus(self, page: int = 1, per_page: int = 20, filters: Dict[str, Any] = None):
+        """
+        获取SKU列表，支持多维度筛选
+        
+        Args:
+            page: 页码
+            per_page: 每页数量
+            filters: 筛选条件字典，包含：
+                - q: 搜索关键词 (SKU编码、特征码、产品名称)
+                - category_id: 分类ID
+                - brand: 品牌
+                - model: 车型
+                - attribute_filters: 属性筛选 {key: value}
+                - stock_min: 最小库存
+                - stock_max: 最大库存
+                - is_active: 是否启用
+        """
+        # 基础查询：关联Product和Category
+        stmt = select(ProductVariant).join(
+            Product, ProductVariant.product_id == Product.id
+        ).join(
+            Category, Product.category_id == Category.id
+        ).options(
+            selectinload(ProductVariant.product).selectinload(Product.category)
+        )
+        
+        # 应用筛选条件
+        if filters:
+            # 搜索关键词
+            if filters.get('q'):
+                q = f"%{filters['q']}%"
+                stmt = stmt.where(
+                    or_(
+                        ProductVariant.sku.ilike(q),
+                        ProductVariant.feature_code.ilike(q),
+                        Product.name.ilike(q),
+                        Product.spu_code.ilike(q)
+                    )
+                )
+            
+            # 分类筛选
+            if filters.get('category_id'):
+                stmt = stmt.where(Product.category_id == filters['category_id'])
+            
+            # 品牌/车型筛选
+            if filters.get('brand'):
+                stmt = stmt.where(Product.brand == filters['brand'])
+            if filters.get('model'):
+                stmt = stmt.where(Product.spu_coding_metadata['model'].astext == filters['model'])
+            
+            # 状态筛选
+            if 'is_active' in filters:
+                stmt = stmt.where(ProductVariant.is_active == filters['is_active'])
+            
+            # 属性筛选 (JSONB字段查询)
+            if filters.get('attribute_filters'):
+                for key, value in filters['attribute_filters'].items():
+                    # 查询 specs JSONB字段中的属性
+                    stmt = stmt.where(
+                        ProductVariant.specs[key].astext == str(value)
+                    )
+        
+        # 排序：默认按创建时间倒序
+        stmt = stmt.order_by(ProductVariant.created_at.desc())
+        
+        # 分页查询
+        pagination = db.paginate(stmt, page=page, per_page=per_page)
+        
+        # 转换结果格式
+        items = []
+        for variant in pagination.items:
+            product = variant.product
+            category = product.category
+            
+            # 构建属性显示字符串
+            attributes_display = []
+            if variant.specs:
+                for key, value in variant.specs.items():
+                    if value:
+                        attributes_display.append(f"{key}:{value}")
+            
+            item = {
+                'sku': variant.sku,
+                'feature_code': variant.feature_code or '',
+                'product_id': product.id,
+                'product_name': product.name,
+                'spu_code': product.spu_code,
+                'category_id': category.id,
+                'category_name': category.name,
+                'brand': product.brand,
+                'model': product.spu_coding_metadata.get('model') if product.spu_coding_metadata else None,
+                'attributes_display': ', '.join(attributes_display) if attributes_display else '-',
+                'stock_quantity': 0,  # TODO: 集成库存系统后填充
+                'safety_stock': 0,    # TODO: 集成库存系统后填充
+                'in_transit': 0,      # TODO: 集成库存系统后填充
+                'warning_status': 'normal',  # TODO: 根据库存计算
+                'quality_type': variant.quality_type,
+                'is_active': variant.is_active,
+                'created_at': variant.created_at.isoformat() if variant.created_at else None,
+                'updated_at': variant.updated_at.isoformat() if variant.updated_at else None,
+            }
+            items.append(item)
+        
+        return {
+            'items': items,
+            'total': pagination.total,
+            'page': page,
+            'per_page': per_page,
+            'pages': pagination.pages
+        }
+
+    def get_sku_detail(self, sku: str) -> Dict[str, Any]:
+        """
+        获取SKU详情
+        
+        Args:
+            sku: SKU编码
+        """
+        # 查询SKU及其关联数据
+        stmt = select(ProductVariant).where(ProductVariant.sku == sku).options(
+            selectinload(ProductVariant.product).selectinload(Product.category),
+            selectinload(ProductVariant.product).selectinload(Product.reference_codes),
+            selectinload(ProductVariant.product).selectinload(Product.fitments)
+        )
+        
+        variant = db.session.scalars(stmt).first()
+        if not variant:
+            raise BusinessError(f'SKU {sku} not found', 404)
+        
+        product = variant.product
+        category = product.category
+        
+        # 解析编码规则
+        coding_rules = self._parse_sku_coding_rules(variant.sku, category)
+        
+        # 构建属性显示
+        attributes = variant.specs or {}
+        
+        # 构建合规信息
+        compliance_info = {
+            'hs_code': variant.hs_code.code if variant.hs_code else None,
+            'declared_name': variant.declared_name,
+            'declared_unit': variant.declared_unit,
+            'net_weight': float(variant.net_weight) if variant.net_weight else None,
+            'gross_weight': float(variant.gross_weight) if variant.gross_weight else None,
+            'package_dimensions': f"{variant.pack_length or 0}×{variant.pack_width or 0}×{variant.pack_height or 0}cm" 
+                                  if variant.pack_length and variant.pack_width and variant.pack_height else None,
+        }
+        
+        # 构建参考编码列表
+        reference_codes = []
+        for rc in product.reference_codes:
+            reference_codes.append({
+                'code': rc.code,
+                'code_type': rc.code_type,
+                'brand': rc.brand
+            })
+        
+        # 构建适配车型列表
+        fitments = []
+        for fitment in product.fitments:
+            fitments.append({
+                'make': fitment.make,
+                'model': fitment.model,
+                'sub_model': fitment.sub_model,
+                'year_start': fitment.year_start,
+                'year_end': fitment.year_end,
+                'position': fitment.position
+            })
+        
+        # 构建属性显示字符串
+        attributes_display = []
+        for key, value in attributes.items():
+            if value:
+                attributes_display.append(f"{key}:{value}")
+        
+        result = {
+            'sku': variant.sku,
+            'feature_code': variant.feature_code or '',
+            'product_id': product.id,
+            'product_name': product.name,
+            'spu_code': product.spu_code,
+            'category_id': category.id,
+            'category_name': category.name,
+            'brand': product.brand,
+            'model': product.spu_coding_metadata.get('model') if product.spu_coding_metadata else None,
+            'attributes': attributes,
+            'attributes_display': ', '.join(attributes_display) if attributes_display else '-',
+            'compliance_info': compliance_info,
+            'coding_rules': coding_rules,
+            'reference_codes': reference_codes,
+            'fitments': fitments,
+            'stock_quantity': 0,  # TODO: 集成库存系统后填充
+            'safety_stock': 0,    # TODO: 集成库存系统后填充
+            'in_transit': 0,      # TODO: 集成库存系统后填充
+            'warning_status': 'normal',  # TODO: 根据库存计算
+            'quality_type': variant.quality_type,
+            'is_active': variant.is_active,
+            'created_at': variant.created_at.isoformat() if variant.created_at else None,
+            'updated_at': variant.updated_at.isoformat() if variant.updated_at else None,
+        }
+        
+        return result
+
+    def _parse_sku_coding_rules(self, sku: str, category: Category) -> Dict[str, Any]:
+        """
+        解析SKU编码规则
+        
+        根据双轨制编码规则解析SKU的各个部分：
+        - 类目码(3位)
+        - 车型码(4位): Brand(2位) + Model(2位)
+        - 流水号(2位)
+        - 属性后缀(可选)
+        """
+        if len(sku) < 9:
+            return {}
+        
+        try:
+            # 解析各个部分
+            category_code = sku[:3]  # 前3位：类目码
+            vehicle_code = sku[3:7]  # 第4-7位：车型码
+            serial = sku[7:9]        # 第8-9位：流水号
+            suffix = sku[9:] if len(sku) > 9 else ''  # 剩余部分：属性后缀
+            
+            # 解析车型码
+            brand_code = vehicle_code[:2] if len(vehicle_code) >= 2 else ''
+            model_code = vehicle_code[2:4] if len(vehicle_code) >= 4 else ''
+            
+            return {
+                'category_code': category_code,
+                'vehicle_code': vehicle_code,
+                'brand_code': brand_code,
+                'model_code': model_code,
+                'serial': serial,
+                'suffix': suffix,
+                'category_abbreviation': category.abbreviation or '',
+                'category_code_db': category.code or ''
+            }
+        except Exception as e:
+            logger.warning(f"Failed to parse SKU coding rules for {sku}: {e}")
+            return {}
+
+    def update_sku(self, sku: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        更新SKU信息
+        
+        注意：只能更新非编码相关的字段（价格、库存、状态等）
+        """
+        variant = db.session.scalar(select(ProductVariant).where(ProductVariant.sku == sku))
+        if not variant:
+            raise BusinessError(f'SKU {sku} not found', 404)
+        
+        # 允许更新的字段
+        updatable_fields = [
+            'price', 'cost_price', 'net_weight', 'gross_weight',
+            'pack_length', 'pack_width', 'pack_height',
+            'hs_code_id', 'declared_name', 'declared_unit',
+            'quality_type', 'is_active', 'barcode', 'image'
+        ]
+        
+        for field in updatable_fields:
+            if field in data:
+                setattr(variant, field, data[field])
+        
+        # 更新specs（变体属性）
+        if 'specs' in data:
+            variant.specs = data['specs']
+        
+        db.session.commit()
+        
+        return self.get_sku_detail(sku)
+
+    def delete_sku(self, sku: str) -> None:
+        """
+        删除SKU
+        
+        注意：删除前需要检查是否有库存或订单关联
+        """
+        variant = db.session.scalar(select(ProductVariant).where(ProductVariant.sku == sku))
+        if not variant:
+            raise BusinessError(f'SKU {sku} not found', 404)
+        
+        # TODO: 检查库存和订单关联
+        # if variant.has_inventory or variant.has_orders:
+        #     raise BusinessError('Cannot delete SKU with inventory or orders', 400)
+        
+        db.session.delete(variant)
+        db.session.commit()
+
+    def toggle_sku_status(self, sku: str) -> Dict[str, Any]:
+        """
+        切换SKU状态（启用/停用）
+        """
+        variant = db.session.scalar(select(ProductVariant).where(ProductVariant.sku == sku))
+        if not variant:
+            raise BusinessError(f'SKU {sku} not found', 404)
+        
+        variant.is_active = not variant.is_active
+        db.session.commit()
+        
+        return {
+            'sku': variant.sku,
+            'is_active': variant.is_active,
+            'message': f'SKU状态已切换为{"启用" if variant.is_active else "停用"}'
+        }

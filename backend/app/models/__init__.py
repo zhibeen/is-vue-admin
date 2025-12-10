@@ -10,3 +10,10 @@ from .purchase import SysSupplier
 from .supply import ScmSourceDoc, ScmDeliveryContract, ScmDeliveryContractItem
 from .serc import SysPaymentTerm
 from .system import SysDict
+
+# 导入仓库管理相关模型
+from .warehouse import (
+    Warehouse, WarehouseLocation, WarehouseStock, WarehouseStockMovement, 
+    WarehouseStockDiscrepancy, WarehouseProductGroup, WarehouseProductGroupItem, 
+    StockAllocationPolicy
+)

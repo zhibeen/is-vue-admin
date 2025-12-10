@@ -265,10 +265,65 @@ def seed_categories_cmd(clear):
     
     # 1. 预定义属性 (Attributes)
     attributes_data = [
-        {'key': 'color', 'label': '颜色', 'type': 'select', 'code_weight': 30, 'include_in_code': True, 'options': [{'label': '黑色', 'value': 'Black', 'code': 'BK'}, {'label': '电镀', 'value': 'Chrome', 'code': 'CH'}, {'label': '红色', 'value': 'Red', 'code': 'RD'}, {'label': '熏黑', 'value': 'Smoked', 'code': 'SM'}]},
-        {'key': 'position', 'label': '位置', 'type': 'select', 'code_weight': 20, 'include_in_code': True, 'options': [{'label': '左侧', 'value': 'Left', 'code': 'L'}, {'label': '右侧', 'value': 'Right', 'code': 'R'}, {'label': '一对', 'value': 'Pair', 'code': '2P'}]},
-        {'key': 'voltage', 'label': '电压', 'type': 'select', 'code_weight': 40, 'include_in_code': True, 'options': [{'label': '12V', 'value': '12V', 'code': '12V'}, {'label': '24V', 'value': '24V', 'code': '24V'}]},
-        {'key': 'material', 'label': '材质', 'type': 'text', 'code_weight': 50, 'include_in_code': False} 
+        {
+            'key': 'color', 
+            'label': '颜色', 
+            'name_en': 'Color',
+            'type': 'select', 
+            'code_weight': 30, 
+            'include_in_code': True, 
+            'group_name': '外观属性',
+            'description': '产品的外观颜色',
+            'allow_custom': False,
+            'options': [
+                {'label': '黑色', 'value': 'Black', 'code': 'BK'}, 
+                {'label': '电镀', 'value': 'Chrome', 'code': 'CH'}, 
+                {'label': '红色', 'value': 'Red', 'code': 'RD'}, 
+                {'label': '熏黑', 'value': 'Smoked', 'code': 'SM'}
+            ]
+        },
+        {
+            'key': 'position', 
+            'label': '位置', 
+            'name_en': 'Position',
+            'type': 'select', 
+            'code_weight': 20, 
+            'include_in_code': True, 
+            'group_name': '规格参数',
+            'description': '安装位置',
+            'allow_custom': False,
+            'options': [
+                {'label': '左侧', 'value': 'Left', 'code': 'L'}, 
+                {'label': '右侧', 'value': 'Right', 'code': 'R'}, 
+                {'label': '一对', 'value': 'Pair', 'code': '2P'}
+            ]
+        },
+        {
+            'key': 'voltage', 
+            'label': '电压', 
+            'name_en': 'Voltage',
+            'type': 'select', 
+            'code_weight': 40, 
+            'include_in_code': True, 
+            'group_name': '技术参数',
+            'description': '工作电压',
+            'allow_custom': True,
+            'options': [
+                {'label': '12V', 'value': '12V', 'code': '12V'}, 
+                {'label': '24V', 'value': '24V', 'code': '24V'}
+            ]
+        },
+        {
+            'key': 'material', 
+            'label': '材质', 
+            'name_en': 'Material',
+            'type': 'text', 
+            'code_weight': 50, 
+            'include_in_code': False,
+            'group_name': '材质信息',
+            'description': '主要材质',
+            'allow_custom': False
+        } 
     ]
     
     # 2. 预定义分类 (Tree Structure)
@@ -295,8 +350,8 @@ def seed_categories_cmd(clear):
                                 {'key': 'position', 'attribute_scope': 'sku'} # 位置通常区分左右SKU
                             ],
                             'children': [
-                                {'name': 'LED前照灯', 'name_en': 'LED Headlights', 'code': '11101', 'abbreviation': 'HL-LED', 'description': 'LED光源前照灯', 'icon': 'mdi:led-on'},
-                                {'name': '卤素前照灯', 'name_en': 'Halogen Headlights', 'code': '11102', 'abbreviation': 'HL-HAL', 'description': '传统卤素光源前照灯', 'icon': 'mdi:lightbulb'}
+                                {'name': 'LED前照灯', 'name_en': 'LED Headlights', 'code': '111', 'abbreviation': 'HL-LED', 'description': 'LED光源前照灯', 'icon': 'mdi:led-on'},
+                                {'name': '卤素前照灯', 'name_en': 'Halogen Headlights', 'code': '111', 'abbreviation': 'HL-HAL', 'description': '传统卤素光源前照灯', 'icon': 'mdi:lightbulb'}
                             ]
                         },
                         {
@@ -330,15 +385,15 @@ def seed_categories_cmd(clear):
                             'description': '各类滤清器', 'icon': 'mdi:air-filter',
                             'spu_config': { "template": "{cat}-{make}-{model}-{year}", "vehicle_link": { "enabled": True, "levels": ["make", "model", "year"] } },
                             'children': [
-                                {'name': '机油滤清器', 'name_en': 'Oil Filters', 'code': '12101', 'abbreviation': 'OIL-FIL', 'description': '机油过滤', 'icon': 'mdi:oil'},
-                                {'name': '空气滤清器', 'name_en': 'Air Filters', 'code': '12102', 'abbreviation': 'AIR-FIL', 'description': '空气过滤', 'icon': 'mdi:air-filter'}
+                                {'name': '机油滤清器', 'name_en': 'Oil Filters', 'code': '121', 'abbreviation': 'OIL-FIL', 'description': '机油过滤', 'icon': 'mdi:oil'},
+                                {'name': '空气滤清器', 'name_en': 'Air Filters', 'code': '121', 'abbreviation': 'AIR-FIL', 'description': '空气过滤', 'icon': 'mdi:air-filter'}
                             ]
                         },
                         {
                             'name': '点火系统', 'name_en': 'Ignition', 'code': '122', 'abbreviation': 'IGN',
                             'description': '点火线圈与火花塞', 'icon': 'mdi:fire',
                             'children': [
-                                {'name': '火花塞', 'name_en': 'Spark Plugs', 'code': '12201', 'abbreviation': 'SPK', 'description': '点火火花塞', 'icon': 'mdi:spark'}
+                                {'name': '火花塞', 'name_en': 'Spark Plugs', 'code': '122', 'abbreviation': 'SPK', 'description': '点火火花塞', 'icon': 'mdi:spark'}
                             ]
                         }
                     ]
@@ -373,8 +428,8 @@ def seed_categories_cmd(clear):
                             'spu_config': { "template": "{cat}-{series}-{spec}", "fields": [{"key": "series", "type": "input", "label": "系列"}, {"key": "spec", "type": "input", "label": "规格"}] },
                             'bind_attrs': [{'key': 'material', 'attribute_scope': 'spu'}],
                             'children': [
-                                {'name': '不锈钢球阀', 'name_en': 'SS Ball Valve', 'code': '21101', 'abbreviation': 'BAL-SS', 'description': '304/316不锈钢球阀', 'icon': 'mdi:valve'},
-                                {'name': '铜球阀', 'name_en': 'Brass Ball Valve', 'code': '21102', 'abbreviation': 'BAL-BR', 'description': '黄铜球阀', 'icon': 'mdi:valve'}
+                                {'name': '不锈钢球阀', 'name_en': 'SS Ball Valve', 'code': '211', 'abbreviation': 'BAL-SS', 'description': '304/316不锈钢球阀', 'icon': 'mdi:valve'},
+                                {'name': '铜球阀', 'name_en': 'Brass Ball Valve', 'code': '211', 'abbreviation': 'BAL-BR', 'description': '黄铜球阀', 'icon': 'mdi:valve'}
                             ]
                         },
                         {'name': '蝶阀', 'name_en': 'Butterfly Valves', 'code': '212', 'abbreviation': 'BUT', 'description': '蝶式阀门', 'icon': 'mdi:butterfly', 'bind_attrs': [{'key': 'material', 'attribute_scope': 'spu'}]},
@@ -452,7 +507,11 @@ def seed_categories_cmd(clear):
             data_type=attr_data['type'],
             code_weight=attr_data.get('code_weight', 99),
             include_in_code=attr_data.get('include_in_code', True),
-            options=attr_data.get('options')
+            options=attr_data.get('options'),
+            name_en=attr_data.get('name_en'),
+            group_name=attr_data.get('group_name'),
+            description=attr_data.get('description'),
+            allow_custom=attr_data.get('allow_custom', False)
         )
         db.session.add(attr)
         db.session.flush()
@@ -551,7 +610,7 @@ def fix_categories_cmd():
 @click.option('--count', default=100, help='生成 SPU 数量')
 @click.option('--clear', is_flag=True, help='清除现有数据')
 def seed_products_cmd(count, clear):
-    """生成虚拟商品数据 (SPU + SKU + Codes)"""
+    """生成虚拟商品数据 (SPU + SKU + Codes) - V2.0 Dual Track"""
     from app.models.product import Product, ProductVariant, ProductReferenceCode, ProductFitment, ProductVehicle
     from app.models.product import Category
     
@@ -584,7 +643,7 @@ def seed_products_cmd(count, clear):
         click.echo("❌ 错误: 没有找到末级分类。请先运行 flask seed-categories")
         return
 
-    click.echo(f"开始生成 {count} 条 SPU 数据...")
+    click.echo(f"开始生成 {count} 条 SPU 数据 (V2.0)...")
     
     # 模拟的外部参考码品牌
     ref_brands = ['Toyota', 'Honda', 'BMW', 'Bosch', 'Valeo', 'Denso', 'TRW']
@@ -594,37 +653,58 @@ def seed_products_cmd(count, clear):
         spu_params = {}
         brand_name = None
         
-        # --- 1. SPU Coding Logic ---
+        # --- 1. SPU Coding Logic (Feature Code Prefix) ---
         is_vehicle_part = (cat.business_type == 'vehicle' or not cat.business_type)
+        vehicle_codes = {}
         
         if is_vehicle_part and year_nodes:
-            # 随机模拟一个车型选择
-            # Year -> Model -> Brand
+            # 随机模拟一个车型选择: Year -> Model -> Brand
             node_year = random.choice(year_nodes)
             node_model = node_year.parent
             if node_model and node_model.parent:
                 node_brand = node_model.parent
                 
-                spu_params['brand'] = node_brand.abbreviation
+                spu_params['make'] = node_brand.abbreviation
                 spu_params['model'] = node_model.abbreviation
                 spu_params['year'] = node_year.abbreviation
                 brand_name = node_brand.name
+                
+                # Store full codes for SKU Generation
+                # Code structure: Make(2) + Model(2)
+                # Note: node.code is full path code. 
+                # Brand Code = node_brand.code (2 chars)
+                # Model Code = node_model.code (4 chars, includes brand) -> We just need Model part? 
+                # L2.0 Spec: Vehicle Code (4 digit) = Brand(2) + Model(2)
+                # Let's extract last 2 digits of model code if model code is 4 digits
+                vehicle_code_str = node_model.code 
+                if len(vehicle_code_str) > 4: 
+                     vehicle_code_str = vehicle_code_str[:4] # Truncate if platform included
+                elif len(vehicle_code_str) < 4:
+                     vehicle_code_str = vehicle_code_str.ljust(4, '0')
+
+                vehicle_codes['full'] = vehicle_code_str
         
         if not spu_params:
-            # Fallback for general tools or missing vehicle data
             spu_params['series'] = f"S{random.randint(1,9)}"
             spu_params['brand'] = "GEN"
             brand_name = "General"
+            vehicle_codes['full'] = "0000" # General parts
 
-        # 简单的模板替换模拟 CodeBuilder
+        # SPU Feature Code (Business ID)
         template = cat.spu_config.get('template', '{cat}-{brand}-{series}') if cat.spu_config else '{cat}-{brand}-{series}'
         spu_code = template.replace('{cat}', cat.abbreviation or cat.code)
         for k, v in spu_params.items():
             spu_code = spu_code.replace(f'{{{k}}}', v)
-        # 替换剩余 placeholder 并加随机数
-        spu_code = re.sub(r'\{.*?\}', 'X', spu_code)
-        spu_code += f"-{random.randint(100, 999)}"
-
+        # 替换剩余 placeholder 并加随机数以防重复
+        # 改进: 使用随机字符替换占位符，避免 'X-X' 导致的重复
+        def replace_placeholder(match):
+            return f"{random.randint(10, 99)}"
+            
+        spu_code = re.sub(r'\{.*?\}', replace_placeholder, spu_code)
+        
+        # 再次确保唯一性，追加随机后缀
+        spu_code += f"-{random.randint(1000, 9999)}"
+        
         # --- 2. Create SPU ---
         name = f"{brand_name} {cat.name} {random.choice(['总成', '套装', '组件'])}"
         
@@ -633,7 +713,7 @@ def seed_products_cmd(count, clear):
             name=name,
             category_id=cat.id,
             brand=brand_name,
-            spu_coding_metadata=spu_params, # Store metadata
+            spu_coding_metadata=spu_params,
             attributes={
                 "voltage": "12V",
                 "material": random.choice(["ABS", "Aluminum"]),
@@ -645,50 +725,57 @@ def seed_products_cmd(count, clear):
         db.session.add(spu)
         db.session.flush() # Get SPU ID
         
-        # --- 3. Generate Variants (SKU) ---
-        # Aftermarket SKU
-        sku_am = ProductVariant(
-            product_id=spu.id,
-            sku=f"SKU-{spu_code}-AM",
-            specs={"quality": "Aftermarket", "package": "Box", "supplier_sku": f"SUP-{random.randint(1000,9999)}"},
-            quality_type="Aftermarket",
-            price=round(random.uniform(50, 200), 2),
-            cost_price=round(random.uniform(20, 100), 2),
-            weight=round(random.uniform(0.5, 5.0), 2),
-            declared_name=f"{cat.name} (Auto Parts)",
-            declared_unit="PCS"
-        )
-        db.session.add(sku_am)
+        # --- 3. Generate Variants (Dual Track) ---
+        # Variants: Left/Right (Position) or Colors
         
-        # OEM SKU (Optional)
-        if random.random() > 0.7:
-            sku_oem = ProductVariant(
+        variants_config = [
+            {'suffix': 'L', 'pos': 'Left', 'code': 'L'},
+            {'suffix': 'R', 'pos': 'Right', 'code': 'R'}
+        ]
+        
+        # SKU Serial logic: 01, 02...
+        # L2.0 Spec: [Cat(3)][Vehicle(4)][Serial(2)][Suffix]
+        cat_code = cat.code.zfill(3)
+        veh_code = vehicle_codes.get('full', '0000')
+        serial = f"{random.randint(1, 99):02d}" # Random serial for simulation
+        
+        for idx, var in enumerate(variants_config):
+            # 1. System SKU (Numeric + Suffix)
+            # E.g. 111 + 0105 + 01 + L
+            system_sku = f"{cat_code}{veh_code}{serial}{var['suffix']}"
+            
+            # 2. Feature Code (SPU + Attr)
+            # E.g. HL-TOY-CAM-07-11 + -L
+            feature_code = f"{spu_code}-{var['code']}"
+            
+            variant = ProductVariant(
                 product_id=spu.id,
-                sku=f"SKU-{spu_code}-OEM",
-                specs={"quality": "OEM", "brand": "Bosch", "supplier_sku": f"SUP-{random.randint(1000,9999)}"},
-                quality_type="OEM",
-                price=round(random.uniform(200, 500), 2),
-                cost_price=round(random.uniform(100, 300), 2),
-                weight=round(random.uniform(0.5, 5.0), 2)
+                sku=system_sku, 
+                feature_code=feature_code,
+                specs={
+                    "quality": "Aftermarket", 
+                    "position": var['pos'],
+                    "supplier_sku": f"SUP-{random.randint(1000,9999)}"
+                },
+                quality_type="Aftermarket",
+                price=round(random.uniform(50, 200), 2),
+                cost_price=round(random.uniform(20, 100), 2),
+                net_weight=round(random.uniform(0.5, 5.0), 2),
+                gross_weight=round(random.uniform(0.6, 5.5), 2),
+                pack_length=round(random.uniform(10, 50), 1),
+                pack_width=round(random.uniform(10, 30), 1),
+                pack_height=round(random.uniform(5, 20), 1),
+                declared_name=f"{cat.name} (Auto Parts)",
+                declared_unit="PCS"
             )
-            db.session.add(sku_oem)
-
-        # --- 4. Reference Codes ---
-        if random.random() > 0.5:
-            oe_code = f"{random.randint(10000, 99999)}-{random.randint(10000, 99999)}"
-            db.session.add(ProductReferenceCode(
-                product_id=spu.id,
-                code=oe_code,
-                code_type="OE",
-                brand=random.choice(ref_brands)
-            ))
+            db.session.add(variant)
 
         if (i + 1) % 10 == 0:
             db.session.commit()
             click.echo(f"已生成 {i+1}/{count} SPU...")
 
     db.session.commit()
-    click.echo(f"✅ 成功生成 {count} 条 SPU 数据及其关联数据！")
+    click.echo(f"✅ 成功生成 {count} 条 SPU 数据及其关联数据 (双轨制)！")
 
 @click.command('check-db')
 def check_db_cmd():

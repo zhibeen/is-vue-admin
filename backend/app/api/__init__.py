@@ -11,6 +11,7 @@ from .system.dict import system_bp
 from .serc import serc_bp  # 导入 SERC
 from .purchase import purchase_bp # 导入 Purchase
 from .supply import supply_bp # 导入 Supply
+from .warehouse import warehouse_bp, stock_bp, virtual_bp, sync_bp  # 导入仓库管理
 
 # 定义 v1 Blueprint
 api_v1 = APIBlueprint('api_v1', __name__, url_prefix='/api/v1')
@@ -27,6 +28,10 @@ api_v1.register_blueprint(system_bp)
 api_v1.register_blueprint(serc_bp)  # 注册 SERC /api/v1/serc/
 api_v1.register_blueprint(purchase_bp) # 注册 Purchase /api/v1/purchase/
 api_v1.register_blueprint(supply_bp) # 注册 Supply /api/v1/supply/
+api_v1.register_blueprint(warehouse_bp) # 注册仓库管理 /api/v1/warehouses/
+api_v1.register_blueprint(stock_bp) # 注册库存管理 /api/v1/stocks/
+api_v1.register_blueprint(virtual_bp) # 注册虚拟仓管理 /api/v1/virtual/
+api_v1.register_blueprint(sync_bp) # 注册同步管理 /api/v1/sync/
 
 def register_blueprints(app):
     # 注册 v1 到 app

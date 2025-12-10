@@ -5,7 +5,8 @@ from app.services.product_service import ProductService
 from app.services.sku_generator import generate_sku
 from app.security import auth
 from app.decorators import permission_required
-from app.tasks import send_email_task
+# 暂时注释掉以避免循环导入
+# from app.tasks import send_email_task
 from app.extensions import db
 from app.models.product import SkuSuffix
 from sqlalchemy import select
@@ -27,7 +28,8 @@ def create_product(data):
     
     # Trigger Async Task
     # result is a dict now, can't access .name directly. Use input data.
-    send_email_task.delay('admin@example.com', 'Product Created/Updated', f"Product SPU {result['spu_code']} was processed.")
+    # 暂时注释掉异步任务
+    # send_email_task.delay('admin@example.com', 'Product Created/Updated', f"Product SPU {result['spu_code']} was processed.")
     
     # Return result dict directly
     return {'data': result}
@@ -65,6 +67,115 @@ def list_sku_suffixes():
     """List all SKU suffixes"""
     suffixes = db.session.scalars(select(SkuSuffix).order_by(SkuSuffix.code)).all()
     return {'data': suffixes}
+
+@product_bp.get('/variants')
+@product_bp.auth_required(auth)
+@product_bp.doc(
+    summary='获取SKU列表', 
+    description='获取所有SKU列表，支持多维度筛选（搜索、分类、品牌、车型、属性、库存、状态等）。'
+)
+@product_bp.input(PaginationQuerySchema, location='query', arg_name='pagination')
+def list_skus(pagination):
+    """List all SKUs with filtering"""
+    from flask import request
+    
+    # 构建筛选条件
+    filters = {}
+    
+    # 搜索关键词
+    q = request.args.get('q')
+    if q:
+        filters['q'] = q
+    
+    # 分类筛选
+    category_id = request.args.get('category_id')
+    if category_id:
+        try:
+            filters['category_id'] = int(category_id)
+        except ValueError:
+            pass
+    
+    # 品牌/车型筛选
+    brand = request.args.get('brand')
+    if brand:
+        filters['brand'] = brand
+    
+    model = request.args.get('model')
+    if model:
+        filters['model'] = model
+    
+    # 状态筛选
+    is_active = request.args.get('is_active')
+    if is_active is not None:
+        filters['is_active'] = is_active.lower() == 'true'
+    
+    # 库存筛选 (TODO: 集成库存系统后实现)
+    # stock_min = request.args.get('stock_min')
+    # stock_max = request.args.get('stock_max')
+    
+    # 属性筛选 (TODO: 支持JSONB查询)
+    # 可以扩展为支持多个属性筛选
+    
+    result = product_service.list_skus(
+        page=pagination['page'],
+        per_page=pagination['per_page'],
+        filters=filters
+    )
+    
+    return {'data': result}
+
+@product_bp.get('/variants/<string:sku>')
+@product_bp.auth_required(auth)
+@product_bp.doc(
+    summary='获取SKU详情', 
+    description='根据SKU编码获取详细信息，包括编码规则、属性、合规信息、参考编码等。'
+)
+def get_sku_detail(sku):
+    """Get SKU details"""
+    result = product_service.get_sku_detail(sku)
+    return {'data': result}
+
+@product_bp.put('/variants/<string:sku>')
+@product_bp.auth_required(auth)
+@permission_required('product:update')
+@product_bp.doc(
+    summary='更新SKU信息', 
+    description='更新SKU的非编码字段（价格、库存、状态、合规信息等）。'
+)
+def update_sku(sku):
+    """Update SKU information"""
+    from flask import request
+    data = request.get_json()
+    
+    if not data:
+        return {'code': 400, 'message': '请求数据不能为空'}
+    
+    result = product_service.update_sku(sku, data)
+    return {'data': result}
+
+@product_bp.delete('/variants/<string:sku>')
+@product_bp.auth_required(auth)
+@permission_required('product:delete')
+@product_bp.doc(
+    summary='删除SKU', 
+    description='删除指定的SKU。注意：删除前需要确保没有库存或订单关联。'
+)
+def delete_sku(sku):
+    """Delete SKU"""
+    product_service.delete_sku(sku)
+    return {'code': 0, 'message': '删除成功'}
+
+@product_bp.post('/variants/<string:sku>/toggle-status')
+@product_bp.auth_required(auth)
+@permission_required('product:update')
+@product_bp.doc(
+    summary='切换SKU状态', 
+    description='切换SKU的启用/停用状态。'
+)
+def toggle_sku_status(sku):
+    """Toggle SKU status"""
+    result = product_service.toggle_sku_status(sku)
+    return {'data': result}
 
 @product_bp.get('/next-serial')
 @product_bp.auth_required(auth)
