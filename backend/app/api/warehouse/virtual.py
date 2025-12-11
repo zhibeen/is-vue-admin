@@ -96,7 +96,7 @@ class AllocationPolicyListAPI(MethodView):
         user_id = get_jwt_identity()
         data['virtual_warehouse_id'] = virtual_warehouse_id
         policy = virtual_service.create_allocation_policy(data, user_id)
-        return policy
+        return {'data': policy}
 
 
 class AllocationPolicyItemAPI(MethodView):
@@ -115,7 +115,7 @@ class AllocationPolicyItemAPI(MethodView):
         policy = db.session.get(StockAllocationPolicy, policy_id)
         if not policy:
             raise BusinessError(f'分配策略 {policy_id} 不存在', code=404)
-        return policy
+        return {'data': policy}
     
     @virtual_bp.doc(summary='更新分配策略', description='更新分配策略信息')
     @virtual_bp.input(StockAllocationPolicyUpdateSchema, arg_name='data')
@@ -124,14 +124,15 @@ class AllocationPolicyItemAPI(MethodView):
     def put(self, policy_id, data):
         """更新分配策略"""
         policy = virtual_service.update_allocation_policy(policy_id, data)
-        return policy
+        return {'data': policy}
     
     @virtual_bp.doc(summary='删除分配策略', description='删除分配策略')
+    @virtual_bp.output({})
     @permission_required('virtual:delete')
     def delete(self, policy_id):
         """删除分配策略"""
         virtual_service.delete_allocation_policy(policy_id)
-        return None
+        return {'data': None}
 
 
 class ProductGroupListAPI(MethodView):
@@ -201,7 +202,7 @@ class ProductGroupListAPI(MethodView):
         db.session.add(group)
         db.session.commit()
         
-        return group
+        return {'data': group}
 
 
 class ProductGroupItemAPI(MethodView):
@@ -220,7 +221,7 @@ class ProductGroupItemAPI(MethodView):
         group = db.session.get(WarehouseProductGroup, group_id)
         if not group:
             raise BusinessError(f'SKU分组 {group_id} 不存在', code=404)
-        return group
+        return {'data': group}
     
     @virtual_bp.doc(summary='更新SKU分组', description='更新SKU分组信息')
     @virtual_bp.input(WarehouseProductGroupCreateSchema, arg_name='data')
@@ -242,9 +243,10 @@ class ProductGroupItemAPI(MethodView):
                 setattr(group, key, value)
         
         db.session.commit()
-        return group
+        return {'data': group}
     
     @virtual_bp.doc(summary='删除SKU分组', description='删除SKU分组')
+    @virtual_bp.output({})
     @permission_required('virtual:delete')
     def delete(self, group_id):
         """删除SKU分组"""
@@ -258,7 +260,7 @@ class ProductGroupItemAPI(MethodView):
         
         db.session.delete(group)
         db.session.commit()
-        return None
+        return {'data': None}
 
 
 class ProductGroupItemListAPI(MethodView):
@@ -324,7 +326,7 @@ class ProductGroupItemListAPI(MethodView):
         db.session.add(item)
         db.session.commit()
         
-        return item
+        return {'data': item}
 
 
 class ProductGroupItemRemoveAPI(MethodView):
@@ -332,6 +334,7 @@ class ProductGroupItemRemoveAPI(MethodView):
     decorators = [virtual_bp.auth_required(auth)]
     
     @virtual_bp.doc(summary='从分组移除SKU', description='从指定分组中移除SKU')
+    @virtual_bp.output({})
     @permission_required('virtual:update')
     def delete(self, group_id, sku):
         """从分组移除SKU"""
@@ -348,7 +351,7 @@ class ProductGroupItemRemoveAPI(MethodView):
         )
         db.session.commit()
         
-        return None
+        return {'data': None}
 
 
 # 注册路由

@@ -66,7 +66,7 @@ class StockDiscrepancyListAPI(MethodView):
             start_date=query_data.get('start_date'),
             end_date=query_data.get('end_date')
         )
-        return result
+        return {'data': result}
 
 
 class StockDiscrepancyResolveAPI(MethodView):
@@ -81,7 +81,7 @@ class StockDiscrepancyResolveAPI(MethodView):
         """解决库存差异"""
         user_id = get_jwt_identity()
         discrepancy = sync_service.resolve_discrepancy(discrepancy_id, data, user_id)
-        return discrepancy
+        return {'data': discrepancy}
 
 
 class ThirdPartyWarehouseListAPI(MethodView):

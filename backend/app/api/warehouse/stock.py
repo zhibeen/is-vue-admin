@@ -40,7 +40,7 @@ class StockListAPI(MethodView):
             min_quantity=query_data.get('min_quantity'),
             max_quantity=query_data.get('max_quantity')
         )
-        return result
+        return {'data': result}
 
 
 class StockItemAPI(MethodView):
@@ -53,7 +53,7 @@ class StockItemAPI(MethodView):
     def get(self, sku, warehouse_id):
         """获取库存详情"""
         stock = stock_service.get_stock(sku, warehouse_id)
-        return stock
+        return {'data': stock}
 
 
 class StockAdjustAPI(MethodView):
@@ -68,7 +68,7 @@ class StockAdjustAPI(MethodView):
         """调整库存"""
         user_id = get_jwt_identity()
         stock = stock_service.adjust_stock(data, user_id)
-        return stock
+        return {'data': stock}
 
 
 class StockMovementListAPI(MethodView):
@@ -91,7 +91,7 @@ class StockMovementListAPI(MethodView):
             start_date=query_data.get('start_date'),
             end_date=query_data.get('end_date')
         )
-        return result
+        return {'data': result}
 
 
 class StockSummaryAPI(MethodView):
@@ -127,11 +127,12 @@ class StockReleaseAPI(MethodView):
     
     @stock_bp.doc(summary='释放库存', description='释放已分配的库存为可用库存')
     @stock_bp.input({'quantity': {'type': 'integer', 'required': True}}, arg_name='data')
+    @stock_bp.output({})
     @permission_required('stock:allocate')
     def post(self, sku, warehouse_id, data):
         """释放库存"""
         stock_service.release_stock(sku, warehouse_id, data['quantity'])
-        return None
+        return {'data': None}
 
 
 # 注册路由

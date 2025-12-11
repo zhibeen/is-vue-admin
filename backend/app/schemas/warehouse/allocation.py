@@ -159,19 +159,21 @@ class StockAllocationPolicyUpdateSchema(Schema):
     """更新库存分配策略Schema"""
     ratio = Float(
         validate=Range(min=0, max=1),
+        allow_none=True,
         metadata={
             'description': '分配比例(0-1)',
             'example': 0.8
         }
     )
-    fixed_amount = Integer(metadata={'description': '固定分配量'})
-    priority = Integer(metadata={'description': '优先级'})
+    fixed_amount = Integer(allow_none=True, metadata={'description': '固定分配量'})
+    priority = Integer(allow_none=True, metadata={'description': '优先级'})
     policy_mode = String(
         validate=OneOf(['override', 'inherit']),
+        allow_none=True,
         metadata={
             'description': '策略模式',
             'example': 'override'
         }
     )
-    effective_from = DateTime(metadata={'description': '生效开始时间'})
-    effective_to = DateTime(metadata={'description': '生效结束时间'})
+    effective_from = DateTime(allow_none=True, metadata={'description': '生效开始时间'})
+    effective_to = DateTime(allow_none=True, metadata={'description': '生效结束时间'})

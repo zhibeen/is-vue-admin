@@ -7,7 +7,8 @@ from decimal import Decimal
 from app.extensions import db
 from app.models.warehouse.warehouse import Warehouse, WarehouseLocation
 from app.models.warehouse.stock import WarehouseStock, WarehouseStockMovement
-from app.models.warehouse.allocation import WarehouseProductGroup, WarehouseProductGroupItem, StockAllocationPolicy
+from app.models.warehouse.policy import WarehouseProductGroup, WarehouseProductGroupItem, StockAllocationPolicy
+from app.models.warehouse.third_party import WarehouseThirdPartyService, WarehouseThirdPartyWarehouse
 from app.models.product import ProductVariant  # Use ProductVariant instead of Item for SKU source
 
 def clear_data():
@@ -15,12 +16,17 @@ def clear_data():
     click.echo("正在清除现有仓库及库存数据...")
     
     # Disable foreign key checks temporarily if needed, but safer to delete in order
-    db.session.execute(text("TRUNCATE TABLE warehouse_stock_movements RESTART IDENTITY CASCADE"))
-    db.session.execute(text("TRUNCATE TABLE warehouse_stocks RESTART IDENTITY CASCADE"))
+    db.session.execute(text("TRUNCATE TABLE stock_movements RESTART IDENTITY CASCADE"))
+    db.session.execute(text("TRUNCATE TABLE stocks RESTART IDENTITY CASCADE"))
+    db.session.execute(text("TRUNCATE TABLE stock_discrepancies RESTART IDENTITY CASCADE"))
     db.session.execute(text("TRUNCATE TABLE warehouse_locations RESTART IDENTITY CASCADE"))
     db.session.execute(text("TRUNCATE TABLE stock_allocation_policies RESTART IDENTITY CASCADE"))
     db.session.execute(text("TRUNCATE TABLE warehouse_product_group_items RESTART IDENTITY CASCADE"))
     db.session.execute(text("TRUNCATE TABLE warehouse_product_groups RESTART IDENTITY CASCADE"))
+    db.session.execute(text("TRUNCATE TABLE warehouse_third_party_sku_mappings RESTART IDENTITY CASCADE"))
+    db.session.execute(text("TRUNCATE TABLE warehouse_third_party_warehouse_maps RESTART IDENTITY CASCADE"))
+    db.session.execute(text("TRUNCATE TABLE warehouse_third_party_warehouses RESTART IDENTITY CASCADE"))
+    db.session.execute(text("TRUNCATE TABLE warehouse_third_party_services RESTART IDENTITY CASCADE"))
     
     # We might not want to delete ALL warehouses if they are referenced by other things, 
     # but for a full rebuild/seed, we usually do.
@@ -31,12 +37,72 @@ def clear_data():
     db.session.commit()
     click.echo("数据清除完成。")
 
-def create_warehouses():
+def create_third_party_services():
+    """创建第三方服务商配置及模拟远程仓库"""
+    click.echo("正在创建第三方服务商配置...")
+    
+    # 1. 创建服务商
+    # 先检查是否存在，避免重复插入
+    svc_gc = db.session.query(WarehouseThirdPartyService).filter_by(code='goodcang').first()
+    if not svc_gc:
+        svc_gc = WarehouseThirdPartyService(
+            code='goodcang',
+            name='谷仓海外仓',
+            api_url='https://api.goodcang.com/v1',
+            app_key='mock_gc_app_key',
+            app_secret='mock_gc_secret',
+            config_template={'sandbox': True}
+        )
+        db.session.add(svc_gc)
+    
+    svc_winit = db.session.query(WarehouseThirdPartyService).filter_by(code='winit').first()
+    if not svc_winit:
+        svc_winit = WarehouseThirdPartyService(
+            code='winit',
+            name='万邑通',
+            api_url='https://api.winit.com/v1',
+            app_key='mock_winit_app_key',
+            app_secret='mock_winit_secret',
+            config_template={'sandbox': True}
+        )
+        db.session.add(svc_winit)
+    
+    db.session.flush() # get IDs
+    
+    # 2. 创建模拟的三方仓库列表 (WarehouseThirdPartyWarehouse)
+    # 这些是用户点击"全量同步"后会拉取下来的数据
+    
+    # 谷仓 (20个)
+    gc_warehouses = []
+    for i in range(1, 21):
+        code = f'GC-US-{i:03d}'
+        if not db.session.query(WarehouseThirdPartyWarehouse).filter_by(service_id=svc_gc.id, code=code).first():
+            gc_warehouses.append(
+                WarehouseThirdPartyWarehouse(service_id=svc_gc.id, code=code, name=f'谷仓美东{i}号仓', country_code='US', is_active=True)
+            )
+    
+    # 万邑通 (20个)
+    winit_warehouses = []
+    for i in range(1, 21):
+        code = f'WI-DE-{i:03d}'
+        if not db.session.query(WarehouseThirdPartyWarehouse).filter_by(service_id=svc_winit.id, code=code).first():
+            winit_warehouses.append(
+                WarehouseThirdPartyWarehouse(service_id=svc_winit.id, code=code, name=f'万邑通德国{i}号仓', country_code='DE', is_active=True)
+            )
+    
+    db.session.add_all(gc_warehouses)
+    db.session.add_all(winit_warehouses)
+    
+    db.session.commit()
+    click.echo(f"创建或更新了第三方服务商 和 {len(gc_warehouses) + len(winit_warehouses)} 个三方仓库。")
+    return {'goodcang': svc_gc, 'winit': svc_winit, 'gc_whs': gc_warehouses}
+
+def create_warehouses(gc_svc=None, gc_whs=None):
     """创建基础仓库"""
     click.echo("正在创建仓库...")
     
     warehouses = [
-        # 1. 国内自营总仓
+        # 1. 国内自营总仓 (实体/国内/自营)
         Warehouse(
             code='CN-MAIN',
             name='中国华南总仓',
@@ -48,9 +114,11 @@ def create_warehouses():
             currency='CNY',
             timezone='Asia/Shanghai',
             capacity=10000.0,
-            address='广东省广州市白云区XX路1号'
+            address='广东省广州市白云区XX路1号',
+            contact_person='张三',
+            contact_phone='13800138000'
         ),
-        # 2. 美国洛杉矶三方仓 (谷仓)
+        # 2. 美国洛杉矶三方仓 (实体/海外/三方) - 谷仓
         Warehouse(
             code='US-LA',
             name='美国洛杉矶仓 (GoodCang)',
@@ -61,21 +129,24 @@ def create_warehouses():
             business_type='standard',
             currency='USD',
             timezone='America/Los_Angeles',
-            api_config={"provider": "goodcang", "app_key": "mock_key"}
+            third_party_service_id=gc_svc.id if gc_svc else None,
+            third_party_warehouse_id=gc_whs[1].id if gc_whs and len(gc_whs) > 1 else None,
+            api_config={"provider": "goodcang", "external_code": "US_LA_001"} 
         ),
-        # 3. 德国法兰克福仓
+        # 3. 德国法兰克福仓 (实体/海外/三方) - 万邑通
         Warehouse(
             code='DE-FRA',
-            name='德国法兰克福仓',
+            name='德国法兰克福仓 (Winit)',
             category='physical',
             location_type='overseas',
             ownership_type='third_party',
             status='active',
             business_type='standard',
             currency='EUR',
-            timezone='Europe/Berlin'
+            timezone='Europe/Berlin',
+            api_config={"provider": "winit", "external_code": "DE_FRA_001"}
         ),
-        # 4. FBA US
+        # 4. FBA US (实体/海外/三方) - Amazon Fulfillment
         Warehouse(
             code='FBA-US',
             name='Amazon FBA US',
@@ -87,37 +158,51 @@ def create_warehouses():
             currency='USD',
             timezone='America/New_York'
         ),
-        # 5. 销售虚拟仓 - Amazon US
+        # 5. 销售虚拟仓 - Amazon US (虚拟/海外/自营) - 销售端缓冲
         Warehouse(
             code='VIR-AMZ-US',
-            name='Amazon US 销售仓',
+            name='Amazon US 销售虚拟仓',
             category='virtual',
             location_type='overseas',
             ownership_type='self',
             status='active',
             business_type='sales_channel',
-            currency='USD'
+            currency='USD',
+            # 这里的 child_warehouse_ids 可以用于聚合显示实际库存来源，例如聚合 FBA 和 US-LA
+            # 但实际逻辑由 AllocationPolicy 决定。这里仅做示例。
+            # 假设 ID 2=US-LA, 4=FBA-US (需要实际运行后获得的ID，这里先留空或仅做标记)
         ),
-        # 6. 销售虚拟仓 - Shopify
+        # 6. 销售虚拟仓 - Shopify (虚拟/国内/自营) - 销售端缓冲
         Warehouse(
             code='VIR-SHOPIFY',
-            name='Shopify 独立站仓',
+            name='Shopify 独立站虚拟仓',
             category='virtual',
-            location_type='domestic', # Ship from CN
+            location_type='domestic', 
             ownership_type='self',
             status='active',
             business_type='sales_channel',
             currency='USD'
         ),
-        # 7. 采购虚拟仓
+        # 7. 采购虚拟仓 (虚拟/国内/自营) - 采购端缓冲
         Warehouse(
             code='VIR-PURCHASE',
             name='采购计划缓冲仓',
             category='virtual',
             location_type='domestic',
             ownership_type='self',
-            status='active',
+            status='planning', # 状态为筹备中或active
             business_type='planning',
+            currency='CNY'
+        ),
+        # 8. 废弃仓库示例
+        Warehouse(
+            code='CN-OLD',
+            name='旧广州仓 (已搬迁)',
+            category='physical',
+            location_type='domestic',
+            ownership_type='self',
+            status='deprecated',
+            business_type='standard',
             currency='CNY'
         )
     ]
@@ -135,6 +220,7 @@ def create_locations(cn_warehouse):
     # 简单的库位生成: A区 01-05排 01-03层 01-10位
     # 为了演示，只生成少量
     for aisle in range(1, 4): # 3 Aisles
+    # ... code truncated for brevity ...
         for shelf in range(1, 4): # 3 Shelves
             for bin_loc in range(1, 6): # 5 Bins
                 code = f"A-{aisle:02d}-{shelf:02d}-{bin_loc:02d}"
@@ -142,7 +228,8 @@ def create_locations(cn_warehouse):
                     warehouse_id=cn_warehouse.id,
                     code=code,
                     type='storage',
-                    status='available'
+                    is_locked=False,
+                    allow_mixing=True
                 )
                 locations.append(loc)
     
@@ -255,9 +342,7 @@ def create_stock_and_movements(warehouses, skus, locations):
             warehouse_id=cn_wh.id,
             physical_quantity=current_cn_qty,
             available_quantity=current_cn_qty,
-            version=1,
-            unit_cost=mv_in.unit_cost,
-            currency='CNY'
+            version=1
         )
         stocks.append(stock_cn)
 
@@ -345,7 +430,85 @@ def create_allocation_policies(warehouses, skus):
     db.session.commit()
     click.echo("策略生成完成。")
 
-@click.command('seed-warehouse')
+def create_sku_mappings(gc_svc, gc_wh, skus):
+    """创建三方SKU映射 (v1.4 新增)"""
+    click.echo("正在创建SKU映射...")
+    from app.models.warehouse.third_party import WarehouseThirdPartySkuMapping
+    
+    mappings = []
+    # 以前10个SKU为例
+    target_skus = skus[:10]
+    
+    for sku in target_skus:
+        # Level 2: 服务商级映射 (全局)
+        # 假设远程 SKU 前缀为 'R-'
+        m2 = WarehouseThirdPartySkuMapping(
+            service_id=gc_svc.id,
+            warehouse_id=None, # Global
+            remote_sku=f"R-{sku}",
+            local_sku=sku,
+            quantity_ratio=1.0,
+            priority=10
+        )
+        mappings.append(m2)
+        
+        # Level 3: 仓库级映射 (特例) - 针对某个仓库
+        if gc_wh:
+             m3 = WarehouseThirdPartySkuMapping(
+                service_id=gc_svc.id,
+                warehouse_id=gc_wh.id,
+                remote_sku=f"R-{sku}-WH", # 特殊后缀
+                local_sku=sku,
+                quantity_ratio=1.0,
+                priority=5 # 数字越小优先级越高? 代码说是 default=0, 但通常越小越高
+            )
+             mappings.append(m3)
+             
+    if mappings:
+        db.session.add_all(mappings)
+        db.session.commit()
+        click.echo(f"生成了 {len(mappings)} 条SKU映射关系。")
+    else:
+        click.echo("未生成 SKU 映射 (无 SKU)。")
+
+def create_unmapped_sku_mappings(gc_svc, skus):
+    """创建一些未配对的三方SKU (用于演示配对功能)"""
+    click.echo("正在创建未配对的三方商品...")
+    from app.models.warehouse.third_party import WarehouseThirdPartyProduct
+    
+    products = []
+    # 模拟 20 个三方商品
+    for i in range(1, 21):
+        remote_sku = f"MOCK-REMOTE-{i:03d}"
+        
+        # 避免重复
+        exists = db.session.query(WarehouseThirdPartyProduct).filter_by(
+            service_id=gc_svc.id, 
+            remote_sku=remote_sku
+        ).first()
+        
+        if not exists:
+            products.append(WarehouseThirdPartyProduct(
+                service_id=gc_svc.id,
+                remote_sku=remote_sku,
+                remote_name=f"Mock Remote Product {i}",
+                specs={"weight": 1.5, "dim": [10, 10, 10]}
+            ))
+            
+    if products:
+        db.session.add_all(products)
+        db.session.commit()
+        click.echo(f"创建了 {len(products)} 个三方商品源数据。")
+    else:
+        click.echo("没有创建新的三方商品 (已存在)。")
+
+
+
+@click.group('warehouse', help='仓库模块管理命令')
+def warehouse_cli():
+    pass
+
+@warehouse_cli.command('seed-warehouse')
 @click.option('--clear', is_flag=True, help='清除现有数据')
 @with_appcontext
 def seed_warehouse_command(clear):
@@ -354,8 +517,13 @@ def seed_warehouse_command(clear):
     if clear:
         clear_data()
     
+    # 0. Third Party Services & Mock Remote Warehouses
+    tp_data = create_third_party_services()
+    gc_svc = tp_data['goodcang']
+    gc_whs = tp_data['gc_whs']
+
     # 1. Warehouses
-    wh_map = create_warehouses()
+    wh_map = create_warehouses(gc_svc, gc_whs)
     
     # 2. Locations
     locs = create_locations(wh_map['CN-MAIN'])
@@ -381,6 +549,17 @@ def seed_warehouse_command(clear):
     
     # 4.5 Discrepancies
     create_discrepancies(wh_map, active_skus)
+
+    # 4.6 SKU Mappings
+    if gc_whs and len(gc_whs) > 0:
+        create_sku_mappings(gc_svc, gc_whs[0], skus)
+    
+    # 4.7 Mock 3rd-party product list (Unified Product Table) - optional/future
+    # For now, we rely on SKU Mappings to know "what SKUs exist remotely".
+    # But ideally, we should have a `WarehouseThirdPartyProduct` table.
+    
+    # 4.8 Mock Unmapped 3rd-party products (simulate remote products waiting for mapping)
+    create_unmapped_sku_mappings(gc_svc, skus)
     
     # 5. Policies
     create_allocation_policies(wh_map, active_skus)

@@ -1,6 +1,7 @@
 from .warehouse import (
     WarehouseSchema, WarehouseCreateSchema, WarehouseUpdateSchema,
-    WarehouseLocationSchema, WarehouseLocationCreateSchema, WarehouseLocationUpdateSchema
+    WarehouseLocationSchema, WarehouseLocationCreateSchema, WarehouseLocationUpdateSchema,
+    WarehouseQuerySchema, WarehouseStatsSchema
 )
 from .stock import (
     StockSchema, StockQuerySchema, StockAdjustSchema,
@@ -17,6 +18,7 @@ __all__ = [
     # Warehouse schemas
     'WarehouseSchema', 'WarehouseCreateSchema', 'WarehouseUpdateSchema',
     'WarehouseLocationSchema', 'WarehouseLocationCreateSchema', 'WarehouseLocationUpdateSchema',
+    'WarehouseQuerySchema', 'WarehouseStatsSchema',
     
     # Stock schemas
     'StockSchema', 'StockQuerySchema', 'StockAdjustSchema',

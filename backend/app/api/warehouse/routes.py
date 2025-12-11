@@ -2,7 +2,8 @@ from apiflask import APIBlueprint
 from apiflask.views import MethodView
 from app.schemas.warehouse import (
     WarehouseSchema, WarehouseCreateSchema, WarehouseUpdateSchema,
-    WarehouseLocationSchema, WarehouseLocationCreateSchema, WarehouseLocationUpdateSchema
+    WarehouseLocationSchema, WarehouseLocationCreateSchema, WarehouseLocationUpdateSchema,
+    WarehouseQuerySchema, WarehouseStatsSchema  # 新增 StatsSchema
 )
 from app.schemas.pagination import make_pagination_schema, PaginationQuerySchema
 from app.services.warehouse import WarehouseService
@@ -23,25 +24,42 @@ WarehousePaginationSchema = make_pagination_schema(WarehouseSchema)
 WarehouseLocationPaginationSchema = make_pagination_schema(WarehouseLocationSchema)
 
 
+class WarehouseStatsAPI(MethodView):
+    """仓库统计API"""
+    decorators = [warehouse_bp.auth_required(auth)]
+    
+    @warehouse_bp.doc(summary='获取仓库统计', description='获取仓库的统计数据')
+    @warehouse_bp.output(WarehouseStatsSchema)
+    @permission_required('warehouse:view')
+    def get(self):
+        """获取仓库统计"""
+        stats = warehouse_service.get_stats()
+        return {'data': stats}
+
+
 class WarehouseListAPI(MethodView):
     """仓库列表API"""
     decorators = [warehouse_bp.auth_required(auth)]
     
     @warehouse_bp.doc(summary='获取仓库列表', description='获取仓库列表，支持分页、搜索和过滤')
-    @warehouse_bp.input(PaginationQuerySchema, location='query', arg_name='query_data')
+    @warehouse_bp.input(WarehouseQuerySchema, location='query', arg_name='query_data')
     @warehouse_bp.output(WarehousePaginationSchema)
     @permission_required('warehouse:view')
     def get(self, query_data):
         """获取仓库列表"""
+        # 处理参数名映射：前端传递keyword，后端使用q
+        keyword = query_data.get('keyword') or query_data.get('q')
+        
         result = warehouse_service.get_list(
             page=query_data['page'],
             per_page=query_data['per_page'],
-            keyword=query_data.get('q'),
+            keyword=keyword,
             category=query_data.get('category'),
             location_type=query_data.get('location_type'),
-            ownership_type=query_data.get('ownership_type')
+            ownership_type=query_data.get('ownership_type'),
+            status=query_data.get('status')
         )
-        return result
+        return {'data': result}
     
     @warehouse_bp.doc(summary='创建仓库', description='创建一个新仓库')
     @warehouse_bp.input(WarehouseCreateSchema, arg_name='data')
@@ -51,7 +69,7 @@ class WarehouseListAPI(MethodView):
         """创建仓库"""
         user_id = get_jwt_identity()
         warehouse = warehouse_service.create_warehouse(data, user_id)
-        return warehouse
+        return {'data': warehouse}
 
 
 class WarehouseItemAPI(MethodView):
@@ -64,7 +82,7 @@ class WarehouseItemAPI(MethodView):
     def get(self, warehouse_id):
         """获取仓库详情"""
         warehouse = warehouse_service.get_warehouse(warehouse_id)
-        return warehouse
+        return {'data': warehouse}
     
     @warehouse_bp.doc(summary='更新仓库', description='更新仓库信息')
     @warehouse_bp.input(WarehouseUpdateSchema, arg_name='data')
@@ -73,14 +91,15 @@ class WarehouseItemAPI(MethodView):
     def put(self, warehouse_id, data):
         """更新仓库"""
         warehouse = warehouse_service.update_warehouse(warehouse_id, data)
-        return warehouse
+        return {'data': warehouse}
     
     @warehouse_bp.doc(summary='删除仓库', description='删除仓库（需确保无库存）')
+    @warehouse_bp.output({})
     @permission_required('warehouse:delete')
     def delete(self, warehouse_id):
         """删除仓库"""
         warehouse_service.delete_warehouse(warehouse_id)
-        return None
+        return {'data': None}
 
 
 class WarehouseLocationListAPI(MethodView):
@@ -100,7 +119,7 @@ class WarehouseLocationListAPI(MethodView):
             keyword=query_data.get('q'),
             location_type=query_data.get('type')
         )
-        return result
+        return {'data': result}
     
     @warehouse_bp.doc(summary='创建库位', description='为指定仓库创建新库位')
     @warehouse_bp.input(WarehouseLocationCreateSchema, arg_name='data')
@@ -110,7 +129,7 @@ class WarehouseLocationListAPI(MethodView):
         """创建库位"""
         user_id = get_jwt_identity()
         location = warehouse_service.create_location(warehouse_id, data, user_id)
-        return location
+        return {'data': location}
 
 
 class WarehouseLocationItemAPI(MethodView):
@@ -126,7 +145,7 @@ class WarehouseLocationItemAPI(MethodView):
         if not location:
             from app.errors import BusinessError
             raise BusinessError(f'库位 {location_id} 不存在', code=404)
-        return location
+        return {'data': location}
     
     @warehouse_bp.doc(summary='更新库位', description='更新库位信息')
     @warehouse_bp.input(WarehouseLocationUpdateSchema, arg_name='data')
@@ -135,17 +154,19 @@ class WarehouseLocationItemAPI(MethodView):
     def put(self, location_id, data):
         """更新库位"""
         location = warehouse_service.update_location(location_id, data)
-        return location
+        return {'data': location}
     
     @warehouse_bp.doc(summary='删除库位', description='删除库位（需确保无库存流水）')
+    @warehouse_bp.output({})
     @permission_required('warehouse:delete')
     def delete(self, location_id):
         """删除库位"""
         warehouse_service.delete_location(location_id)
-        return None
+        return {'data': None}
 
 
 # 注册路由
+warehouse_bp.add_url_rule('/stats', view_func=WarehouseStatsAPI.as_view('warehouse_stats'))
 warehouse_bp.add_url_rule('', view_func=WarehouseListAPI.as_view('warehouse_list'))
 warehouse_bp.add_url_rule('/<int:warehouse_id>', view_func=WarehouseItemAPI.as_view('warehouse_item'))
 warehouse_bp.add_url_rule('/<int:warehouse_id>/locations', view_func=WarehouseLocationListAPI.as_view('warehouse_location_list'))

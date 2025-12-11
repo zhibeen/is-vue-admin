@@ -2,275 +2,159 @@ from apiflask import Schema
 from apiflask.fields import String, Integer, Float, Boolean, DateTime, Nested, List, Dict, Decimal
 from apiflask.validators import Length, Range, OneOf
 from marshmallow import validates_schema, ValidationError
-from datetime import datetime
 
 
-class WarehouseSchema(Schema):
-    """仓库基础Schema"""
-    id = Integer(dump_only=True)
-    code = String(
-        required=True,
-        metadata={
-            'description': '仓库编码',
-            'example': 'WH001'
-        }
-    )
-    name = String(
-        required=True,
-        metadata={
-            'description': '仓库名称',
-            'example': '深圳总仓'
-        }
-    )
+class WarehouseStatsSchema(Schema):
+    """仓库统计Schema"""
+    total = Integer(metadata={'description': '总仓库数'})
+    physical = Integer(metadata={'description': '实体仓数量'})
+    virtual = Integer(metadata={'description': '虚拟仓数量'})
+    domestic = Integer(metadata={'description': '国内仓数量'})
+    overseas = Integer(metadata={'description': '海外仓数量'})
+    active = Integer(metadata={'description': '正常运营数量'})
+
+
+class WarehouseQuerySchema(Schema):
+    """仓库查询Schema - 支持多值筛选（逗号分隔）"""
+    page = Integer(load_default=1, metadata={'description': '页码'})
+    per_page = Integer(load_default=20, metadata={'description': '每页数量'})
+    q = String(load_default=None, metadata={'description': '搜索关键词（编码或名称）'})
+    keyword = String(load_default=None, metadata={'description': '搜索关键词（兼容前端参数名）'})
+    
+    # 支持多值筛选：可传单个值或逗号分隔的多个值，如 "physical" 或 "physical,virtual"
     category = String(
-        required=True,
-        validate=OneOf(['physical', 'virtual']),
+        load_default=None,
         metadata={
-            'description': '仓库形态: physical(实体仓)/virtual(虚拟仓)',
-            'example': 'physical'
+            'description': '仓库形态: physical/virtual，支持多选（逗号分隔）',
+            'example': 'physical,virtual'
         }
     )
     location_type = String(
-        required=True,
-        validate=OneOf(['domestic', 'overseas']),
+        load_default=None,
         metadata={
-            'description': '地理位置: domestic(国内)/overseas(海外)',
-            'example': 'domestic'
+            'description': '地理位置: domestic/overseas，支持多选（逗号分隔）',
+            'example': 'domestic,overseas'
         }
     )
     ownership_type = String(
-        required=True,
-        validate=OneOf(['self', 'third_party']),
+        load_default=None,
         metadata={
-            'description': '管理模式: self(自营)/third_party(三方)',
-            'example': 'self'
+            'description': '权属类型: self/third_party，支持多选（逗号分隔）',
+            'example': 'self,third_party'
         }
     )
     status = String(
-        validate=OneOf(['planning', 'active', 'suspended', 'clearing', 'deprecated']),
+        load_default=None,
         metadata={
-            'description': '仓库状态',
-            'example': 'active'
+            'description': '仓库状态，支持多选（逗号分隔）',
+            'example': 'active,planning'
         }
     )
-    business_type = String(
-        metadata={
-            'description': '业务标签',
-            'example': 'standard'
-        }
-    )
-    currency = String(
-        metadata={
-            'description': '计价币种',
-            'example': 'USD'
-        }
-    )
-    api_config = Dict(
-        metadata={
-            'description': '第三方API配置',
-            'example': {'service_provider_id': 1, 'external_code': 'US-WEST-01'}
-        }
-    )
-    child_warehouse_ids = List(Integer, metadata={'description': '虚拟仓子仓ID列表'})
-    capacity = Float(metadata={'description': '仓库容量'})
-    max_volume = Float(metadata={'description': '最大体积容量(m³)'})
-    timezone = String(metadata={'description': '时区', 'example': 'Asia/Shanghai'})
-    contact_person = String(metadata={'description': '联系人'})
-    contact_phone = String(metadata={'description': '联系电话'})
-    contact_email = String(metadata={'description': '联系邮箱'})
-    address = String(metadata={'description': '地址'})
-    created_by = Integer(dump_only=True, metadata={'description': '创建人ID'})
-    created_at = DateTime(dump_only=True, metadata={'description': '创建时间'})
-    updated_at = DateTime(dump_only=True, metadata={'description': '更新时间'})
 
 
-class WarehouseCreateSchema(Schema):
-    """创建仓库Schema"""
+class WarehouseSchema(Schema):
+    """仓库基础Schema (v1.3 Updated)"""
+    id = Integer(dump_only=True)
     code = String(
         required=True,
-        validate=Length(min=1, max=50),
-        metadata={
-            'description': '仓库编码',
-            'example': 'WH001'
-        }
+        metadata={'description': '仓库编码', 'example': 'WH001'}
     )
     name = String(
         required=True,
-        validate=Length(min=1, max=100),
-        metadata={
-            'description': '仓库名称',
-            'example': '深圳总仓'
-        }
+        metadata={'description': '仓库名称', 'example': '深圳总仓'}
     )
     category = String(
-        required=True,
         validate=OneOf(['physical', 'virtual']),
-        metadata={
-            'description': '仓库形态',
-            'example': 'physical'
-        }
+        load_default='physical',
+        metadata={'description': '形态: physical/virtual', 'example': 'physical'}
     )
     location_type = String(
-        required=True,
         validate=OneOf(['domestic', 'overseas']),
-        metadata={
-            'description': '地理位置',
-            'example': 'domestic'
-        }
+        load_default='domestic',
+        metadata={'description': '地理: domestic/overseas', 'example': 'domestic'}
     )
     ownership_type = String(
-        required=True,
         validate=OneOf(['self', 'third_party']),
-        metadata={
-            'description': '管理模式',
-            'example': 'self'
-        }
+        load_default='self',
+        metadata={'description': '权属: self/third_party', 'example': 'self'}
+    )
+    status = String(
+        validate=OneOf(['planning', 'active', 'suspended', 'clearing', 'deprecated']),
+        load_default='active',
+        metadata={'description': '状态', 'example': 'active'}
     )
     business_type = String(
-        metadata={
-            'description': '业务标签',
-            'example': 'standard'
-        }
+        load_default='standard',
+        metadata={'description': '业务类型(bonded/fba/standard)', 'example': 'standard'}
     )
     currency = String(
-        metadata={
-            'description': '计价币种',
-            'example': 'USD'
-        }
+        load_default='USD',
+        metadata={'description': '计价币种', 'example': 'USD'}
     )
-    capacity = Float(metadata={'description': '仓库容量'})
-    max_volume = Float(metadata={'description': '最大体积容量(m³)'})
-    contact_person = String(metadata={'description': '联系人'})
-    contact_phone = String(metadata={'description': '联系电话'})
-    contact_email = String(metadata={'description': '联系邮箱'})
-    address = String(metadata={'description': '地址'})
+    # api_config 仅存映射关系，不含敏感认证
+    api_config = Dict(
+        allow_none=True,
+        metadata={'description': '第三方映射配置', 'example': {'external_code': 'US01'}}
+    )
+    child_warehouse_ids = List(Integer(), metadata={'description': '子仓ID列表(仅虚拟总仓)'})
+    
+    capacity = Float(metadata={'description': '容量'})
+    max_volume = Float(metadata={'description': '最大体积(m3)'})
+    timezone = String(load_default='UTC')
+    
+    contact_person = String()
+    contact_phone = String()
+    contact_email = String()
+    address = String()
+    
+    # 第三方关联字段
+    third_party_service_id = Integer(allow_none=True, metadata={'description': '第三方服务商ID'})
+    third_party_warehouse_id = Integer(allow_none=True, metadata={'description': '第三方仓库ID'})
+    
+    created_at = DateTime(dump_only=True)
+    updated_at = DateTime(dump_only=True)
+
+
+class WarehouseCreateSchema(WarehouseSchema):
+    """创建仓库Schema"""
+    pass
 
 
 class WarehouseUpdateSchema(Schema):
     """更新仓库Schema"""
-    name = String(
-        validate=Length(min=1, max=100),
-        metadata={
-            'description': '仓库名称',
-            'example': '深圳总仓'
-        }
-    )
-    status = String(
-        validate=OneOf(['planning', 'active', 'suspended', 'clearing', 'deprecated']),
-        metadata={
-            'description': '仓库状态',
-            'example': 'active'
-        }
-    )
-    business_type = String(
-        metadata={
-            'description': '业务标签',
-            'example': 'standard'
-        }
-    )
-    currency = String(
-        metadata={
-            'description': '计价币种',
-            'example': 'USD'
-        }
-    )
-    api_config = Dict(
-        metadata={
-            'description': '第三方API配置'
-        }
-    )
-    child_warehouse_ids = List(Integer, metadata={'description': '虚拟仓子仓ID列表'})
-    capacity = Float(metadata={'description': '仓库容量'})
-    max_volume = Float(metadata={'description': '最大体积容量(m³)'})
-    contact_person = String(metadata={'description': '联系人'})
-    contact_phone = String(metadata={'description': '联系电话'})
-    contact_email = String(metadata={'description': '联系邮箱'})
-    address = String(metadata={'description': '地址'})
+    name = String()
+    status = String(validate=OneOf(['planning', 'active', 'suspended', 'clearing', 'deprecated']))
+    business_type = String()
+    currency = String()
+    api_config = Dict(allow_none=True)
+    child_warehouse_ids = List(Integer())
+    capacity = Float(allow_none=True)
+    max_volume = Float(allow_none=True)
+    timezone = String()
+    contact_person = String()
+    contact_phone = String()
+    contact_email = String()
+    address = String()
+    # 添加第三方关联字段
+    third_party_service_id = Integer(allow_none=True, metadata={'description': '第三方服务商ID'})
+    third_party_warehouse_id = Integer(allow_none=True, metadata={'description': '第三方仓库ID'})
 
 
 class WarehouseLocationSchema(Schema):
     """库位Schema"""
     id = Integer(dump_only=True)
-    warehouse_id = Integer(required=True, metadata={'description': '仓库ID'})
-    code = String(
-        required=True,
-        metadata={
-            'description': '库位编码',
-            'example': 'A-01-01-01'
-        }
-    )
-    type = String(
-        validate=OneOf(['storage', 'pick', 'receive', 'return', 'stage']),
-        metadata={
-            'description': '库位类型',
-            'example': 'storage'
-        }
-    )
-    is_locked = Boolean(metadata={'description': '是否锁定'})
-    allow_mixing = Boolean(metadata={'description': '是否允许混放'})
-    max_quantity = Integer(metadata={'description': '最大数量'})
-    max_weight = Float(metadata={'description': '最大重量(kg)'})
-    max_volume = Float(metadata={'description': '最大体积(m³)'})
-    status = String(
-        validate=OneOf(['available', 'occupied', 'locked', 'maintenance']),
-        metadata={
-            'description': '库位状态',
-            'example': 'available'
-        }
-    )
-    created_by = Integer(dump_only=True, metadata={'description': '创建人ID'})
-    created_at = DateTime(dump_only=True, metadata={'description': '创建时间'})
-    updated_at = DateTime(dump_only=True, metadata={'description': '更新时间'})
+    warehouse_id = Integer(dump_only=True)
+    code = String(required=True)
+    type = String(load_default='storage')
+    is_locked = Boolean(load_default=False)
+    allow_mixing = Boolean(load_default=False)
 
 
-class WarehouseLocationCreateSchema(Schema):
-    """创建库位Schema"""
-    warehouse_id = Integer(required=True, metadata={'description': '仓库ID'})
-    code = String(
-        required=True,
-        validate=Length(min=1, max=50),
-        metadata={
-            'description': '库位编码',
-            'example': 'A-01-01-01'
-        }
-    )
-    type = String(
-        validate=OneOf(['storage', 'pick', 'receive', 'return', 'stage']),
-        metadata={
-            'description': '库位类型',
-            'example': 'storage'
-        }
-    )
-    max_quantity = Integer(metadata={'description': '最大数量'})
-    max_weight = Float(metadata={'description': '最大重量(kg)'})
-    max_volume = Float(metadata={'description': '最大体积(m³)'})
+class WarehouseLocationCreateSchema(WarehouseLocationSchema):
+    pass
 
 
 class WarehouseLocationUpdateSchema(Schema):
-    """更新库位Schema"""
-    code = String(
-        validate=Length(min=1, max=50),
-        metadata={
-            'description': '库位编码',
-            'example': 'A-01-01-01'
-        }
-    )
-    type = String(
-        validate=OneOf(['storage', 'pick', 'receive', 'return', 'stage']),
-        metadata={
-            'description': '库位类型',
-            'example': 'storage'
-        }
-    )
-    is_locked = Boolean(metadata={'description': '是否锁定'})
-    allow_mixing = Boolean(metadata={'description': '是否允许混放'})
-    max_quantity = Integer(metadata={'description': '最大数量'})
-    max_weight = Float(metadata={'description': '最大重量(kg)'})
-    max_volume = Float(metadata={'description': '最大体积(m³)'})
-    status = String(
-        validate=OneOf(['available', 'occupied', 'locked', 'maintenance']),
-        metadata={
-            'description': '库位状态',
-            'example': 'available'
-        }
-    )
+    is_locked = Boolean()
+    allow_mixing = Boolean()
+    type = String()
