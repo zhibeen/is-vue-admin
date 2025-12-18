@@ -50,8 +50,10 @@ class User(db.Model):
     
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    realname: Mapped[Optional[str]] = mapped_column(String(50))  # 真实姓名
     email: Mapped[str] = mapped_column(String(120), unique=True, index=True)
-    nickname: Mapped[Optional[str]] = mapped_column(String(50))  # Add nickname support
+    nickname: Mapped[Optional[str]] = mapped_column(String(50))
+    mobile: Mapped[Optional[str]] = mapped_column(String(20))
     password_hash: Mapped[str] = mapped_column(String(256))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())

@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from .category import Category
     from ..serc import SysHSCode
     from ..vehicle import VehicleAux
+    from ..customs.product import CustomsProduct
 
 # --- Existing Helper Tables (SkuSuffix, SysTaxCategory) ---
 
@@ -150,11 +151,17 @@ class ProductVariant(db.Model):
     declared_name: Mapped[Optional[str]] = mapped_column(String(200))
     declared_unit: Mapped[Optional[str]] = mapped_column(String(20))
     
+    # 2025-12-17 Added for Customs Product Library Integration
+    customs_product_id: Mapped[Optional[int]] = mapped_column(ForeignKey("customs_products.id"), comment='关联报关品类')
+    customs_name_cn: Mapped[Optional[str]] = mapped_column(String(200), comment='报关中文名称(覆盖)')
+    customs_name_en: Mapped[Optional[str]] = mapped_column(String(200), comment='报关英文名称(覆盖)')
+    
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
 
     # Relationships
     product: Mapped["Product"] = relationship("Product", back_populates="variants")
     hs_code: Mapped["SysHSCode"] = relationship("SysHSCode")
+    customs_product: Mapped["CustomsProduct"] = relationship("CustomsProduct")
 
     def __repr__(self):
         return f"<Variant {self.sku}>"

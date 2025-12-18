@@ -1,0 +1,149 @@
+{"timestamp": "2025-12-14T00:24:33.604541Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T00:24:37.996291Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T00:24:38.444262Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T00:24:38.447339Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 855-254-215", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T00:53:32.386450Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/test_nas_connection.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T00:53:36.880278Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T00:53:47.976541Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T00:53:48.406829Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T00:53:48.416119Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 855-254-215", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T00:53:51.196876Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/test_nas_connection.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T00:53:51.580665Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T00:53:54.074124Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T00:53:54.254994Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T00:53:54.255833Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 855-254-215", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T01:16:08.584377Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/test_nas_connection.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T01:16:10.304257Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T01:16:14.742080Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T01:16:15.210906Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T01:16:15.212566Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 855-254-215", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:45:04.218510Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/test_nas_connection.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:45:09.886863Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:45:21.725206Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T05:45:22.167642Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:45:22.170693Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 855-254-215", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:45:25.315432Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/test_nas_connection.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:45:25.706963Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:45:28.487258Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T05:45:28.641083Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:45:28.643021Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 855-254-215", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:49:48.342857Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/test_nas_connection.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:49:49.087214Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:49:52.222420Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T05:49:52.583260Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T05:49:52.585661Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 855-254-215", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:28:53.301137Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T06:28:53.470719Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n * Running on all addresses (0.0.0.0)\n * Running on http://127.0.0.1:5000\n * Running on http://172.18.0.3:5000", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:28:53.471218Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[33mPress CTRL+C to quit\u001b[0m", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:28:53.472753Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:28:55.641031Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T06:28:55.760989Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:28:55.761773Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 999-546-844", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:30:25.374869Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T06:30:25.590142Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n * Running on all addresses (0.0.0.0)\n * Running on http://127.0.0.1:5000\n * Running on http://172.18.0.3:5000", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:30:25.590595Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[33mPress CTRL+C to quit\u001b[0m", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:30:25.593116Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:30:28.469065Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T06:30:28.656132Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:30:28.657009Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 487-543-803", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:32:58.619350Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T06:32:58.769997Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n * Running on all addresses (0.0.0.0)\n * Running on http://127.0.0.1:5000\n * Running on http://172.18.0.3:5000", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:32:58.770362Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[33mPress CTRL+C to quit\u001b[0m", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:32:58.772016Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:33:01.566592Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T06:33:01.732942Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:33:01.734237Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 227-452-888", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:49:22.140191Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/services/customs_service.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:49:26.505013Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:49:41.330472Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T06:49:41.876388Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:49:41.879761Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 227-452-888", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:49:57.146748Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/customs/__init__.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:50:00.848435Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:50:15.806833Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:56:02.212002Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:56:10.008061Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T06:56:10.892691Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:56:10.902665Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 227-452-888", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:56:15.532799Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/customs/files.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:56:16.104061Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:56:18.652683Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T06:56:18.801079Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:56:18.802097Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 227-452-888", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:58:28.465513Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T06:58:29.062836Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n * Running on all addresses (0.0.0.0)\n * Running on http://127.0.0.1:5000\n * Running on http://172.18.0.3:5000", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:58:29.065891Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "\u001b[33mPress CTRL+C to quit\u001b[0m", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:58:29.092348Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:58:32.411380Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T06:58:32.559166Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T06:58:32.561038Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 308-713-533", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:01:16.348626Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/customs/files.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:01:20.206852Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:01:33.520741Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T07:01:34.335415Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:01:34.345801Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 308-713-533", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:01:45.191044Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/customs/files.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:01:49.309631Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:02:03.141897Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T07:02:03.901946Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:02:03.909303Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 308-713-533", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:02:18.088444Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/customs/files.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:02:18.472961Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:02:20.748298Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T07:02:20.909751Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T07:02:20.910573Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 308-713-533", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:06:25.096715Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:06:25] \"\u001b[31m\u001b[1mGET /api/v1/auth/me HTTP/1.1\u001b[0m\" 401 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:06:28.637981Z", "level": "INFO", "module": "__init__", "function": "before_request", "message": "Request started", "logger": "app"}
+{"timestamp": "2025-12-14T10:06:30.468705Z", "level": "INFO", "module": "__init__", "function": "after_request", "message": "Request completed", "logger": "app"}
+{"timestamp": "2025-12-14T10:06:30.479221Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:06:30] \"POST /api/v1/auth/login HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:06:30.543483Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:06:30] \"GET /api/v1/auth/me HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:06:43.607161Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:06:43] \"GET /api/v1/customs/declarations/stats HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:06:43.983138Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:06:43] \"GET /api/v1/customs/declarations?page=1&per_page=20 HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:07:15.509361Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:07:15] \"GET /api/v1/auth/me HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:07:16.619134Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:07:16] \"GET /api/v1/customs/declarations/stats HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:07:17.086096Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:07:17] \"GET /api/v1/customs/declarations?page=1&per_page=20 HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:10:13.288473Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:10:13] \"GET /api/v1/customs/declarations/stats HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:10:14.092648Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:10:14] \"GET /api/v1/customs/declarations?page=1&per_page=20 HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:13:22.153940Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:13:22] \"GET /api/v1/auth/me HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:13:23.272460Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:13:23] \"GET /api/v1/customs/declarations/stats HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:13:23.689973Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:13:23] \"GET /api/v1/customs/declarations?page=1&per_page=20 HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:16:50.974189Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:16:50] \"GET /api/v1/auth/me HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:16:52.101050Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:16:52] \"GET /api/v1/customs/declarations/stats HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:16:52.433816Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:16:52] \"GET /api/v1/customs/declarations?page=1&per_page=20 HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:16:57.085216Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:16:57] \"GET /api/v1/customs/declarations/23 HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T10:17:00.920008Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 10:17:00] \"GET /api/v1/customs/declarations/23/files HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:30:15.478403Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/services/customs_service.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:30:23.279627Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:30:47.340130Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T12:30:49.769708Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:30:49.787717Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 308-713-533", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:31:25.083055Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:31:25] \"\u001b[31m\u001b[1mGET /api/v1/customs/declarations/23/files HTTP/1.1\u001b[0m\" 401 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:31:29.216354Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:31:29] \"\u001b[31m\u001b[1mGET /api/v1/customs/declarations/23/files HTTP/1.1\u001b[0m\" 401 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:31:52.994799Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/api/customs/files.py', reloading", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:31:53.311739Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Restarting with stat", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:31:56.036528Z", "level": "INFO", "module": "logging_config", "function": "configure_logging", "message": "Logging configured successfully", "logger": "app"}
+{"timestamp": "2025-12-14T12:31:56.186062Z", "level": "WARNING", "module": "_internal", "function": "_log", "message": " * Debugger is active!", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:31:56.187044Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Debugger PIN: 308-713-533", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:33:00.489301Z", "level": "INFO", "module": "__init__", "function": "before_request", "message": "Request started", "logger": "app"}
+{"timestamp": "2025-12-14T12:33:00.936549Z", "level": "INFO", "module": "__init__", "function": "after_request", "message": "Request completed", "logger": "app"}
+{"timestamp": "2025-12-14T12:33:00.946805Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:33:00] \"POST /api/v1/auth/login HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:33:01.018584Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:33:01] \"GET /api/v1/auth/me HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:33:08.161183Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:33:08] \"GET /api/v1/customs/declarations/stats HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:33:08.519344Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:33:08] \"GET /api/v1/customs/declarations?page=1&per_page=20 HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:33:10.717442Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:33:10] \"GET /api/v1/customs/declarations/23 HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:33:13.304875Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:33:13] \"GET /api/v1/customs/declarations/23/files HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:33:46.503933Z", "level": "INFO", "module": "__init__", "function": "before_request", "message": "Request started", "logger": "app"}
+{"timestamp": "2025-12-14T12:33:46.805905Z", "level": "INFO", "module": "__init__", "function": "after_request", "message": "Request completed", "logger": "app"}
+{"timestamp": "2025-12-14T12:33:46.815068Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:33:46] \"\u001b[35m\u001b[1mPOST /api/v1/customs/declarations/23/files HTTP/1.1\u001b[0m\" 201 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:33:47.335854Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:33:47] \"GET /api/v1/customs/declarations/23/files HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:50:35.606959Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:50:35] \"\u001b[31m\u001b[1mGET /api/v1/auth/me HTTP/1.1\u001b[0m\" 401 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:51:31.845592Z", "level": "INFO", "module": "__init__", "function": "before_request", "message": "Request started", "logger": "app"}
+{"timestamp": "2025-12-14T12:51:32.003142Z", "level": "INFO", "module": "__init__", "function": "after_request", "message": "Request completed", "logger": "app"}
+{"timestamp": "2025-12-14T12:51:32.012591Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:51:32] \"POST /api/v1/auth/login HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:51:32.080132Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:51:32] \"GET /api/v1/auth/me HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:51:33.153761Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:51:33] \"GET /api/v1/customs/declarations/23 HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:51:36.904240Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:51:36] \"GET /api/v1/customs/declarations/23/files HTTP/1.1\" 200 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:51:51.600692Z", "level": "INFO", "module": "__init__", "function": "before_request", "message": "Request started", "logger": "app"}
+{"timestamp": "2025-12-14T12:51:51.967839Z", "level": "INFO", "module": "__init__", "function": "after_request", "message": "Request completed", "logger": "app"}
+{"timestamp": "2025-12-14T12:51:51.977337Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:51:51] \"\u001b[35m\u001b[1mPOST /api/v1/customs/declarations/23/files HTTP/1.1\u001b[0m\" 201 -", "logger": "werkzeug"}
+{"timestamp": "2025-12-14T12:51:52.473468Z", "level": "INFO", "module": "_internal", "function": "_log", "message": "172.18.0.1 - - [14/Dec/2025 12:51:52] \"GET /api/v1/customs/declarations/23/files HTTP/1.1\" 200 -", "logger": "werkzeug"}

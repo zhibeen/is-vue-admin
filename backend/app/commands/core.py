@@ -5,6 +5,7 @@ from app.extensions import db
 
 # 导入具体命令函数，以便在聚合命令中 invoke
 from .user import seed_users_cmd
+from .permissions import seed_permissions_cmd
 from .system import seed_system_dicts_cmd, seed_companies_cmd
 from .product import seed_categories_cmd, seed_vehicles_cmd, seed_products_cmd
 from .supply import seed_suppliers_cmd, seed_contracts_cmd
@@ -33,24 +34,28 @@ def init_dev_cmd(ctx, reset):
 
     # 2. 执行基础数据填充 (按依赖顺序)
     try:
-        # 2.1 用户与权限 (最基础)
-        click.secho('\n📦 [1/5] 初始化用户与权限...', fg='cyan')
+        # 2.1 用户与角色 (最基础)
+        click.secho('\n📦 [1/6] 初始化用户与角色...', fg='cyan')
         ctx.invoke(seed_users_cmd, clear=reset)
         
-        # 2.2 系统字典 (被其他模块引用)
-        click.secho('\n📦 [2/5] 初始化系统字典与配置...', fg='cyan')
+        # 2.2 系统权限 (依赖角色)
+        click.secho('\n📦 [2/6] 初始化系统权限...', fg='cyan')
+        ctx.invoke(seed_permissions_cmd, clear=reset)
+        
+        # 2.3 系统字典 (被其他模块引用)
+        click.secho('\n📦 [3/6] 初始化系统字典与配置...', fg='cyan')
         ctx.invoke(seed_system_dicts_cmd, clear=reset)
         
-        # 2.3 内部公司主体
-        click.secho('\n📦 [3/5] 初始化内部公司主体...', fg='cyan')
+        # 2.4 内部公司主体
+        click.secho('\n📦 [4/6] 初始化内部公司主体...', fg='cyan')
         ctx.invoke(seed_companies_cmd, clear=reset)
         
-        # 2.4 产品分类树 (产品基础)
-        click.secho('\n📦 [4/5] 初始化产品分类与属性...', fg='cyan')
+        # 2.5 产品分类树 (产品基础)
+        click.secho('\n📦 [5/6] 初始化产品分类与属性...', fg='cyan')
         ctx.invoke(seed_categories_cmd, clear=reset)
 
-        # 2.5 车型数据 (虽然量大，但是属于参考数据，非业务数据)
-        click.secho('\n📦 [5/5] 初始化车型标准库...', fg='cyan')
+        # 2.6 车型数据 (虽然量大，但是属于参考数据，非业务数据)
+        click.secho('\n📦 [6/6] 初始化车型标准库...', fg='cyan')
         ctx.invoke(seed_vehicles_cmd, clear=reset)
         
         click.secho('\n✨ 开发环境初始化完成！你现在可以启动应用了。', fg='green', bold=True)

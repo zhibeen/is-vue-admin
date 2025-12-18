@@ -240,6 +240,7 @@ export interface PaymentPoolItem {
   type: 'deposit' | 'balance' | 'prepay' | 'tax';
   status: 'pending_approval' | 'pending_payment' | 'paid';
   priority: number;
+  due_date?: string;
   options?: any; 
 }
 

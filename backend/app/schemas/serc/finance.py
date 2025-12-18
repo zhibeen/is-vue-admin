@@ -46,6 +46,7 @@ class PaymentPoolItemSchema(Schema):
     type = String()
     status = String()
     priority = Integer()
+    due_date = Date()
 
 class PaymentCreateSchema(Schema):
     # 提交 Pool Item ID 列表生成 L3

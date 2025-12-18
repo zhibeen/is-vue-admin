@@ -87,7 +87,9 @@ class RoleUserAddSchema(Schema):
 
 class UserBaseSchema(Schema):
     username = String(required=True, validate=Length(min=3, max=50), metadata={'description': '用户名'})
-    nickname = String(load_default='', metadata={'description': '昵称/中文名', 'example': '张三'})
+    realname = String(load_default='', metadata={'description': '真实姓名', 'example': '张三'})
+    nickname = String(load_default='', metadata={'description': '昵称', 'example': '小张'})
+    mobile = String(load_default='', metadata={'description': '手机号', 'example': '13800138000'})
     email = String(required=True, validate=Email(), metadata={'description': '邮箱'})
     is_active = Boolean(load_default=True, metadata={'description': '是否激活'})
 
@@ -97,7 +99,9 @@ class UserCreateSchema(UserBaseSchema):
 
 class UserUpdateSchema(Schema):
     username = String(validate=Length(min=3, max=50))
+    realname = String(metadata={'description': '真实姓名'})
     nickname = String(metadata={'description': '昵称'})
+    mobile = String(metadata={'description': '手机号'})
     email = String(validate=Email())
     password = String(validate=Length(min=6), load_default=None)
     is_active = Boolean()
@@ -105,6 +109,8 @@ class UserUpdateSchema(Schema):
 
 class UserOutSchema(UserBaseSchema):
     id = Integer()
+    realname = String(metadata={'description': '真实姓名'})
     nickname = String(metadata={'description': '昵称'})
+    mobile = String(metadata={'description': '手机号'})
     created_at = DateTime()
     roles = List(Nested(RoleOutSchema(only=['id', 'name', 'description'])), metadata={'description': '所属角色'})

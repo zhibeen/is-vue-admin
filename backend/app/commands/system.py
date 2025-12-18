@@ -248,6 +248,132 @@ def seed_system_dicts_cmd(clear):
                     "sort_order": 4
                 }
             ]
+        },
+        # --- 5. 关务模块 (Customs) ---
+        {
+            "name": "国家/地区",
+            "code": "country",
+            "category": "customs",
+            "description": "世界各国和地区代码",
+            "is_system": True,
+            "value_options": [
+                {"label": "中国 (CHN)", "value": "中国"},
+                {"label": "美国 (USA)", "value": "美国"},
+                {"label": "英国 (GBR)", "value": "英国"},
+                {"label": "德国 (DEU)", "value": "德国"},
+                {"label": "日本 (JPN)", "value": "日本"},
+                {"label": "韩国 (KOR)", "value": "韩国"},
+                {"label": "法国 (FRA)", "value": "法国"},
+                {"label": "加拿大 (CAN)", "value": "加拿大"},
+                {"label": "澳大利亚 (AUS)", "value": "澳大利亚"},
+                {"label": "意大利 (ITA)", "value": "意大利"},
+                {"label": "西班牙 (ESP)", "value": "西班牙"},
+                {"label": "荷兰 (NLD)", "value": "荷兰"},
+                {"label": "俄罗斯 (RUS)", "value": "俄罗斯"},
+                {"label": "越南 (VNM)", "value": "越南"},
+                {"label": "印度 (IND)", "value": "印度"},
+                {"label": "墨西哥 (MEX)", "value": "墨西哥"},
+                {"label": "巴西 (BRA)", "value": "巴西"}
+            ]
+        },
+        {
+            "name": "港口/口岸",
+            "code": "port",
+            "category": "customs",
+            "description": "常用进出口港口和口岸",
+            "is_system": True,
+            "value_options": [
+                {"label": "宁波港", "value": "宁波港"},
+                {"label": "上海港", "value": "上海港"},
+                {"label": "深圳港", "value": "深圳港"},
+                {"label": "洋山海关", "value": "洋山海关"},
+                {"label": "北仑海关", "value": "北仑海关"},
+                {"label": "梅山海关", "value": "梅山海关"},
+                {"label": "大榭海关", "value": "大榭海关"},
+                {"label": "浦东机场", "value": "浦东机场"},
+                {"label": "白云机场", "value": "白云机场"},
+                {"label": "深圳湾口岸", "value": "深圳湾口岸"},
+                {"label": "青岛港", "value": "青岛港"},
+                {"label": "天津港", "value": "天津港"},
+                {"label": "厦门港", "value": "厦门港"}
+            ]
+        },
+        {
+            "name": "成交方式",
+            "code": "transaction_mode",
+            "category": "customs",
+            "description": "国际贸易术语解释通则 (Incoterms)",
+            "is_system": True,
+            "value_options": [
+                {"label": "CIF", "value": "CIF"},
+                {"label": "FOB", "value": "FOB"},
+                {"label": "EXW", "value": "EXW"},
+                {"label": "FCA", "value": "FCA"},
+                {"label": "CIP", "value": "CIP"},
+                {"label": "DDP", "value": "DDP"},
+                {"label": "DDU", "value": "DDU"},
+                {"label": "DAP", "value": "DAP"},
+                {"label": "C&F", "value": "C&F"}
+            ]
+        },
+        {
+            "name": "监管方式",
+            "code": "trade_mode",
+            "category": "customs",
+            "description": "海关监管方式代码",
+            "is_system": True,
+            "value_options": [
+                {"label": "0110 一般贸易", "value": "0110"},
+                {"label": "9610 跨境电商", "value": "9610"},
+                {"label": "9710 B2B直接出口", "value": "9710"},
+                {"label": "9810 出口海外仓", "value": "9810"},
+                {"label": "1039 市场采购", "value": "1039"}
+            ]
+        },
+        {
+            "name": "征免性质",
+            "code": "nature_of_exemption",
+            "category": "customs",
+            "description": "海关征免性质分类",
+            "is_system": True,
+            "value_options": [
+                {"label": "101 一般征税", "value": "101"},
+                {"label": "502 进料加工", "value": "502"},
+                {"label": "503 进料深加工", "value": "503"}
+            ]
+        },
+        {
+            "name": "运输方式",
+            "code": "transport_mode",
+            "category": "customs",
+            "description": "进出口货物运输方式",
+            "is_system": True,
+            "value_options": [
+                {"label": "2 水路运输", "value": "2"},
+                {"label": "5 航空运输", "value": "5"},
+                {"label": "4 公路运输", "value": "4"},
+                {"label": "9 铁路运输", "value": "9"}
+            ]
+        },
+        {
+            "name": "海关申报单位",
+            "code": "customs_unit",
+            "category": "customs",
+            "description": "海关法定的标准计量单位代码",
+            "is_system": True,
+            "value_options": [
+                {"label": "007 个", "value": "007"},
+                {"label": "035 千克", "value": "035"},
+                {"label": "001 台", "value": "001"},
+                {"label": "006 套", "value": "006"},
+                {"label": "011 双", "value": "011"},
+                {"label": "012 支", "value": "012"},
+                {"label": "015 包", "value": "015"},
+                {"label": "008 只", "value": "008"},
+                {"label": "120 箱", "value": "120"},
+                {"label": "010 件", "value": "010"},
+                {"label": "005 辆", "value": "005"}
+            ]
         }
     ]
 

@@ -86,7 +86,9 @@ export interface RoleUpdateParams extends RoleCreateParams {}
 export interface UserItem {
   id: number;
   username: string;
-  nickname?: string; // Add nickname
+  realname?: string;
+  nickname?: string;
+  mobile?: string;
   email: string;
   is_active: boolean;
   created_at: string;
@@ -96,7 +98,10 @@ export interface UserItem {
 export interface UserCreateParams {
   username: string;
   email: string;
-  password?: string; // Optional on update maybe, but required on create
+  password?: string;
+  realname?: string;
+  nickname?: string;
+  mobile?: string;
   role_ids: number[];
   is_active?: boolean;
 }

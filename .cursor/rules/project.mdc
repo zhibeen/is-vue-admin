@@ -4,6 +4,48 @@ alwaysApply: true
 
 # IS-Vue-Admin 项目开发规范
 
+## AI 协作规范
+
+### 文档和日志创建原则
+
+**重要**: AI 助手在完成任务时，**不应主动创建详细的日志文档**，除非用户明确要求。
+
+#### 何时创建文档
+
+- ✅ **用户明确要求总结** - 用户说"请总结"、"写个文档"、"整理日志"等
+- ✅ **重大架构变更** - 影响整个系统的架构调整，需要记录
+- ✅ **用户明确要求** - 用户在任务开始或结束时明确要求文档化
+
+#### 何时不创建文档
+
+- ❌ **常规Bug修复** - 修复组件导入、API路由等常见问题
+- ❌ **小功能调整** - 调整样式、修改文案、小重构等
+- ❌ **每次代码更改** - 不需要为每个修改都创建文档
+- ❌ **中间步骤** - 任务进行中的临时文档
+
+#### 推荐做法
+
+1. **完成任务后简洁汇报**: 在响应中直接说明做了什么、修复了什么问题、如何验证
+2. **关键信息内联**: 把验证清单、注意事项直接放在响应中，不创建单独文件
+3. **代码即文档**: 通过清晰的代码注释和命名来说明逻辑
+4. **按需创建**: 只在用户明确需要或确实有价值时才创建文档
+
+#### 文档类型指导
+
+**必须创建**:
+- 技术设计文档（用户要求时）
+- API接口文档（新模块开发）
+- 数据库迁移说明（schema变更）
+- 部署指南（环境配置变更）
+
+**可选创建**（用户要求时）:
+- 开发日志
+- 问题修复记录
+- 重构说明
+- 测试报告
+
+---
+
 ## 项目架构概览
 
 这是一个基于 **前后端分离** 的企业级中后台管理系统，采用 Monorepo 架构。
@@ -202,9 +244,13 @@ for p in products:
 
 **禁止手动修改数据库！所有变更必须通过 Alembic**:
 
-**注意**: 由于后端运行在 Docker 容器中，必须使用 `docker compose exec backend` 前缀来执行 flask 命令。
+**注意**: 
+- 由于后端运行在 Docker 容器中，必须使用 `docker compose exec backend` 前缀来执行 flask 命令
+- docker-compose.yml 位于项目根目录，所有命令都在项目根目录执行
 
 ```bash
+# 在项目根目录执行以下命令
+
 # 生成迁移文件
 docker compose exec backend flask db migrate -m "添加商品表"
 
@@ -214,7 +260,7 @@ docker compose exec backend flask db upgrade
 # 回滚
 docker compose exec backend flask db downgrade
 ```
-
+![1765980242296](image/project/1765980242296.png)
 ### 4. 认证与权限
 
 #### 4.1 认证方式
@@ -436,6 +482,18 @@ onMounted(() => {
 3.  **生命周期**: 在 `onMounted` 中显式调用 `loadData()`。
 4.  **刷新绑定**: 通过 `gridEvents.toolbarToolClick` 绑定刷新按钮。
 
+### 6. 样式与主题 (Styling & Theming)
+
+**强制使用 Tailwind CSS**:
+- **优先使用 Utility Classes**: 布局、间距、颜色等应优先使用 Tailwind 类名。
+- **避免自定义 CSS**: 尽量少写 `<style scoped>`，除非是复杂的动画或 Tailwind 无法实现的特殊样式。
+- **严禁使用 `!important`**: 除非万不得已，禁止使用 `!important` 覆盖框架样式，这会导致深色模式适配困难。
+
+**深色模式适配**:
+- **使用 Ant Design Vue 组件**: 容器类组件（如 `Card`, `Modal`, `Drawer`）自带深色模式适配，优先使用它们包裹内容。
+- **避免手动设置背景色**: 不要手动写 `background: #fff` 或 `bg-white`，除非你明确知道在深色模式下它也应该是白色的。
+- **使用 CSS 变量**: 如果必须自定义颜色，请使用 Ant Design 的 CSS 变量（如 `var(--bg-color-container)`）以支持动态切换。
+
 ---
 
 ## 开发环境配置
@@ -455,18 +513,26 @@ onMounted(() => {
 
 ### 3. 启动方式
 
+**重要说明**: `docker-compose.yml` 文件位于项目根目录 `D:\jzb_program\is-vue-admin\docker-compose.yml`，所有 Docker Compose 命令都应在项目根目录执行。
+
 **后端 (Docker)**:
 ```bash
-cd backend
+# 在项目根目录执行（不需要进入 backend 目录）
 docker compose up -d
 ```
 
 **后端命令执行 (重要)**:
 由于使用 Docker Compose，所有 Flask 命令必须在容器内执行：
 ```bash
-# 示例
+# 在项目根目录执行
 docker compose exec backend flask routes
 docker compose exec backend flask shell
+```
+
+**后端服务重启**:
+```bash
+# 在项目根目录执行
+docker compose restart backend
 ```
 
 **前端 (本地 Node)**:
@@ -501,12 +567,13 @@ pnpm dev
 
 ## 重要提醒
 
-1. **数据迁移**: 所有数据库变更必须通过 Alembic，且必须使用 `docker compose exec backend flask ...` 执行，禁止手动修改
+1. **数据迁移**: 所有数据库变更必须通过 Alembic，且必须在项目根目录使用 `docker compose exec backend flask ...` 执行，禁止手动修改
 2. **返回值规范**: 注意 BASE_RESPONSE_SCHEMA 的返回值包装规则，List 必须包装在 `data` 中。
 3. **N+1 查询**: 使用 selectinload/joinedload 预加载关联
 4. **权限控制**: 敏感操作必须添加权限检查
 5. **异常处理**: 使用 BusinessError 统一抛出业务异常
 6. **API 文档**: 所有接口必须有 @doc 装饰器和完整的 metadata
+7. **样式规范**: 优先使用 Tailwind CSS，严禁滥用 `!important`，确保深色模式适配。
 
 ---
 
@@ -531,17 +598,21 @@ pnpm dev
 
 ## 常用测试命令
 
+**注意**: 所有命令都在项目根目录执行
+
 - **运行所有测试**:
   ```bash
-  # 在 Docker 中运行 (推荐)
+  # 在项目根目录执行
   docker compose exec backend env PYTHONPATH=/app pytest
   ```
 - **运行特定测试文件**:
   ```bash
+  # 在项目根目录执行
   docker compose exec backend env PYTHONPATH=/app pytest tests/api/test_auth.py
   ```
 - **查看覆盖率报告**:
   ```bash
+  # 在项目根目录执行
   docker compose exec backend env PYTHONPATH=/app pytest --cov=app
   ```
 

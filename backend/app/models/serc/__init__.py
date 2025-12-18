@@ -7,5 +7,5 @@ from .finance import (
 )
 from .tax import (
     SysExchangeRate, TaxInvoice, TaxInvoiceItem,
-    TaxCustomsDeclaration, TaxCustomsItem, TaxRefundMatch
+    TaxRefundMatch
 )

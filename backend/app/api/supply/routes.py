@@ -180,3 +180,67 @@ def export_contracts():
 
 # 注册路由
 supply_bp.add_url_rule('/contracts', view_func=DeliveryContractListAPI.as_view('contract_list'))
+
+
+# ==================== 开票合同API ====================
+from app.schemas.supply.supply_contract import (
+    SupplyContractSchema,
+    SupplyContractCreateSchema
+)
+from app.services.supply.supply_contract_service import SupplyContractService
+from flask_jwt_extended import get_jwt_identity
+from app.security import auth
+from app.decorators import permission_required
+
+
+class SupplyContractListAPI(MethodView):
+    """开票合同列表API"""
+    decorators = [supply_bp.auth_required(auth)]
+    
+    @supply_bp.doc(summary='获取开票合同列表', description='查询开票合同列表')
+    @supply_bp.output(SupplyContractSchema(many=True))
+    def get(self):
+        """获取开票合同列表"""
+        from app.models.supply.supply_contract import ScmSupplyContract
+        contracts = ScmSupplyContract.query.order_by(
+            ScmSupplyContract.created_at.desc()
+        ).all()
+        return {'data': contracts}
+    
+    @supply_bp.doc(summary='创建开票合同', description='从交付合同生成开票合同')
+    @supply_bp.input(SupplyContractCreateSchema, arg_name='data')
+    @supply_bp.output(SupplyContractSchema, status_code=201)
+    @permission_required('supply:supply_contract:create')
+    def post(self, data):
+        """创建开票合同"""
+        user_id = get_jwt_identity()
+        contract = SupplyContractService.create_supply_contract(data, created_by=user_id)
+        return contract
+
+
+class SupplyContractItemAPI(MethodView):
+    """开票合同详情API"""
+    decorators = [supply_bp.auth_required(auth)]
+    
+    @supply_bp.doc(summary='获取开票合同详情', description='根据ID获取开票合同详情')
+    @supply_bp.output(SupplyContractSchema)
+    def get(self, contract_id):
+        """获取开票合同详情"""
+        contract = SupplyContractService.get_supply_contract_by_id(contract_id)
+        if not contract:
+            return {'message': '开票合同不存在'}, 404
+        return contract
+
+
+# 注册开票合同路由
+supply_bp.add_url_rule(
+    '/supply-contracts',
+    view_func=SupplyContractListAPI.as_view('supply_contract_list'),
+    methods=['GET', 'POST']
+)
+
+supply_bp.add_url_rule(
+    '/supply-contracts/<int:contract_id>',
+    view_func=SupplyContractItemAPI.as_view('supply_contract_item'),
+    methods=['GET']
+)

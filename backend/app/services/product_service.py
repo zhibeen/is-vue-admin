@@ -370,8 +370,8 @@ class ProductService:
                 'warning_status': 'normal',  # TODO: 根据库存计算
                 'quality_type': variant.quality_type,
                 'is_active': variant.is_active,
-                'created_at': variant.created_at.isoformat() if variant.created_at else None,
-                'updated_at': variant.updated_at.isoformat() if variant.updated_at else None,
+                'created_at': variant.created_at, # Schema handles ISO serialization
+                # 'updated_at': variant.updated_at, # ProductVariant model doesn't have updated_at
             }
             items.append(item)
         
@@ -470,8 +470,8 @@ class ProductService:
             'warning_status': 'normal',  # TODO: 根据库存计算
             'quality_type': variant.quality_type,
             'is_active': variant.is_active,
-            'created_at': variant.created_at.isoformat() if variant.created_at else None,
-            'updated_at': variant.updated_at.isoformat() if variant.updated_at else None,
+            'created_at': variant.created_at, # Schema handles ISO serialization
+            # 'updated_at': variant.updated_at, # ProductVariant model doesn't have updated_at
         }
         
         return result

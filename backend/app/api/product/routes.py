@@ -1,5 +1,8 @@
 from apiflask import APIBlueprint
-from app.schemas.product.product import ProductCreateSchema, ProductOutSchema, SkuSuffixSchema, ProductCreateResponseSchema
+from app.schemas.product.product import (
+    ProductCreateSchema, ProductOutSchema, SkuSuffixSchema, ProductCreateResponseSchema,
+    SkuListResponseSchema, SkuDetailSchema
+)
 from app.schemas.pagination import make_pagination_schema, PaginationQuerySchema
 from app.services.product_service import ProductService
 from app.services.sku_generator import generate_sku
@@ -75,6 +78,7 @@ def list_sku_suffixes():
     description='获取所有SKU列表，支持多维度筛选（搜索、分类、品牌、车型、属性、库存、状态等）。'
 )
 @product_bp.input(PaginationQuerySchema, location='query', arg_name='pagination')
+@product_bp.output(SkuListResponseSchema)
 def list_skus(pagination):
     """List all SKUs with filtering"""
     from flask import request
@@ -130,6 +134,7 @@ def list_skus(pagination):
     summary='获取SKU详情', 
     description='根据SKU编码获取详细信息，包括编码规则、属性、合规信息、参考编码等。'
 )
+@product_bp.output(SkuDetailSchema)
 def get_sku_detail(sku):
     """Get SKU details"""
     result = product_service.get_sku_detail(sku)

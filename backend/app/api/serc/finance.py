@@ -41,6 +41,20 @@ class SOAGenerateAPI(MethodView):
         soa = finance_service.generate_soa(data['l1_ids'])
         return {'data': soa}
 
+class SOAConfirmAPI(MethodView):
+    @serc_finance_bp.output(SOAItemSchema)
+    def post(self, id):
+        """确认 L2 结算单 (供应商对账完成)"""
+        soa = finance_service.confirm_soa(id)
+        return {'data': soa}
+
+class SOAApproveAPI(MethodView):
+    @serc_finance_bp.output(SOAItemSchema)
+    def post(self, id):
+        """批准 L2 结算单 (生成付款计划)"""
+        soa = finance_service.approve_soa(id)
+        return {'data': soa}
+
 # --- L3: Payment & Pool ---
 
 class PaymentPoolAPI(MethodView):
@@ -78,6 +92,8 @@ class PaymentTermsAPI(MethodView):
 # Register Routes
 serc_finance_bp.add_url_rule('/soa', view_func=SOAListAPI.as_view('soa_list'))
 serc_finance_bp.add_url_rule('/soa/generate', view_func=SOAGenerateAPI.as_view('soa_generate'))
+serc_finance_bp.add_url_rule('/soa/<int:id>/confirm', view_func=SOAConfirmAPI.as_view('soa_confirm'))
+serc_finance_bp.add_url_rule('/soa/<int:id>/approve', view_func=SOAApproveAPI.as_view('soa_approve'))
 serc_finance_bp.add_url_rule('/pool', view_func=PaymentPoolAPI.as_view('pool_list'))
 serc_finance_bp.add_url_rule('/payment', view_func=PaymentCreateAPI.as_view('payment_create'))
 serc_finance_bp.add_url_rule('/payment-terms', view_func=PaymentTermsAPI.as_view('payment_terms_list'))

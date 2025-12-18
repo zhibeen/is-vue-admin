@@ -1,9 +1,9 @@
 from typing import Optional, List
 from decimal import Decimal
-from sqlalchemy import String, Integer, ForeignKey, DECIMAL, Date, DateTime, func, Boolean
+from sqlalchemy import String, Integer, ForeignKey, DECIMAL, DateTime, func, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.extensions import db
-from .enums import TaxInvoiceStatus, CustomsStatus
+from .enums import TaxInvoiceStatus
 
 class SysExchangeRate(db.Model):
     """
@@ -56,47 +56,6 @@ class TaxInvoiceItem(db.Model):
     
     invoice: Mapped["TaxInvoice"] = relationship("TaxInvoice", back_populates="items")
 
-class TaxCustomsDeclaration(db.Model):
-    """
-    报关单 (表A/C合并)
-    """
-    __tablename__ = "tax_customs_declarations"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    entry_no: Mapped[Optional[str]] = mapped_column(String(50), unique=True)
-    status: Mapped[str] = mapped_column(String(20), default=CustomsStatus.DRAFT.value)
-    
-    export_date: Mapped[Optional[Date]] = mapped_column(Date)
-    destination_country: Mapped[Optional[str]] = mapped_column(String(100))
-    
-    fob_total: Mapped[Decimal] = mapped_column(DECIMAL(18, 2))  # USD
-    exchange_rate: Mapped[Decimal] = mapped_column(DECIMAL(10, 4))
-    
-    created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
-
-    items: Mapped[List["TaxCustomsItem"]] = relationship("TaxCustomsItem", back_populates="declaration")
-
-class TaxCustomsItem(db.Model):
-    """
-    报关单明细 (表B)
-    """
-    __tablename__ = "tax_customs_items"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    declaration_id: Mapped[int] = mapped_column(ForeignKey("tax_customs_declarations.id"))
-    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
-    
-    qty: Mapped[Decimal] = mapped_column(DECIMAL(12, 4))
-    unit: Mapped[str] = mapped_column(String(20))
-    usd_unit_price: Mapped[Decimal] = mapped_column(DECIMAL(18, 4))
-    usd_total: Mapped[Decimal] = mapped_column(DECIMAL(18, 2))
-    
-    # 风控冗余字段
-    rma_exchange_cost: Mapped[Optional[Decimal]] = mapped_column(DECIMAL(10, 4))
-    
-    declaration: Mapped["TaxCustomsDeclaration"] = relationship("TaxCustomsDeclaration", back_populates="items")
-    product: Mapped["Product"] = relationship("Product")
-
 class TaxRefundMatch(db.Model):
     """
     关联匹配表 (表D)
@@ -104,7 +63,7 @@ class TaxRefundMatch(db.Model):
     __tablename__ = "tax_refund_matches"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    customs_item_id: Mapped[int] = mapped_column(ForeignKey("tax_customs_items.id"))
+    customs_item_id: Mapped[int] = mapped_column(ForeignKey("customs_declaration_items.id"))
     invoice_item_id: Mapped[int] = mapped_column(ForeignKey("tax_invoice_items.id"))
     
     matched_qty: Mapped[Decimal] = mapped_column(DECIMAL(12, 4))
@@ -112,6 +71,5 @@ class TaxRefundMatch(db.Model):
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
     
     # Relationships
-    customs_item: Mapped["TaxCustomsItem"] = relationship("TaxCustomsItem")
+    customs_item: Mapped["CustomsDeclarationItem"] = relationship("CustomsDeclarationItem")
     invoice_item: Mapped["TaxInvoiceItem"] = relationship("TaxInvoiceItem")
-

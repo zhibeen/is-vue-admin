@@ -70,15 +70,12 @@ async function handleConfirm() {
 
 // --- Table Columns ---
 const columns = [
-    { title: '开票品名', dataIndex: 'invoice_name', width: 200, customRender: ({record}: any) => {
-        // Allow editing? For now just display
-        return record.invoice_name; 
-    }},
+    { title: '开票品名', dataIndex: 'invoice_name', width: 200 },
     { title: '单位', dataIndex: 'invoice_unit', width: 80 },
     { title: '数量', dataIndex: 'quantity', width: 100 },
-    { title: '含税单价', dataIndex: 'price_unit', width: 120, customRender: ({text}: any) => Number(text).toFixed(4) },
-    { title: '行总价', dataIndex: 'amount', width: 120, customRender: ({text}: any) => Number(text).toFixed(2) },
-    { title: '税率', dataIndex: 'tax_rate', width: 100, customRender: ({text}: any) => `${(Number(text)*100).toFixed(0)}%` },
+    { title: '含税单价', dataIndex: 'price_unit', width: 120 },
+    { title: '行总价', dataIndex: 'amount', width: 120 },
+    { title: '税率', dataIndex: 'tax_rate', width: 120 },
     { title: '税收编码', dataIndex: 'tax_code', width: 150 },
 ];
 
@@ -127,7 +124,30 @@ const columns = [
                 size="small" 
                 :pagination="false"
                 bordered
-            />
+            >
+                <template #bodyCell="{ column, record }">
+                    <template v-if="column.dataIndex === 'invoice_name'">
+                        <Input v-model:value="record.invoice_name" />
+                    </template>
+                    <template v-else-if="column.dataIndex === 'tax_rate'">
+                         <InputNumber 
+                             :value="record.tax_rate * 100" 
+                             @update:value="(val: number) => record.tax_rate = val / 100"
+                             :min="0" :max="100" 
+                             :precision="0"
+                             style="width: 100%"
+                             :formatter="(value: any) => `${value}%`"
+                             :parser="(value: any) => value.replace('%', '')"
+                         />
+                    </template>
+                    <template v-else-if="column.dataIndex === 'price_unit'">
+                        {{ Number(record.price_unit).toFixed(4) }}
+                    </template>
+                    <template v-else-if="column.dataIndex === 'amount'">
+                        {{ Number(record.amount).toFixed(2) }}
+                    </template>
+                </template>
+            </Table>
         </div>
 
         <!-- Summary Footer -->

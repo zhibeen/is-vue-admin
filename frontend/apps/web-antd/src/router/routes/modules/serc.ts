@@ -72,6 +72,14 @@ const routes: RouteRecordRaw[] = [
           },
         ],
       },
+      {
+        name: 'SercFlow',
+        path: 'flow',
+        component: () => import('#/views/serc/flow.vue'),
+        meta: {
+          title: '业务流程图',
+        },
+      },
     ],
   },
 ];

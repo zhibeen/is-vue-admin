@@ -3,12 +3,12 @@ import { useVbenModal } from '@vben/common-ui';
 import { useVbenForm } from '#/adapter/form';
 import { createManualContract } from '#/api/serc/supply';
 import { getSupplierList } from '#/api/purchase/supplier';
-import { getProductList } from '#/api/core/product';
+import { getSkuListApi } from '#/api/core/product';
 import { getCompanyList } from '#/api/serc/foundation';
 import { getPaymentTerms } from '#/api/serc/finance';
-import { message, Select, InputNumber, Button, Table, Popconfirm, Card, Input, Divider } from 'ant-design-vue';
+import { message, Select, InputNumber, Button, Table, Popconfirm, Card, Input } from 'ant-design-vue';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue';
-import { onMounted, ref, reactive, watch } from 'vue';
+import { onMounted, ref, reactive } from 'vue';
 
 const emit = defineEmits(['success']);
 
@@ -121,12 +121,12 @@ const [Form, formApi] = useVbenForm({
       component: 'Select',
       fieldName: 'payment_term_id',
       label: '付款条款',
-      helpMessage: '留空将使用供应商默认条款',
+      // helpMessage: '留空将使用供应商默认条款', // 移除不支持的属性
       formItemClass: 'col-span-6',
       componentProps: {
         options: paymentTermOptions,
         fieldNames: { label: 'name', value: 'id' },
-        placeholder: '例如: 月结30天 / 预付30%',
+        placeholder: '例如: 月结30天 / 预付30% (留空使用默认)',
         allowClear: true,
       },
     },
@@ -136,7 +136,7 @@ const [Form, formApi] = useVbenForm({
       label: '付款方式',
       defaultValue: DEFAULT_PAYMENT_METHOD,
       formItemClass: 'col-span-6',
-      helpMessage: '留空将使用供应商默认方式',
+      // helpMessage: '留空将使用供应商默认方式', // 移除不支持的属性
       componentProps: {
         options: [
           { label: '银行转账 (T/T)', value: 'T/T' },
@@ -180,7 +180,7 @@ function handleSupplierChange(supplierId: number) {
 // --- Items Logic ---
 const items = ref<any[]>([]);
 const newItem = reactive({
-  product_id: undefined as number | undefined,
+  selected_sku: undefined as string | undefined,
   confirmed_qty: 1,
   unit_price: 0,
   notes: '',
@@ -189,6 +189,7 @@ const newItem = reactive({
 // Table Columns
 const columns: any[] = [ // Explicitly type columns as any[] to bypass strict type checking for 'align'
   { title: 'SKU', dataIndex: 'sku', key: 'sku', width: 120 },
+  { title: '特征码', dataIndex: 'feature_code', key: 'feature_code', width: 180, ellipsis: true }, // Added Feature Code
   { title: '商品名称', dataIndex: 'product_name', key: 'product_name', width: 180, ellipsis: true },
   { title: '数量', dataIndex: 'confirmed_qty', key: 'confirmed_qty', width: 100, align: 'center' }, // Editable
   { title: '单价(含税)', dataIndex: 'unit_price', key: 'unit_price', width: 120, align: 'right' }, // Editable
@@ -198,7 +199,7 @@ const columns: any[] = [ // Explicitly type columns as any[] to bypass strict ty
 ];
 
 function addItem() {
-  if (!newItem.product_id) {
+  if (!newItem.selected_sku) {
     message.warning('请选择商品');
     return;
   }
@@ -207,19 +208,28 @@ function addItem() {
     return;
   }
   
-  const product = productOptions.value.find(p => p.value === newItem.product_id);
+  const product = productOptions.value.find(p => p.value === newItem.selected_sku);
+  
+  // 检查是否已添加相同的 SKU
+  if (items.value.some(item => item.sku === newItem.selected_sku)) {
+      message.warning('该SKU已添加');
+      return;
+  }
   
   items.value.push({
-    product_id: newItem.product_id,
-    sku: product?.raw?.sku || 'Unknown',
-    product_name: product?.raw?.name || 'Unknown',
+    product_id: product?.raw?.product_id, // 传递 SPU ID 给后端 (暂时的兼容方案)
+    // 修复: 现在使用的是 getSkuListApi，返回的是 Variant 对象 (ProductVariants表)
+    // 直接获取 sku 和 feature_code
+    sku: product?.raw?.sku || 'Unknown', 
+    feature_code: product?.raw?.feature_code || '-',
+    product_name: product?.raw?.product_name || 'Unknown',
     confirmed_qty: newItem.confirmed_qty,
     unit_price: newItem.unit_price,
     notes: newItem.notes,
   });
   
   // Reset
-  newItem.product_id = undefined;
+  newItem.selected_sku = undefined;
   newItem.confirmed_qty = 1;
   newItem.unit_price = 0;
   newItem.notes = '';
@@ -286,21 +296,20 @@ onMounted(async () => {
       const [supplierRes, companyRes, productRes, termsRes] = await Promise.all([
         getSupplierList(),
         getCompanyList(),
-        getProductList({ page: 1, per_page: 100 }),
+        // 切换为查询 SKU 变体接口，以获取准确的 sku 和 feature_code
+        getSkuListApi({ page: 1, per_page: 5000 }),
         getPaymentTerms()
       ]);
       
       supplierOptions.value = supplierRes.items || [];
       companyOptions.value = companyRes || []; 
-      paymentTermOptions.value = termsRes || []; // getPaymentTerms returns {data: [...]} in backend but request wrapper might unwrap it?
-      // Let's assume request wrapper returns 'data' field content if structured correctly, 
-      // OR returns the whole response. Usually Vben wrapper unwraps 'data'.
-      // If backend returns { data: [...] }, frontend wrapper usually returns [...]
+      paymentTermOptions.value = termsRes || []; 
       
+      // 映射 SKU 数据
       productOptions.value = (productRes.items || []).map((p: any) => ({
-          label: `${p.name} (${p.sku})`, 
-          value: p.id,
-          key: p.id,
+          label: `${p.product_name} (${p.sku})`, // 显示: 产品名 (SKU)
+          value: p.sku, // 使用 SKU 作为唯一标识 (Value)
+          key: p.sku, // 使用 SKU 作为唯一键
           raw: p 
       }));
   } catch (error) {
@@ -312,10 +321,13 @@ onMounted(async () => {
 const filterOption = (input: string, option: any) => {
   const product = option.raw;
   const searchStr = input.toLowerCase();
-  return (
-    product.name.toLowerCase().includes(searchStr) ||
-    product.sku.toLowerCase().includes(searchStr)
-  );
+  
+  // 优化搜索：同时匹配 SKU、名称和特征码
+  const nameMatch = product.product_name?.toLowerCase().includes(searchStr);
+  const skuMatch = product.sku?.toLowerCase().includes(searchStr);
+  const featureMatch = product.feature_code?.toLowerCase().includes(searchStr);
+  
+  return nameMatch || skuMatch || featureMatch;
 };
 </script>
 
@@ -338,7 +350,7 @@ const filterOption = (input: string, option: any) => {
         <!-- Add Item Row -->
         <div class="flex gap-3 items-center mb-4 p-3 bg-gray-50 rounded border border-dashed border-gray-200">
             <Select
-              v-model:value="newItem.product_id"
+              v-model:value="newItem.selected_sku"
               :options="productOptions"
               show-search
               :filter-option="filterOption"
@@ -377,7 +389,7 @@ const filterOption = (input: string, option: any) => {
           :data-source="items" 
           size="small" 
           :pagination="false"
-          row-key="product_id" 
+          row-key="sku" 
           bordered
         >
           <!-- Editable Columns using slots -->

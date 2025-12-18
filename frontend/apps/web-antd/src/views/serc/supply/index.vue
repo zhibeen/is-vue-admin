@@ -2,6 +2,7 @@
 import { useVbenModal, useVbenDrawer } from '@vben/common-ui';
 import { useVbenVxeGrid, type VxeGridProps } from '#/adapter/vxe-table';
 import { getContractList, printContracts, exportContracts } from '#/api/serc/supply';
+import { generateSOA } from '#/api/serc/finance'; // Import generateSOA
 import { getSupplierList } from '#/api/purchase/supplier';
 import { getCompanyList } from '#/api/serc/foundation';
 import { Button, Tag, Popconfirm, message, Progress, Modal, Input, Radio } from 'ant-design-vue';
@@ -10,7 +11,7 @@ import { Page } from '@vben/common-ui';
 import type { VbenFormProps } from '#/adapter/form';
 import ContractCreateModal from './ContractCreateModal.vue';
 import ContractDetailDrawer from './ContractDetailDrawer.vue';
-import SupplyContractBuilder from './SupplyContractBuilder.vue'; // New component
+import SupplyContractBuilder from './SupplyContractBuilder.vue';
 
 // --- Form Configuration ---
 const formOptions: VbenFormProps = {
@@ -123,7 +124,6 @@ const gridOptions: VxeGridProps = {
   },
   toolbarConfig: {
     custom: true,
-    // export: true, // Removed standard export
     refresh: true,
     resizable: true,
     zoom: true,
@@ -201,6 +201,36 @@ async function handleExportConfirm() {
         message.error('导出失败');
     } finally {
         exportLoading.value = false;
+    }
+}
+
+// --- SOA Generation Logic ---
+const generatingSOA = ref(false);
+
+async function handleGenerateSOA() {
+    const records = gridApi.grid.getCheckboxRecords();
+    if (!records || records.length === 0) {
+        message.warning('请先勾选要生成对账单的合同');
+        return;
+    }
+    
+    // Check if same supplier
+    const supplierId = records[0].supplier_id;
+    if (records.some((r: any) => r.supplier_id !== supplierId)) {
+        message.error('只能选择同一供应商的合同');
+        return;
+    }
+    
+    try {
+        generatingSOA.value = true;
+        await generateSOA({ l1_ids: records.map((r: any) => r.id) });
+        message.success('SOA对账单生成成功');
+        gridApi.reload();
+    } catch (e: any) {
+        // message.error(e.response?.data?.message || '生成失败');
+        console.error(e);
+    } finally {
+        generatingSOA.value = false;
     }
 }
 
@@ -307,6 +337,10 @@ async function handlePrintBatch() {
         </Button>
         <Button class="ml-2" @click="handlePrintBatch">
           批量打印
+        </Button>
+        <!-- New SOA Button -->
+        <Button class="ml-2" type="dashed" :loading="generatingSOA" @click="handleGenerateSOA">
+          生成对账单 (SOA)
         </Button>
         <Button class="ml-2" @click="handleOpenExportModal">
           导出 Excel

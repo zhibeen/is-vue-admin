@@ -23,6 +23,15 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        name: 'UserDetail',
+        path: 'user/:id',
+        component: () => import('#/views/system/user/detail.vue'),
+        meta: {
+          title: '用户详情',
+          hideInMenu: true,
+        },
+      },
+      {
         name: 'RoleManagement',
         path: 'role',
         component: () => import('#/views/system/role/index.vue'),

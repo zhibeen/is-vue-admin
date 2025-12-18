@@ -428,6 +428,9 @@ class SystemService:
         user = User(
             username=data['username'], 
             email=data['email'],
+            realname=data.get('realname', ''),
+            nickname=data.get('nickname', ''),
+            mobile=data.get('mobile', ''),
             is_active=data.get('is_active', True)
         )
         user.set_password(data['password'])
@@ -452,6 +455,15 @@ class SystemService:
             if db.session.scalar(select(User).where(User.email == data['email'])):
                 raise BusinessError(message="Email already exists")
             user.email = data['email']
+        
+        if 'realname' in data:
+            user.realname = data['realname']
+        
+        if 'nickname' in data:
+            user.nickname = data['nickname']
+        
+        if 'mobile' in data:
+            user.mobile = data['mobile']
             
         if 'password' in data and data['password']:
             user.set_password(data['password'])

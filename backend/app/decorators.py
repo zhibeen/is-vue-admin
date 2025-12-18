@@ -1,6 +1,6 @@
 from functools import wraps
 from apiflask import abort
-from flask_jwt_extended import get_jwt
+from flask_jwt_extended import get_jwt, verify_jwt_in_request
 from flask import g
 from app.security import auth
 
@@ -8,10 +8,14 @@ def roles_required(*roles):
     """
     Restrict access to users with specific roles.
     Usage: @roles_required('admin', 'editor')
+    Note: Must be used with @auth_required or after JWT verification
     """
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
+            # Ensure JWT is verified before accessing claims
+            verify_jwt_in_request()
+            
             claims = get_jwt()
             user_roles = claims.get("roles", [])
             
@@ -28,10 +32,14 @@ def permission_required(permission_name):
     """
     Restrict access to users with specific atomic permission.
     Usage: @permission_required('product:create')
+    Note: Must be used with @auth_required or after JWT verification
     """
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
+            # Ensure JWT is verified before accessing claims
+            verify_jwt_in_request()
+            
             # Check JWT Claims
             claims = get_jwt()
             user_permissions = claims.get("permissions", [])

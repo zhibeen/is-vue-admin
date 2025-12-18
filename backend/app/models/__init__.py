@@ -10,6 +10,7 @@ from .purchase import SysSupplier
 from .supply import ScmSourceDoc, ScmDeliveryContract, ScmDeliveryContractItem
 from .serc import SysPaymentTerm
 from .system import SysDict
+from .customs import CustomsDeclaration, CustomsDeclarationItem
 
 # 导入仓库管理相关模型
 from .warehouse import (
@@ -17,3 +18,8 @@ from .warehouse import (
     WarehouseStockDiscrepancy, WarehouseProductGroup, WarehouseProductGroupItem, 
     StockAllocationPolicy
 )
+
+# 导入发货单驱动的双轨制合同系统模型
+from .logistics import ShipmentOrder, ShipmentOrderItem, ShipmentSource, ShipmentStatus
+from .supply.supply_contract import ScmSupplyContract, ScmSupplyContractItem
+from .finance import SupplierTaxInvoice

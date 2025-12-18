@@ -37,7 +37,14 @@ class TaxInvoiceStatus(str, Enum):
     LOCKED = "locked"     # 已申报
 
 class CustomsStatus(str, Enum):
-    DRAFT = "draft"
-    PRE_DECLARED = "pre_declared"
-    OFFICIAL = "official"
+    DRAFT = "draft"                 # 草稿 (可随意改)
+    PENDING_REVIEW = "pending"      # 待审核 (锁定)
+    DECLARED = "declared"           # 已申报 (锁定，等待海关结果)
+    CLEARED = "cleared"             # 已放行 (可生成交付合同)
+    
+    # 异常流程
+    AMENDING = "amending"           # 修撤中 (修改申请已提交)
+    AMENDMENT_APPROVED = "amended"  # 修改已批准 (需重新走流程)
+    
+    ARCHIVED = "archived"           # 已归档 (财务结案，不可再动)
 

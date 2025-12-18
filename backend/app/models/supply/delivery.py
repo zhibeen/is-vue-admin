@@ -13,6 +13,8 @@ if TYPE_CHECKING:
     from app.models.serc.foundation import SysCompany
     from app.models.product import Product
     from app.models.serc.finance import SysPaymentTerm
+    from app.models.logistics.shipment import ShipmentOrder
+    from app.models.supply.supply_contract import ScmSupplyContract
 
 class ScmSourceDoc(db.Model):
     __tablename__ = "scm_source_docs"
@@ -40,8 +42,14 @@ class ScmDeliveryContract(db.Model):
     source_doc_id: Mapped[Optional[int]] = mapped_column(ForeignKey("scm_source_docs.id"))
     supplier_id: Mapped[int] = mapped_column(ForeignKey("sys_suppliers.id"))
     
+    # 关联发货单 (发货单驱动模式)
+    shipment_id: Mapped[Optional[int]] = mapped_column(ForeignKey("shipment_orders.id"), nullable=True, comment='关联发货单')
+
     # Added company_id (purchasing entity)
     company_id: Mapped[Optional[int]] = mapped_column(ForeignKey("sys_companies.id"))
+    
+    # 是否已生成开票合同（冗余字段，方便查询）
+    has_supply_contract: Mapped[bool] = mapped_column(db.Boolean, default=False, comment='是否已生成开票合同')
     
     total_amount: Mapped[Decimal] = mapped_column(DECIMAL(18, 2), default=0)
     currency: Mapped[str] = mapped_column(String(10), default="CNY")
@@ -69,11 +77,13 @@ class ScmDeliveryContract(db.Model):
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
 
     # Relationships
-    source_doc: Mapped["ScmSourceDoc"] = relationship("ScmSourceDoc")
+    source_doc: Mapped[Optional["ScmSourceDoc"]] = relationship("ScmSourceDoc")
+    shipment: Mapped[Optional["ShipmentOrder"]] = relationship("ShipmentOrder", back_populates="delivery_contracts")
     supplier: Mapped["SysSupplier"] = relationship("SysSupplier")
-    company: Mapped["SysCompany"] = relationship("SysCompany") # Added relationship
-    payment_term: Mapped["SysPaymentTerm"] = relationship("SysPaymentTerm")
+    company: Mapped[Optional["SysCompany"]] = relationship("SysCompany") # Added relationship
+    payment_term: Mapped[Optional["SysPaymentTerm"]] = relationship("SysPaymentTerm")
     items: Mapped[List["ScmDeliveryContractItem"]] = relationship("ScmDeliveryContractItem", back_populates="contract", cascade="all, delete-orphan")
+    supply_contract: Mapped[Optional["ScmSupplyContract"]] = relationship("ScmSupplyContract", back_populates="delivery_contract", uselist=False)
 
 class ScmDeliveryContractItem(db.Model):
     __tablename__ = "scm_delivery_contract_items"

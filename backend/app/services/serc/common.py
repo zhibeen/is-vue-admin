@@ -48,7 +48,8 @@ def generate_seq_no(prefix: str, company_code: str = None) -> str:
                 redis_client.expire(seq_key, 60 * 60 * 24 * 60)
         except Exception as e:
             # Redis 失败降级
-            current_app.logger.error(f"Redis sequence generation failed: {e}")
+            # 仅记录一次警告或调试日志，避免刷屏
+            current_app.logger.warning(f"Redis sequence generation failed (using fallback): {str(e)}")
             seq_num = random.randint(1000, 9999) 
     else:
         # 无 Redis 时的降级策略 (开发环境)
