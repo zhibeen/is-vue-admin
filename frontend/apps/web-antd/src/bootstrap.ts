@@ -15,6 +15,7 @@ import { initComponentAdapter } from './adapter/component';
 import { initSetupVbenForm } from './adapter/form';
 import App from './app.vue';
 import { router } from './router';
+import { setupErrorHandler } from './utils/error-handler';
 
 async function bootstrap(namespace: string) {
   // 初始化组件适配器
@@ -33,6 +34,9 @@ async function bootstrap(namespace: string) {
   // });
 
   const app = createApp(App);
+
+  // 设置全局错误处理器（开发环境快速定位错误）
+  setupErrorHandler(app);
 
   // 注册v-loading指令
   registerLoadingDirective(app, {
