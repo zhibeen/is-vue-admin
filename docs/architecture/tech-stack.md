@@ -25,6 +25,19 @@
 
 为避免 `proxyConfig` 的黑盒问题，推荐使用 **手动控制模式**。
 
+#### VXE Table v4.17+ 工具栏配置规范
+
+**重要**: VXE Table 从 v4.x 开始对 `toolbarConfig` 进行了重大更新，旧版语法已废弃。
+
+**配置语法对照**:
+
+| 功能 | ❌ 旧版（废弃） | ✅ 新版（推荐） |
+|------|-------------|-------------|
+| 刷新按钮 | `refresh: { code: 'query' }` | `refresh: true, refreshOptions: { code: 'query' }` |
+| 全屏按钮 | `zoom: { code: 'fullscreen' }` | `zoom: true, zoomOptions: { code: 'fullscreen' }` |
+| 自定义按钮 | `custom: { code: 'custom' }` | `custom: true, customOptions: { code: 'custom' }` |
+| 列设置 | `setting: { code: 'setting' }` | `setting: true, settingOptions: { code: 'setting' }` |
+
 **标准模板 (Standard Pattern)**:
 
 ```vue
@@ -32,19 +45,40 @@
 import { useVbenVxeGrid, type VxeGridProps } from '#/adapter/vxe-table';
 import { getListApi } from '#/api/demo';
 import { onMounted } from 'vue';
+import { Button } from 'ant-design-vue';
 
 // 1. 定义 Grid Options
 const gridOptions: VxeGridProps = {
   columns: [
     { field: 'id', title: 'ID', width: 80 },
-    { field: 'name', title: 'Name' },
+    { field: 'name', title: '名称', minWidth: 150 },
   ],
   data: [], // 初始空数据
+  
+  // 分页配置
   pagerConfig: {
-    enabled: true, // 如果后端支持分页
+    enabled: true,
+    currentPage: 1,
+    pageSize: 20,
   },
+  
+  // 工具栏配置（新版语法）
   toolbarConfig: {
-    refresh: { code: 'query' }, // 绑定刷新按钮
+    // 刷新按钮：分离布尔值和配置对象
+    refresh: true,                      // ✅ 是否启用
+    refreshOptions: { code: 'query' },  // ✅ 配置选项
+    
+    // 全屏按钮
+    zoom: true,
+    zoomOptions: { code: 'fullscreen' },
+    
+    // 自定义按钮
+    custom: true,
+    
+    // 自定义按钮插槽
+    slots: {
+      buttons: 'toolbar_buttons'
+    }
   },
 };
 
@@ -80,7 +114,14 @@ onMounted(() => {
 
 <template>
   <div class="p-4">
-    <Grid />
+    <Grid>
+      <!-- 自定义工具栏按钮 -->
+      <template #toolbar_buttons>
+        <Button type="primary" @click="handleCreate">
+          新建
+        </Button>
+      </template>
+    </Grid>
   </div>
 </template>
 ```
@@ -90,6 +131,29 @@ onMounted(() => {
 2.  **手动加载**: 使用 `loadData` 函数 + `gridApi.setGridOptions({ data })`。
 3.  **生命周期**: 在 `onMounted` 中显式调用 `loadData()`。
 4.  **刷新绑定**: 通过 `gridEvents.toolbarToolClick` 绑定刷新按钮。
+5.  **新版语法**: 工具栏配置使用 `布尔值 + Options对象` 的分离模式。
+
+**最小配置示例**:
+```typescript
+toolbarConfig: {
+  refresh: true,
+  refreshOptions: { code: 'query' },
+}
+```
+
+**完整配置示例**:
+```typescript
+toolbarConfig: {
+  refresh: true,
+  refreshOptions: { code: 'query' },
+  zoom: true,
+  zoomOptions: { code: 'fullscreen' },
+  custom: true,
+  setting: true,
+  settingOptions: { storage: true }, // 记住列设置
+  slots: { buttons: 'toolbar_buttons' }
+}
+```
 
 ## 3. 后端 (Backend)
 - **开发语言**: Python 3.10+

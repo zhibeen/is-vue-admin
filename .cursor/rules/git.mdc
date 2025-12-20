@@ -1,0 +1,489 @@
+# Git 工作流与提交规范 (Git Workflow Standards)
+
+## Git 工作流原则
+
+### 分支管理策略
+
+#### 主分支
+- **main/master**: 生产环境代码，保持稳定
+- **develop**: 开发主分支，集成最新功能
+
+#### 功能分支
+- **feature/**: 新功能开发分支
+  - 命名规则: `feature/功能名称` (例如: `feature/product-management`)
+  - 从 `develop` 分支创建
+  - 开发完成后合并回 `develop`
+
+#### 修复分支
+- **fix/**: Bug 修复分支
+  - 命名规则: `fix/bug描述` (例如: `fix/product-list-refresh`)
+  - 从 `develop` 或 `main` 创建（取决于紧急程度）
+  - 修复完成后合并回源分支
+
+#### 热修复分支
+- **hotfix/**: 生产环境紧急修复
+  - 命名规则: `hotfix/问题描述` (例如: `hotfix/login-error`)
+  - 从 `main` 创建
+  - 修复后同时合并到 `main` 和 `develop`
+
+### 分支操作示例
+
+```bash
+# 创建新功能分支
+git checkout develop
+git pull origin develop
+git checkout -b feature/user-management
+
+# 开发完成后合并
+git checkout develop
+git merge --no-ff feature/user-management
+git push origin develop
+
+# 删除已合并的分支
+git branch -d feature/user-management
+```
+
+## Commit Message 规范
+
+### 提交信息格式
+
+采用 **Conventional Commits** 规范：
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+#### Type（必填）
+
+- **feat**: 新功能
+- **fix**: Bug 修复
+- **docs**: 文档变更
+- **style**: 代码格式调整（不影响功能）
+- **refactor**: 代码重构（既不是新功能也不是修复）
+- **perf**: 性能优化
+- **test**: 测试相关
+- **chore**: 构建工具、依赖更新等
+
+#### Scope（可选）
+
+模块或功能范围：
+- `frontend`: 前端
+- `backend`: 后端
+- `api`: API 接口
+- `db`: 数据库
+- `auth`: 认证
+- `product`: 产品模块
+- `order`: 订单模块
+- `user`: 用户模块
+
+#### Subject（必填）
+
+- 简短描述（不超过50个字符）
+- 使用中文或英文
+- 不以句号结尾
+- 使用祈使语气（如：添加、修复、更新）
+
+#### Body（可选）
+
+- 详细描述变更内容
+- 说明变更原因
+- 与之前行为的对比
+
+#### Footer（可选）
+
+- Breaking Changes: 不兼容变更
+- Issue References: 关联的 Issue 编号
+
+### 提交信息示例
+
+#### 简单提交
+
+```bash
+# 新功能
+git commit -m "feat(product): 添加商品列表分页功能"
+
+# Bug 修复
+git commit -m "fix(frontend): 修复 VXE Table 刷新按钮不生效问题"
+
+# 文档更新
+git commit -m "docs: 更新 API 文档"
+
+# 代码格式
+git commit -m "style(backend): 格式化代码，统一缩进"
+```
+
+#### 详细提交
+
+```bash
+git commit -m "feat(backend): 实现产品数据权限控制
+
+实现内容：
+- 添加产品数据权限模型（DataPermissionMeta, RoleDataPermission）
+- 实现基于角色的数据过滤
+- 支持自定义权限人列表
+
+相关 Issue: #123"
+```
+
+#### 不兼容变更
+
+```bash
+git commit -m "feat(api): 修改产品列表返回格式
+
+BREAKING CHANGE: 产品列表接口返回格式从数组改为分页对象
+
+之前: { data: [...] }
+现在: { data: { items: [...], total: 100 } }
+
+需要前端同步修改产品列表组件"
+```
+
+## AI 提交规范
+
+### AI 自动提交时的规范
+
+当 AI 完成代码修改需要提交时，必须遵循以下规范：
+
+#### 1. 禁止强制推送
+
+```bash
+# ❌ 禁止（除非用户明确要求）
+git push --force
+git push -f
+
+# ✅ 正确
+git push origin branch-name
+```
+
+#### 2. 禁止跳过 Hooks
+
+```bash
+# ❌ 禁止（除非用户明确要求）
+git commit --no-verify
+git commit --no-gpg-sign
+
+# ✅ 正确
+git commit -m "feat: 添加新功能"
+```
+
+#### 3. 提交前检查
+
+```bash
+# 检查当前状态
+git status
+
+# 查看修改内容
+git diff
+
+# 分批提交（避免一次提交过多文件）
+git add <specific-files>
+git commit -m "commit message"
+```
+
+#### 4. 提交信息质量
+
+AI 生成的提交信息必须：
+- ✅ 清晰描述做了什么
+- ✅ 使用正确的 type 和 scope
+- ✅ 简洁明了，不超过一行（简单提交）
+- ✅ 包含必要的上下文（复杂提交）
+
+```bash
+# ✅ 好的提交信息
+git commit -m "feat(frontend): 添加产品搜索功能"
+git commit -m "fix(backend): 修复产品创建时的权限检查错误"
+git commit -m "refactor(api): 重构产品 Service 层，提取公共逻辑"
+
+# ❌ 差的提交信息
+git commit -m "update"
+git commit -m "fix bug"
+git commit -m "修改代码"
+```
+
+### AI 不应主动执行的操作
+
+除非用户明确要求，否则 AI **不应该**：
+
+1. ❌ 提交代码（应该由用户审查后手动提交）
+2. ❌ 推送到远程仓库
+3. ❌ 创建或删除分支
+4. ❌ 合并分支
+5. ❌ 执行 rebase 操作
+6. ❌ 修改 Git 配置 (`git config`)
+7. ❌ 强制推送 (`git push --force`)
+8. ❌ 删除远程分支
+9. ❌ 修改提交历史 (`git commit --amend`, `git rebase -i`)
+
+### AI 可以执行的操作
+
+AI 可以帮助用户：
+
+1. ✅ 生成符合规范的提交信息
+2. ✅ 查看当前状态 (`git status`)
+3. ✅ 查看修改内容 (`git diff`)
+4. ✅ 建议分支命名
+5. ✅ 建议提交策略
+
+### AI 提示用户的时机
+
+AI 应该在以下情况提示用户：
+
+1. **检测到大量修改**
+   ```
+   检测到修改了 15 个文件，建议分批提交：
+   - 前端文件: git add frontend/... && git commit -m "feat(frontend): ..."
+   - 后端文件: git add backend/... && git commit -m "feat(backend): ..."
+   ```
+
+2. **检测到不同类型的修改**
+   ```
+   建议将功能开发和 Bug 修复分开提交：
+   - 新功能: git commit -m "feat: ..."
+   - Bug 修复: git commit -m "fix: ..."
+   ```
+
+3. **检测到潜在冲突**
+   ```
+   提示：远程分支可能有新提交，建议先执行：
+   git pull --rebase origin develop
+   ```
+
+## 提交最佳实践
+
+### 提交粒度
+
+#### ✅ 好的提交
+
+- 每个提交只做一件事
+- 每个提交都是可编译/可运行的
+- 提交信息清晰描述了变更内容
+
+```bash
+# 示例：分离不同类型的修改
+git commit -m "feat(product): 添加产品搜索功能"
+git commit -m "fix(product): 修复产品列表分页错误"
+git commit -m "docs(product): 更新产品 API 文档"
+```
+
+#### ❌ 差的提交
+
+- 一个提交包含多个不相关的修改
+- 提交信息模糊不清
+- 提交后代码无法运行
+
+```bash
+# 示例：应该避免的提交
+git commit -m "update"  # 太模糊
+git commit -m "添加产品搜索、修复订单 Bug、更新文档"  # 包含多个不相关修改
+```
+
+### 提交顺序
+
+推荐的提交顺序：
+
+1. **后端 API 修改** → 先提交
+2. **前端调用修改** → 后提交
+3. **文档更新** → 最后提交
+
+```bash
+# 步骤 1: 提交后端 API
+git add backend/app/api/product/routes.py
+git commit -m "feat(backend): 添加产品搜索 API"
+
+# 步骤 2: 提交前端调用
+git add frontend/src/api/product.ts frontend/src/views/product/ProductList.vue
+git commit -m "feat(frontend): 对接产品搜索 API"
+
+# 步骤 3: 更新文档
+git add README.md docs/api.md
+git commit -m "docs: 更新产品搜索 API 文档"
+```
+
+### 提交时机
+
+#### 应该提交的时机
+
+- ✅ 完成一个完整的功能点
+- ✅ 修复一个 Bug
+- ✅ 完成一次重构
+- ✅ 每天工作结束前
+
+#### 不应该提交的时机
+
+- ❌ 代码无法编译/运行
+- ❌ 包含调试代码（console.log, debugger）
+- ❌ 包含敏感信息（密码、密钥）
+- ❌ 包含临时文件
+
+## 冲突解决
+
+### 合并冲突处理流程
+
+```bash
+# 1. 更新本地分支
+git checkout develop
+git pull origin develop
+
+# 2. 合并功能分支
+git merge feature/user-management
+
+# 3. 如果有冲突，手动解决后
+git add <resolved-files>
+git commit -m "merge: 合并 feature/user-management 到 develop"
+
+# 4. 推送到远程
+git push origin develop
+```
+
+### AI 处理冲突的策略
+
+当检测到冲突时，AI 应该：
+
+1. **提示用户有冲突**
+   ```
+   检测到合并冲突，以下文件需要手动处理：
+   - backend/app/models/product.py
+   - frontend/src/api/product.ts
+   ```
+
+2. **建议解决方案**
+   ```
+   建议解决步骤：
+   1. 查看冲突文件: git diff
+   2. 编辑文件，保留正确的代码
+   3. 标记为已解决: git add <file>
+   4. 完成合并: git commit
+   ```
+
+3. **不要自动解决复杂冲突**
+   - AI 不应该在没有用户确认的情况下自动解决冲突
+   - 应该让用户审查并决定保留哪部分代码
+
+## .gitignore 规范
+
+### 应该忽略的文件
+
+```gitignore
+# 依赖
+node_modules/
+__pycache__/
+*.pyc
+
+# 构建产物
+dist/
+build/
+*.egg-info/
+
+# 环境变量
+.env
+.env.local
+
+# IDE 配置
+.vscode/
+.idea/
+*.swp
+
+# 日志
+*.log
+logs/
+
+# 临时文件
+*.tmp
+.DS_Store
+Thumbs.db
+
+# 测试覆盖率
+.coverage
+htmlcov/
+```
+
+### 不应该忽略的文件
+
+- ✅ 源代码文件
+- ✅ 配置文件模板（如 `env_config.example`）
+- ✅ 数据库迁移文件（`migrations/versions/*.py`）
+- ✅ 文档文件
+
+## AI 行为规范总结
+
+### 默认行为
+
+1. **不主动提交代码**
+   - 完成修改后，提示用户需要提交
+   - 提供建议的提交命令
+
+2. **不主动推送**
+   - 即使用户要求提交，也不主动推送到远程
+   - 提示用户需要手动 push
+
+3. **不修改 Git 历史**
+   - 不使用 `--force`
+   - 不使用 `--amend`（除非用户明确要求）
+   - 不使用 `rebase -i`
+
+### 响应用户请求
+
+当用户明确要求时，AI 可以：
+
+1. ✅ 生成提交信息
+2. ✅ 执行 `git add` 和 `git commit`
+3. ✅ 查看状态和差异
+4. ✅ 切换分支（如果是安全操作）
+
+### 拒绝危险操作
+
+即使用户要求，AI 也应该警告：
+
+1. ⚠️ 强制推送到 main/master 分支
+2. ⚠️ 删除远程分支
+3. ⚠️ 重写已推送的提交历史
+4. ⚠️ 跳过 pre-commit hooks
+
+### 示例对话
+
+#### ✅ 好的 AI 行为
+
+```
+用户: "我修改完了，帮我提交"
+AI: 
+已检测到以下修改：
+- backend/app/api/product/routes.py (新增搜索功能)
+- frontend/src/views/product/ProductList.vue (对接搜索 API)
+
+建议分为两次提交：
+
+1. 后端修改：
+   git add backend/app/api/product/routes.py
+   git commit -m "feat(backend): 添加产品搜索 API"
+
+2. 前端修改：
+   git add frontend/src/views/product/ProductList.vue
+   git commit -m "feat(frontend): 对接产品搜索 API"
+
+是否需要我执行这些命令？
+```
+
+#### ❌ 差的 AI 行为
+
+```
+用户: "我修改完了，帮我提交"
+AI: 
+[自动执行]
+git add .
+git commit -m "update"
+git push origin main
+
+已推送到远程仓库。
+```
+
+## 关键提醒
+
+1. **安全第一**: 永远不要强制推送到主分支
+2. **清晰表达**: 提交信息要清晰描述做了什么
+3. **小步前进**: 每次提交只做一件事
+4. **代码可运行**: 提交前确保代码可以正常运行
+5. **用户决策**: AI 应该建议而非替代用户做决策

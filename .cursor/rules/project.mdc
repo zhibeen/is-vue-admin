@@ -2,622 +2,172 @@
 alwaysApply: true
 ---
 
-# IS-Vue-Admin 项目开发规范
+# IS-Vue-Admin 项目开发规范总览
 
-## AI 协作规范
+**重要提示**: 本规范已拆分为4个独立规则文件，请根据工作场景参考对应规范。
 
-### 文档和日志创建原则
+## 🎯 核心原则
 
-**重要**: AI 助手在完成任务时，**不应主动创建详细的日志文档**，除非用户明确要求。
+### 1. 不要过度文档化
+- **常规开发**: 直接在响应中说明做了什么，无需创建文档
+- **Bug 修复**: 简要说明原因和解决方案即可
+- **重大变更**: 询问用户是否需要创建详细文档
 
-#### 何时创建文档
+### 2. 代码质量优先
+- **前端**: 使用 VXE Table 新版语法、正确导入 Ant Design 组件
+- **后端**: 遵循分层架构、注意返回值包装、防止 N+1 查询
+- **测试**: 代码提交前确保可以正常运行
 
-- ✅ **用户明确要求总结** - 用户说"请总结"、"写个文档"、"整理日志"等
-- ✅ **重大架构变更** - 影响整个系统的架构调整，需要记录
-- ✅ **用户明确要求** - 用户在任务开始或结束时明确要求文档化
+### 3. Git 安全原则
+- **不主动提交**: AI 提供建议，由用户决策
+- **不强制推送**: 特别是 main/master 分支
+- **清晰提交信息**: 遵循 Conventional Commits 规范
 
-#### 何时不创建文档
+## 📂 详细规范索引
 
-- ❌ **常规Bug修复** - 修复组件导入、API路由等常见问题
-- ❌ **小功能调整** - 调整样式、修改文案、小重构等
-- ❌ **每次代码更改** - 不需要为每个修改都创建文档
-- ❌ **中间步骤** - 任务进行中的临时文档
+### → 前端开发
+**文件**: `.cursor/rules/frontend.mdc`
+- VXE Table v4.17+ 最新语法
+- Ant Design Vue 组件导入
+- Tailwind CSS 和深色模式
+- API 调用规范
 
-#### 推荐做法
+### → 后端开发
+**文件**: `.cursor/rules/backend.mdc`
+- 分层架构（Route → Service → Model）
+- API 返回值规范
+- SQLAlchemy 2.0 写法
+- Alembic 数据迁移
+- Docker 命令执行
 
-1. **完成任务后简洁汇报**: 在响应中直接说明做了什么、修复了什么问题、如何验证
-2. **关键信息内联**: 把验证清单、注意事项直接放在响应中，不创建单独文件
-3. **代码即文档**: 通过清晰的代码注释和命名来说明逻辑
-4. **按需创建**: 只在用户明确需要或确实有价值时才创建文档
+### → 文档记录
+**文件**: `.cursor/rules/documentation.mdc`
+- 何时创建/不创建文档
+- 文档格式规范
+- 代码注释规范
+- API 文档规范
 
-#### 文档类型指导
+### → Git 工作流
+**文件**: `.cursor/rules/git.mdc`
+- 分支管理策略
+- Commit Message 规范
+- AI 提交行为规范
+- 冲突解决策略
 
-**必须创建**:
-- 技术设计文档（用户要求时）
-- API接口文档（新模块开发）
-- 数据库迁移说明（schema变更）
-- 部署指南（环境配置变更）
-
-**可选创建**（用户要求时）:
-- 开发日志
-- 问题修复记录
-- 重构说明
-- 测试报告
-
----
-
-## 项目架构概览
-
-这是一个基于 **前后端分离** 的企业级中后台管理系统，采用 Monorepo 架构。
+## 🚀 项目架构速览
 
 ### 技术栈
-- **前端**: Vben Admin 5.0 (Vue 3 + TypeScript + Ant Design Vue + Vite + Pinia)
+- **前端**: Vue 3 + TypeScript + Vben Admin 5.0 + Ant Design Vue
 - **后端**: Python 3.10+ + APIFlask + SQLAlchemy 2.0 + PostgreSQL
 - **认证**: JWT (Bearer Token)
-- **异步任务**: Celery + Redis
-- **部署**: Docker + Docker Compose
+- **部署**: Docker Compose (后端) + 本地 Node (前端)
 
 ### 统一响应格式
-所有 API 响应遵循统一格式：
 ```json
 {
-  "code": 0,           // 0=成功, 非0=失败
+  "code": 0,
   "message": "success",
-  "data": {}           // 业务数据
+  "data": {}
 }
 ```
 
----
-
-## 后端开发规范 (Backend)
-
-### 1. 代码组织原则
-
-#### 1.1 分层架构 (强制)
+### 目录结构
 ```
-routes.py (路由层)
-  ↓ 仅负责: 参数解析、调用Service、返回响应
-services/*.py (业务逻辑层)
-  ↓ 负责: 业务逻辑、数据库操作、异常抛出
-models/*.py (数据模型层)
-  ↓ SQLAlchemy 2.0 Mapped Class
-```
-
-**严禁在 routes.py 中编写复杂业务逻辑！**
-
-#### 1.2 目录结构
-```
-backend/app/
-├── __init__.py          # App 工厂函数
-├── api/                 # API 路由 (按业务模块拆分)
-│   ├── __init__.py      # 注册 api_v1 Blueprint
-│   ├── auth/            # 认证模块
-│   └── product/         # 产品模块
-├── models/              # SQLAlchemy Models
-├── services/            # 业务逻辑层
-├── schemas/             # Marshmallow/APIFlask Schemas
-├── extensions.py        # 扩展实例 (db, jwt)
-├── security.py          # 认证回调
-├── errors.py            # 统一异常类
-└── decorators.py        # 权限装饰器
+is-vue-admin/
+├── backend/          # Python/APIFlask 后端
+│   ├── app/
+│   │   ├── api/      # API 路由
+│   │   ├── models/   # SQLAlchemy Models
+│   │   ├── services/ # 业务逻辑层
+│   │   └── schemas/  # 数据验证
+│   └── tests/        # 自动化测试
+├── frontend/         # Vue 3 前端 (Vben Admin)
+│   └── apps/web-antd/
+└── .cursor/rules/    # 开发规范（本文件）
 ```
 
-### 2. API 开发规范
+## ⚡ 快速参考
 
-#### 2.1 视图编写 (推荐 MethodView)
-
-**使用 Class-Based Views + MethodView**:
-
+### 后端关键规范
 ```python
-from apiflask import APIBlueprint
-from apiflask.views import MethodView
-from app.security import auth
+# ✅ 正确的返回值
+return {'data': {'token': '...'}}  # 返回字典
+return user_model                  # 返回 Model
+return {'data': [item1, item2]}    # 返回列表
 
-bp = APIBlueprint('demo', __name__, url_prefix='/demo', tag='Demo资源')
-
-class DemoListAPI(MethodView):
-    decorators = [bp.auth_required(auth)]  # 统一认证
-    
-    @bp.doc(summary='获取列表', description='获取Demo资源列表')
-    @bp.output(DemoSchema(many=True))
-    def get(self):
-        """列表查询"""
-        return []  # 直接返回列表
-    
-    @bp.doc(summary='创建资源')
-    @bp.input(DemoSchema, arg_name='data')  # 显式指定参数名
-    @bp.output(DemoSchema, status_code=201)
-    def post(self, data):  # 参数名与 arg_name 一致
-        """创建资源"""
-        return model_instance  # 直接返回 Model 对象
-
-class DemoItemAPI(MethodView):
-    decorators = [bp.auth_required(auth)]
-    
-    @bp.doc(summary='删除资源')
-    def delete(self, item_id):
-        """删除资源"""
-        return None  # 返回 None，框架生成标准响应
-```
-
-#### 2.2 返回值规范 (重要!)
-
-后端已启用全局 `BASE_RESPONSE_SCHEMA`，**必须遵循以下规范**：
-
-1. **返回字典 (Dict)**: 必须手动包装在 `data` 键中
-   ```python
-   return {'data': {'token': '...'}}  # ✅ 正确
-   return {'token': '...'}            # ❌ 错误 - 会导致 500
-   ```
-
-2. **返回模型对象 (Model)**: 直接返回，无需包装
-   ```python
-   return user_model  # ✅ 框架自动序列化
-   ```
-
-3. **返回列表 (List)**: 必须手动包装在 `data` 键中 (为了兼容 APIFlask 和前端 Vben)
-   ```python
-   return {'data': [item1, item2]}  # ✅ 推荐做法
-   ```
-
-4. **删除/无内容**: 返回 `None` (200 OK)
-   ```python
-   return None  # ✅ 生成 {code: 0, data: null}
-   # 避免: return '', 204  # ❌ 前端收不到 JSON
-   ```
-
-#### 2.3 Schema 定义规范
-
-**所有字段必须包含 metadata**:
-
-```python
-from apiflask import Schema
-from apiflask.fields import String, Integer
-
-class ProductSchema(Schema):
-    name = String(
-        required=True,
-        metadata={
-            'description': '商品名称',
-            'example': 'iPhone 15'
-        }
-    )
-    price = Integer(
-        metadata={
-            'description': '价格(分)',
-            'example': 999900
-        }
-    )
-```
-
-#### 2.4 文档注释 (强制)
-
-**所有 API 方法必须使用 `@doc` 装饰器**:
-
-```python
-@bp.doc(
-    summary='获取商品列表',  # 简短标题
-    description='支持分页和关键词搜索，返回商品基本信息'  # 详细说明
-)
-```
-
-### 3. 数据库开发规范
-
-#### 3.1 ORM 写法 (SQLAlchemy 2.0)
-
-**使用 Mapped Class + mapped_column**:
-
-```python
-from sqlalchemy.orm import Mapped, mapped_column
-from app.extensions import db
-
-class Product(db.Model):
-    __tablename__ = 'products'
-    
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(db.String(100))
-    price: Mapped[int] = mapped_column(db.Integer, nullable=True)
-```
-
-#### 3.2 查询优化 (防止 N+1)
-
-**严禁在循环中查询数据库！必须使用 Eager Loading**:
-
-```python
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload, joinedload
-
-# ✅ 正确: 预加载关联
+# ✅ 防止 N+1 查询
 stmt = select(Product).options(
-    selectinload(Product.category),      # 一对多/多对多
-    joinedload(Product.supplier)         # 多对一/一对一
+    selectinload(Product.category)
 )
-products = db.session.execute(stmt).scalars().all()
 
-# ❌ 错误: N+1 查询
-products = Product.query.all()
-for p in products:
-    print(p.category.name)  # 每次循环都查询数据库!
-```
-
-#### 3.3 数据迁移 (Alembic)
-
-**禁止手动修改数据库！所有变更必须通过 Alembic**:
-
-**注意**: 
-- 由于后端运行在 Docker 容器中，必须使用 `docker compose exec backend` 前缀来执行 flask 命令
-- docker-compose.yml 位于项目根目录，所有命令都在项目根目录执行
-
-```bash
-# 在项目根目录执行以下命令
-
-# 生成迁移文件
-docker compose exec backend flask db migrate -m "添加商品表"
-
-# 应用迁移
+# ✅ 数据迁移（项目根目录执行）
+docker compose exec backend flask db migrate -m "描述"
 docker compose exec backend flask db upgrade
-
-# 回滚
-docker compose exec backend flask db downgrade
-```
-![1765980242296](image/project/1765980242296.png)
-### 4. 认证与权限
-
-#### 4.1 认证方式
-
-**使用 JWT Bearer Token**:
-
-```python
-from app.security import auth
-
-@bp.route('/protected')
-@bp.auth_required(auth)  # 需要认证
-def protected_route():
-    from flask_jwt_extended import get_jwt_identity
-    user_id = get_jwt_identity()
-    return {'user_id': user_id}
 ```
 
-**重要**: HTTPTokenAuth 实例化时**严禁**指定 `header` 参数:
-```python
-# ✅ 正确
-auth = HTTPTokenAuth(scheme='Bearer')
-
-# ❌ 错误 - 会导致 Swagger UI 无法正确处理 Bearer 前缀
-auth = HTTPTokenAuth(scheme='Bearer', header='Authorization')
-```
-
-#### 4.2 权限控制 (RBAC)
-
-**使用装饰器进行权限检查**:
-
-```python
-from app.decorators import permission_required
-
-@bp.route('/products', methods=['POST'])
-@bp.auth_required(auth)
-@permission_required('product:create')  # 功能权限
-def create_product():
-    pass
-```
-
-### 5. 异常处理
-
-**使用统一异常类**:
-
-```python
-from app.errors import BusinessError
-
-def create_product(data):
-    if Product.query.filter_by(name=data['name']).first():
-        raise BusinessError('商品名称已存在', code=400)
-    # 业务逻辑...
-```
-
-**禁止在视图层随意 `abort` 且不记录日志！**
-
-### 6. 分页与搜索
-
-**列表接口必须支持分页**:
-
-```python
-from app.schemas.pagination import PaginationQuerySchema, PaginationSchema
-
-@bp.input(PaginationQuerySchema, location='query', arg_name='pagination')
-@bp.output(PaginationSchema)
-def get_list(pagination):
-    page = pagination['page']
-    per_page = pagination['per_page']
-    q = pagination.get('q')  # 搜索关键词
-    # 实现分页逻辑...
-```
-
-### 7. 日志规范
-
-**使用结构化日志**:
-
-```python
-import logging
-
-logger = logging.getLogger(__name__)
-
-# ✅ 使用 extra 传递结构化数据
-logger.info('用户登录成功', extra={
-    'user_id': user.id,
-    'ip': request.remote_addr
-})
-
-# ❌ 避免字符串拼接
-logger.info(f'用户 {user.id} 登录成功')
-```
-
----
-
-## 前端开发规范 (Frontend)
-
-### 1. 项目结构
-
-```
-frontend/
-├── apps/
-│   └── web-antd/          # 主应用
-│       ├── src/
-│       │   ├── api/       # API 接口定义
-│       │   ├── views/     # 页面组件
-│       │   ├── router/    # 路由配置
-│       │   └── store/     # Pinia 状态管理
-└── packages/              # 共享包
-```
-
-### 2. 技术栈
-
-- **框架**: Vue 3 + TypeScript
-- **UI 库**: Ant Design Vue (Vben Admin 深度集成)
-- **状态管理**: Pinia
-- **构建工具**: Vite
-- **包管理器**: pnpm (version >= 9)
-
-### 3. API 调用规范
-
-**基于 OpenAPI 自动生成 TypeScript 接口**:
-
-```typescript
-// src/api/serc/product.ts
-import { request } from '@vben/request';
-
-export interface Product {
-  id: number;
-  name: string;
-  price: number;
-}
-
-export function getProductList(params: { page: number; per_page: number }) {
-  return request<{ items: Product[]; total: number }>({
-    url: '/api/v1/products',
-    method: 'GET',
-    params,
-  });
-}
-```
-
-### 4. 权限控制
-
-**使用 `v-auth` 指令**:
-
-```vue
-<template>
-  <a-button v-auth="'product:create'" @click="handleCreate">
-    新建商品
-  </a-button>
-</template>
-```
-
-### 5. Vben Admin 5 表格使用规范 (Grid & Table)
-
-为避免 `proxyConfig` 的黑盒问题，推荐使用 **手动控制模式**。
-
-**标准模板 (Standard Pattern)**:
-
+### 前端关键规范
 ```vue
 <script setup lang="ts">
-import { useVbenVxeGrid, type VxeGridProps } from '#/adapter/vxe-table';
-import { getListApi } from '#/api/demo';
-import { onMounted } from 'vue';
+// ✅ 导入 Ant Design 组件
+import { Button, Card, Tag } from 'ant-design-vue';
 
-// 1. 定义 Grid Options
-const gridOptions: VxeGridProps = {
-  columns: [
-    { field: 'id', title: 'ID', width: 80 },
-    { field: 'name', title: 'Name' },
-  ],
-  data: [], // 初始空数据
-  pagerConfig: {
-    enabled: true, // 如果后端支持分页
-  },
+// ✅ VXE Table 新版语法
+const gridOptions = {
   toolbarConfig: {
-    refresh: { code: 'query' }, // 绑定刷新按钮
-  },
-};
-
-// 2. 初始化 Grid
-const [Grid, gridApi] = useVbenVxeGrid({ 
-  gridOptions,
-  gridEvents: {
-    toolbarToolClick: (params) => {
-      if (params.code === 'query') loadData();
-    }
-  }
-});
-
-// 3. 数据加载函数
-async function loadData() {
-  try {
-    gridApi.setLoading(true);
-    const res = await getListApi();
-    // 显式更新 Grid 数据
-    gridApi.setGridOptions({ data: res });
-  } catch (e) {
-    console.error(e);
-  } finally {
-    gridApi.setLoading(false);
+    refresh: true,
+    refreshOptions: { code: 'query' }
   }
 }
 
-// 4. 挂载时触发
-onMounted(() => {
-  loadData();
-});
+// ✅ API 调用
+import { requestClient } from '#/api/request';
 </script>
-
-<template>
-  <div class="p-4">
-    <Grid />
-  </div>
-</template>
 ```
 
-**关键点**:
-1.  **引入 Adapter**: 使用 `#/adapter/vxe-table`。
-2.  **手动加载**: 使用 `loadData` 函数 + `gridApi.setGridOptions({ data })`。
-3.  **生命周期**: 在 `onMounted` 中显式调用 `loadData()`。
-4.  **刷新绑定**: 通过 `gridEvents.toolbarToolClick` 绑定刷新按钮。
-
-### 6. 样式与主题 (Styling & Theming)
-
-**强制使用 Tailwind CSS**:
-- **优先使用 Utility Classes**: 布局、间距、颜色等应优先使用 Tailwind 类名。
-- **避免自定义 CSS**: 尽量少写 `<style scoped>`，除非是复杂的动画或 Tailwind 无法实现的特殊样式。
-- **严禁使用 `!important`**: 除非万不得已，禁止使用 `!important` 覆盖框架样式，这会导致深色模式适配困难。
-
-**深色模式适配**:
-- **使用 Ant Design Vue 组件**: 容器类组件（如 `Card`, `Modal`, `Drawer`）自带深色模式适配，优先使用它们包裹内容。
-- **避免手动设置背景色**: 不要手动写 `background: #fff` 或 `bg-white`，除非你明确知道在深色模式下它也应该是白色的。
-- **使用 CSS 变量**: 如果必须自定义颜色，请使用 Ant Design 的 CSS 变量（如 `var(--bg-color-container)`）以支持动态切换。
-
----
-
-## 开发环境配置
-
-### 1. 数据库连接
-
-- **Host**: `pgm-bp14ze6w2u23d65bco.pg.rds.aliyuncs.com`
-- **User**: `zhibeen`
-- **Password**: `Eade2025+`
-- **Database**: PostgreSQL 15+
-
-### 2. 默认账号
-
-- **用户名**: `admin`
-- **密码**: `password`
-- **角色**: 管理员
-
-### 3. 启动方式
-
-**重要说明**: `docker-compose.yml` 文件位于项目根目录 `D:\jzb_program\is-vue-admin\docker-compose.yml`，所有 Docker Compose 命令都应在项目根目录执行。
-
-**后端 (Docker)**:
+### Git 提交规范
 ```bash
-# 在项目根目录执行（不需要进入 backend 目录）
-docker compose up -d
+# ✅ 好的提交信息
+git commit -m "feat(product): 添加商品搜索功能"
+git commit -m "fix(frontend): 修复 VXE Table 刷新按钮问题"
+
+# ❌ 差的提交信息
+git commit -m "update"
+git commit -m "fix bug"
 ```
 
-**后端命令执行 (重要)**:
-由于使用 Docker Compose，所有 Flask 命令必须在容器内执行：
-```bash
-# 在项目根目录执行
-docker compose exec backend flask routes
-docker compose exec backend flask shell
-```
+## 💡 AI 工作指南
 
-**后端服务重启**:
-```bash
-# 在项目根目录执行
-docker compose restart backend
-```
+### 前端开发时
+1. 检查 VXE Table 是否使用新版语法
+2. 检查 Ant Design 组件是否正确导入
+3. 确保样式支持深色模式（使用 Tailwind + Ant Design 组件）
 
-**前端 (本地 Node)**:
-```bash
-cd frontend
-pnpm install
-pnpm dev
-```
+### 后端开发时
+1. 业务逻辑必须在 Service 层，不要写在 routes.py
+2. 注意返回值包装规则（字典包装在 data 中）
+3. 使用 selectinload/joinedload 防止 N+1 查询
+4. 数据库变更必须通过 Alembic
 
----
+### 完成任务后
+1. **不要主动创建文档**（除非用户明确要求）
+2. 在响应中简洁说明：做了什么、如何验证、注意事项
+3. 代码注释 > 内联说明 > 独立文档
 
-## 代码质量要求
+### 代码修改完成
+1. **不要主动提交代码**
+2. 提供符合规范的提交信息建议
+3. 建议分批提交策略（前端/后端分开）
 
-### 1. 后端
+## 🔗 相关文档
 
-- **格式化**: 使用 Ruff
-- **类型提示**: 所有函数必须有类型注解
-- **文档字符串**: 复杂函数必须有 docstring
-- **代码注释**: 关键业务逻辑必须添加行内注释，解释"为什么这样做"
-
-### 2. 前端
-
-- **格式化**: ESLint + Prettier
-- **类型安全**: 严格模式 TypeScript
-- **组件规范**: 使用 `<script setup>` 语法
-- **代码注释**: 
-    - 组件顶部需注释组件用途
-    - 复杂函数/逻辑需添加注释
-    - 接口调用处需简要说明
+- **技术框架完整文档**: `开发设计文档/总则/技术框架.md` (752行)
+- **项目启动指南**: `README.md`
+- **实施路线图**: `开发设计文档/总则/SERC财务中台实施路线图.md`
 
 ---
 
-## 重要提醒
+**规范版本**: v2.0  
+**最后更新**: 2025-01-20  
+**维护者**: 项目开发团队
 
-1. **数据迁移**: 所有数据库变更必须通过 Alembic，且必须在项目根目录使用 `docker compose exec backend flask ...` 执行，禁止手动修改
-2. **返回值规范**: 注意 BASE_RESPONSE_SCHEMA 的返回值包装规则，List 必须包装在 `data` 中。
-3. **N+1 查询**: 使用 selectinload/joinedload 预加载关联
-4. **权限控制**: 敏感操作必须添加权限检查
-5. **异常处理**: 使用 BusinessError 统一抛出业务异常
-6. **API 文档**: 所有接口必须有 @doc 装饰器和完整的 metadata
-7. **样式规范**: 优先使用 Tailwind CSS，严禁滥用 `!important`，确保深色模式适配。
-
----
-
-## 架构演进状态
-
-### 已实装
-- ✅ JWT 认证
-- ✅ RBAC 权限控制
-- ✅ 数据权限 (4层结构)
-- ✅ 字段权限 (列级控制)
-- ✅ 结构化日志 (JSON + 文件轮转)
-- ✅ Celery 异步任务
-- ✅ 自动化测试 (pytest + factory_boy)
-
-### 待实施 (按需启用)
-- ⏳ API 限流 (Flask-Limiter) - 日调用量 >10万 时启用
-- ⏳ 软删除 (SoftDeleteMixin) - 正式运营后启用
-- ⏳ Pre-commit Hooks - 团队 ≥2人 时启用
-- ⏳ 全链路追踪 - 微服务化后启用
-
----
-
-## 常用测试命令
-
-**注意**: 所有命令都在项目根目录执行
-
-- **运行所有测试**:
-  ```bash
-  # 在项目根目录执行
-  docker compose exec backend env PYTHONPATH=/app pytest
-  ```
-- **运行特定测试文件**:
-  ```bash
-  # 在项目根目录执行
-  docker compose exec backend env PYTHONPATH=/app pytest tests/api/test_auth.py
-  ```
-- **查看覆盖率报告**:
-  ```bash
-  # 在项目根目录执行
-  docker compose exec backend env PYTHONPATH=/app pytest --cov=app
-  ```
-
----
-
-## 参考文档
-
-完整技术框架说明请查看: `开发设计文档/技术框架.md`
+**注**: 本文件设置了 `alwaysApply: true`，将始终应用于所有 AI 对话。

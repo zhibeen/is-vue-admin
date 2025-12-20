@@ -1,0 +1,546 @@
+# 文档与日志记录规范 (Documentation Standards)
+
+## AI 协作核心原则
+
+**重要**: AI 助手在完成任务时，**不应主动创建详细的日志文档**，除非用户明确要求。
+
+## 何时创建文档
+
+### ✅ 必须创建
+
+1. **用户明确要求总结**
+   - 用户说"请总结"、"写个文档"、"整理日志"等
+   
+2. **重大架构变更**
+   - 影响整个系统的架构调整，需要记录
+   - 数据库 Schema 重大变更
+   - 系统接口契约变更
+   
+3. **新模块开发**
+   - API 接口文档（新模块开发时）
+   - 数据库迁移说明（Schema 变更时）
+   - 部署指南（环境配置变更时）
+
+## 何时不创建文档
+
+### ❌ 禁止创建
+
+1. **常规 Bug 修复**
+   - 修复组件导入错误
+   - 修复 API 路由问题
+   - 修复样式问题
+   - 修复逻辑错误
+
+2. **小功能调整**
+   - 调整样式
+   - 修改文案
+   - 小范围重构
+   - UI 微调
+
+3. **每次代码更改**
+   - 不需要为每个修改都创建文档
+   - 日常开发迭代无需文档
+
+4. **中间步骤**
+   - 任务进行中的临时文档
+   - 调试过程记录
+   - 实验性代码
+
+## 推荐做法
+
+### 1. 完成任务后简洁汇报
+
+在响应中直接说明：
+- 做了什么
+- 修复了什么问题
+- 如何验证
+
+**示例**:
+```
+已完成产品列表页面开发：
+1. 修复了 VXE Table 工具栏配置语法问题（使用新版语法）
+2. 添加了 Ant Design 组件导入（Button, Card, Tag）
+3. 实现了搜索和分页功能
+4. 测试方法：启动前端，访问 /products，检查列表加载和搜索功能
+```
+
+### 2. 关键信息内联
+
+把验证清单、注意事项直接放在响应中，不创建单独文件。
+
+**示例**:
+```
+注意事项：
+- 该功能依赖后端 /api/v1/products 接口
+- 确保已配置正确的权限（product:view）
+- 深色模式已适配，使用了 Card 组件
+```
+
+### 3. 代码即文档
+
+通过清晰的代码注释和命名来说明逻辑。
+
+**正确示例**:
+```python
+def calculate_tax_amount(order: Order) -> Decimal:
+    """
+    计算订单退税金额
+    
+    退税金额 = 报关单金额 × 退税率
+    注意：退税率从报关单的商品明细中获取，可能有多个不同税率
+    
+    Args:
+        order: 订单对象
+        
+    Returns:
+        总退税金额（单位：元，保留2位小数）
+    """
+    total_tax = Decimal('0.00')
+    for item in order.customs_items:
+        # 退税率从商品主数据获取，已在导入时验证
+        tax_rate = item.product.tax_rate
+        tax_amount = item.declared_amount * tax_rate
+        total_tax += tax_amount
+    return total_tax.quantize(Decimal('0.01'))
+```
+
+### 4. 按需创建
+
+只在用户明确需要或确实有价值时才创建文档。
+
+## 文档类型指导
+
+### 必须创建的文档
+
+1. **技术设计文档**（用户要求时）
+   - 新功能/模块的设计方案
+   - 架构调整方案
+   - 技术选型说明
+
+2. **API 接口文档**（新模块开发）
+   - 接口路径、方法、参数
+   - 返回值结构
+   - 错误码说明
+   - 使用示例
+
+3. **数据库迁移说明**（Schema 变更）
+   - 变更原因
+   - 迁移步骤
+   - 回滚方案
+   - 数据兼容性说明
+
+4. **部署指南**（环境配置变更）
+   - 新增的环境变量
+   - 新增的依赖服务
+   - 部署步骤
+   - 验证方法
+
+### 可选创建的文档（用户要求时）
+
+1. **开发日志**
+   - 功能开发过程记录
+   - 技术难点及解决方案
+   - 性能优化记录
+
+2. **问题修复记录**
+   - 复杂 Bug 的排查过程
+   - 根因分析
+   - 修复方案
+
+3. **重构说明**
+   - 重构原因
+   - 重构范围
+   - 影响评估
+
+4. **测试报告**
+   - 测试用例
+   - 测试结果
+   - 覆盖率报告
+
+## 文档存储规范
+
+### 文档目录结构
+
+```
+is-vue-admin/
+├── docs/                          # 📚 项目文档根目录
+│   ├── guides/                    # 📖 使用指南
+│   │   ├── deployment.md          # 部署指南
+│   │   ├── configuration.md       # 配置指南
+│   │   └── testing.md             # 测试指南
+│   │
+│   ├── architecture/              # 🏗️ 架构设计文档
+│   │   ├── overview.md            # 系统架构总览
+│   │   ├── backend.md             # 后端架构
+│   │   ├── frontend.md            # 前端架构
+│   │   └── database.md            # 数据库设计
+│   │
+│   ├── features/                  # ✨ 功能模块文档
+│   │   ├── logistics/             # 物流模块
+│   │   ├── finance/               # 财务模块
+│   │   ├── customs/               # 报关模块
+│   │   └── warehouse/             # 仓库模块
+│   │
+│   ├── api/                       # 📡 API 接口文档
+│   │   ├── auth.md                # 认证接口
+│   │   ├── products.md            # 产品接口
+│   │   └── ...
+│   │
+│   ├── migrations/                # 🔄 数据迁移文档
+│   │   ├── 2025-01-20-xxx.md     # 迁移说明
+│   │   └── ...
+│   │
+│   └── changelogs/                # 📝 变更日志
+│       ├── 2025-01.md             # 月度变更日志
+│       └── ...
+│
+├── backend/                       # Python 后端
+│   ├── docs/                      # 后端专属文档
+│   │   ├── logging.md             # 日志系统说明
+│   │   ├── config.md              # 配置说明
+│   │   └── testing.md             # 测试说明
+│   └── README.md                  # 后端快速开始
+│
+├── frontend/                      # Vue 前端
+│   ├── docs/                      # 前端框架文档（Vben Admin）
+│   └── README.md                  # 前端快速开始
+│
+└── README.md                      # 项目总览（入口文档）
+```
+
+### 文档命名规范
+
+#### 命名方式选择
+
+**方案 1: 中文命名**（推荐中文团队）
+
+```
+# 使用中文，清晰易懂
+部署指南.md
+数据库设计.md
+API认证说明.md
+
+# 模块文档放在对应目录
+docs/features/logistics/对账单管理.md
+
+# 日期前缀用于变更日志
+docs/changelogs/2025年1月.md
+```
+
+**优点**：
+- ✅ 中文团队更直观易懂
+- ✅ 快速识别文档内容
+- ✅ 降低阅读和查找成本
+
+**注意事项**：
+- ⚠️ Git 和现代操作系统都支持中文
+- ⚠️ 避免使用特殊符号（`\ / : * ? " < > |`）
+- ⚠️ 保持文件名简洁
+
+**方案 2: 英文命名**（跨国团队或开源项目）
+
+```
+# 使用英文，小写，连字符分隔
+deployment-guide.md
+database-schema.md
+api-authentication.md
+
+# 模块文档放在对应目录
+docs/features/logistics/statement-management.md
+```
+
+**优点**：
+- ✅ 国际化兼容性好
+- ✅ 某些工具对英文支持更好
+- ✅ URL 友好
+
+#### ✅ 好的命名示例
+
+```
+# 中文命名（推荐）
+部署指南.md
+系统架构.md
+物流对账模块.md
+2025年1月变更.md
+
+# 英文命名（备选）
+deployment-guide.md
+system-architecture.md
+logistics-reconciliation.md
+changelog-2025-01.md
+```
+
+#### ❌ 差的命名示例
+
+```
+# 避免过长的名称
+物流对账与财务应付单系统_开发完成报告_最终版_v2.md
+
+# 避免使用特殊符号
+配置文件/说明.md          # 包含 /
+日志系统(重要).md         # 包含括号可能引起问题
+
+# 避免在根目录堆积
+日志系统升级总结.md        # 应该放在 docs/ 或 archive/
+配置文件优化总结.md        # 应该放在对应目录
+```
+
+### 文档存储原则
+
+1. **集中存储**: 所有项目级文档放在 `docs/` 目录
+2. **模块就近**: 模块专属文档放在模块内部（如 `backend/docs/`）
+3. **避免重复**: 不同位置不要有重复内容的文档
+4. **清晰分类**: 按文档类型分目录（guides、architecture、features等）
+5. **命名规范**: 
+   - 中文团队：使用中文文件名（推荐）
+   - 国际团队：使用英文文件名
+   - 保持团队内命名风格一致
+
+### 临时文档处理
+
+**临时文档** = AI 生成的实施指南、总结报告等
+
+```
+# ❌ 不要放在项目根目录
+配置文件优化总结.md
+日志系统升级总结.md
+
+# ✅ 放在 docs/temp/ 或直接删除
+docs/temp/config-migration-summary.md  # 迁移完成后可删除
+```
+
+**原则**: 
+- 实施完成后，将有价值的内容整理到正式文档
+- 删除纯临时的实施指南
+- 不要在根目录堆积临时文档
+
+## 文档格式规范
+
+### Markdown 文档结构
+
+```markdown
+# 文档标题
+
+> 简要说明：一句话描述文档目的
+
+## 概述
+简要说明文档目的和背景
+
+## 变更内容 / 功能说明
+详细列出所有变更项或功能点
+
+## 技术实现（可选）
+关键技术点说明
+
+## 使用方法 / 验证方法
+如何使用或如何验证是否生效
+
+## 注意事项
+需要特别注意的地方
+
+## 相关文档
+- [相关文档1](./path/to/doc1.md)
+- [相关文档2](./path/to/doc2.md)
+
+---
+**创建日期**: YYYY-MM-DD  
+**最后更新**: YYYY-MM-DD  
+**维护者**: 团队名称
+```
+
+### 代码示例格式
+
+使用正确的语言标记：
+
+````markdown
+```python
+# Python 代码示例
+def example():
+    pass
+```
+
+```typescript
+// TypeScript 代码示例
+function example() {}
+```
+
+```bash
+# Shell 命令示例
+docker compose exec backend flask db upgrade
+```
+````
+
+## 日志记录规范
+
+### 后端日志
+
+使用结构化日志（JSON）：
+
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+
+# ✅ 正确：结构化日志
+logger.info('订单创建成功', extra={
+    'user_id': user.id,
+    'order_id': order.id,
+    'amount': float(order.amount),
+    'request_id': g.request_id
+})
+
+# ❌ 错误：字符串拼接
+logger.info(f'订单 {order.id} 创建成功')
+```
+
+### 前端日志
+
+使用 console 记录关键操作：
+
+```typescript
+// ✅ 正确：结构化日志
+console.log('[ProductList] Load products', {
+  page: currentPage,
+  pageSize: 20,
+  total: result.total
+});
+
+// ❌ 错误：无结构信息
+console.log('加载产品列表');
+```
+
+## API 文档规范
+
+### OpenAPI 文档注释
+
+所有 API 必须包含完整的文档注释：
+
+```python
+@bp.doc(
+    summary='创建商品',
+    description='''
+    创建新的商品记录。
+    
+    业务规则：
+    1. 商品名称必须唯一
+    2. 价格必须大于0
+    3. 需要 product:create 权限
+    
+    注意事项：
+    - 创建成功后会自动生成商品编码
+    - SKU 信息需要单独调用 /skus 接口创建
+    ''',
+    responses={
+        201: '创建成功',
+        400: '参数错误或商品名称重复',
+        403: '权限不足'
+    }
+)
+@bp.input(ProductCreateSchema, arg_name='data')
+@bp.output(ProductSchema, status_code=201)
+def create_product(data):
+    pass
+```
+
+### Schema 字段文档
+
+所有字段必须包含 metadata：
+
+```python
+class ProductSchema(Schema):
+    id = Integer(
+        metadata={
+            'description': '商品ID（系统自动生成）',
+            'example': 1001
+        }
+    )
+    name = String(
+        required=True,
+        metadata={
+            'description': '商品名称（必须唯一）',
+            'example': 'iPhone 15 Pro'
+        }
+    )
+    price = Integer(
+        required=True,
+        metadata={
+            'description': '价格（单位：分）',
+            'example': 999900
+        }
+    )
+```
+
+## AI 行为规范总结
+
+### 默认行为（不创建文档）
+
+1. **常规开发任务**
+   - 直接在响应中说明做了什么
+   - 包含简单的验证方法
+   - 注明关键注意事项
+
+2. **Bug 修复**
+   - 说明问题原因
+   - 说明修复方案
+   - 提供验证步骤
+
+3. **小功能调整**
+   - 简要说明改动内容
+   - 无需创建文档
+
+### 何时创建文档（用户明确要求）
+
+1. **用户说"请总结"或"写文档"**
+   - 创建完整的 Markdown 文档
+   - 包含完整的技术细节
+
+2. **重大架构变更**
+   - 创建设计文档
+   - 说明变更原因和影响
+
+3. **新模块开发**
+   - 创建 API 文档
+   - 创建使用指南
+
+### 示例对比
+
+#### ❌ 错误做法（过度文档化）
+
+```
+用户: "修复产品列表页面的刷新按钮"
+AI: 
+1. 修复了问题
+2. 创建了《产品列表刷新按钮修复报告.md》
+3. 创建了《VXE Table 配置更新日志.md》
+4. 创建了《前端代码修改记录.md》
+```
+
+#### ✅ 正确做法（简洁汇报）
+
+```
+用户: "修复产品列表页面的刷新按钮"
+AI:
+已修复刷新按钮问题：
+
+问题原因：
+- 使用了废弃的 VXE Table 旧版语法
+
+修复方案：
+- 更新为新版语法：refresh: true, refreshOptions: { code: 'query' }
+
+验证方法：
+- 启动前端，访问产品列表页面
+- 点击刷新按钮，确认列表重新加载
+
+相关文件：
+- frontend/apps/web-antd/src/views/product/ProductList.vue
+```
+
+## 关键提醒
+
+**代码注释 > 内联说明 > 独立文档**
+
+优先级顺序：
+1. 在代码中添加清晰的注释
+2. 在 AI 响应中内联说明关键信息
+3. 只在用户明确要求时创建独立的 Markdown 文档

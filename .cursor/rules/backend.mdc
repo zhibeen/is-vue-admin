@@ -1,0 +1,427 @@
+# 后端开发规范 (Backend Development Standards)
+
+## 技术栈
+
+- **开发语言**: Python 3.10+
+- **Web 框架**: APIFlask
+- **数据库**: PostgreSQL 15+
+- **ORM**: SQLAlchemy 2.0 (Mapped Class 风格)
+- **数据迁移**: Alembic
+- **认证**: JWT (flask-jwt-extended + APIFlask.HTTPTokenAuth)
+- **异步任务**: Celery + Redis
+- **测试**: pytest + factory_boy
+
+## 数据库连接配置
+
+- **Host**: `pgm-bp14ze6w2u23d65bco.pg.rds.aliyuncs.com`
+- **User**: `zhibeen`
+- **Password**: `Eade2025+`
+- **Database**: PostgreSQL 15+
+- **ORM Style**: SQLAlchemy 2.0 Mapped Class
+
+## 代码组织原则
+
+### 分层架构 (强制)
+
+```
+routes.py (路由层)
+  ↓ 仅负责: 参数解析、调用Service、返回响应
+services/*.py (业务逻辑层)
+  ↓ 负责: 业务逻辑、数据库操作、异常抛出
+models/*.py (数据模型层)
+  ↓ SQLAlchemy 2.0 Mapped Class
+```
+
+**严禁在 routes.py 中编写复杂业务逻辑！**
+
+### 目录结构
+
+```
+backend/app/
+├── __init__.py          # App 工厂函数
+├── api/                 # API 路由 (按业务模块拆分)
+│   ├── __init__.py      # 注册 api_v1 Blueprint
+│   ├── auth/            # 认证模块
+│   └── product/         # 产品模块
+├── models/              # SQLAlchemy Models
+├── services/            # 业务逻辑层
+├── schemas/             # Marshmallow/APIFlask Schemas
+├── extensions.py        # 扩展实例 (db, jwt)
+├── security.py          # 认证回调
+├── errors.py            # 统一异常类
+└── decorators.py        # 权限装饰器
+```
+
+## API 开发规范
+
+### 视图编写 (推荐 MethodView)
+
+**使用 Class-Based Views + MethodView**:
+
+```python
+from apiflask import APIBlueprint
+from apiflask.views import MethodView
+from app.security import auth
+
+bp = APIBlueprint('demo', __name__, url_prefix='/demo', tag='Demo资源')
+
+class DemoListAPI(MethodView):
+    decorators = [bp.auth_required(auth)]  # 统一认证
+    
+    @bp.doc(summary='获取列表', description='获取Demo资源列表')
+    @bp.output(DemoSchema(many=True))
+    def get(self):
+        """列表查询"""
+        return []  # 直接返回列表
+    
+    @bp.doc(summary='创建资源')
+    @bp.input(DemoSchema, arg_name='data')  # 显式指定参数名
+    @bp.output(DemoSchema, status_code=201)
+    def post(self, data):  # 参数名与 arg_name 一致
+        """创建资源"""
+        return model_instance  # 直接返回 Model 对象
+
+class DemoItemAPI(MethodView):
+    decorators = [bp.auth_required(auth)]
+    
+    @bp.doc(summary='删除资源')
+    def delete(self, item_id):
+        """删除资源"""
+        return None  # 返回 None，框架生成标准响应
+```
+
+### 返回值规范 (重要!)
+
+后端已启用全局 `BASE_RESPONSE_SCHEMA`，**必须遵循以下规范**：
+
+1. **返回字典 (Dict)**: 必须手动包装在 `data` 键中
+   ```python
+   return {'data': {'token': '...'}}  # ✅ 正确
+   return {'token': '...'}            # ❌ 错误 - 会导致 500
+   ```
+
+2. **返回模型对象 (Model)**: 直接返回，无需包装
+   ```python
+   return user_model  # ✅ 框架自动序列化
+   ```
+
+3. **返回列表 (List)**: 必须手动包装在 `data` 键中 (为了兼容 APIFlask 和前端 Vben)
+   ```python
+   return {'data': [item1, item2]}  # ✅ 推荐做法
+   ```
+
+4. **删除/无内容**: 返回 `None` (200 OK)
+   ```python
+   return None  # ✅ 生成 {code: 0, data: null}
+   # 避免: return '', 204  # ❌ 前端收不到 JSON
+   ```
+
+### Schema 定义规范
+
+**所有字段必须包含 metadata**:
+
+```python
+from apiflask import Schema
+from apiflask.fields import String, Integer
+
+class ProductSchema(Schema):
+    name = String(
+        required=True,
+        metadata={
+            'description': '商品名称',
+            'example': 'iPhone 15'
+        }
+    )
+    price = Integer(
+        metadata={
+            'description': '价格(分)',
+            'example': 999900
+        }
+    )
+```
+
+### 文档注释 (强制)
+
+**所有 API 方法必须使用 `@doc` 装饰器**:
+
+```python
+@bp.doc(
+    summary='获取商品列表',  # 简短标题
+    description='支持分页和关键词搜索，返回商品基本信息'  # 详细说明
+)
+```
+
+## 数据库开发规范
+
+### ORM 写法 (SQLAlchemy 2.0)
+
+**使用 Mapped Class + mapped_column**:
+
+```python
+from sqlalchemy.orm import Mapped, mapped_column
+from app.extensions import db
+
+class Product(db.Model):
+    __tablename__ = 'products'
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(db.String(100))
+    price: Mapped[int] = mapped_column(db.Integer, nullable=True)
+```
+
+### 查询优化 (防止 N+1)
+
+**严禁在循环中查询数据库！必须使用 Eager Loading**:
+
+```python
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload, joinedload
+
+# ✅ 正确: 预加载关联
+stmt = select(Product).options(
+    selectinload(Product.category),      # 一对多/多对多
+    joinedload(Product.supplier)         # 多对一/一对一
+)
+products = db.session.execute(stmt).scalars().all()
+
+# ❌ 错误: N+1 查询
+products = Product.query.all()
+for p in products:
+    print(p.category.name)  # 每次循环都查询数据库!
+```
+
+### 数据迁移 (Alembic)
+
+**禁止手动修改数据库！所有变更必须通过 Alembic**:
+
+**注意**: 
+- 由于后端运行在 Docker 容器中，必须使用 `docker compose exec backend` 前缀来执行 flask 命令
+- docker-compose.yml 位于项目根目录，所有命令都在项目根目录执行
+
+```bash
+# 在项目根目录执行以下命令
+
+# 生成迁移文件
+docker compose exec backend flask db migrate -m "添加商品表"
+
+# 应用迁移
+docker compose exec backend flask db upgrade
+
+# 回滚
+docker compose exec backend flask db downgrade
+```
+
+## 认证与权限
+
+### 认证方式
+
+**使用 JWT Bearer Token**:
+
+```python
+from app.security import auth
+
+@bp.route('/protected')
+@bp.auth_required(auth)  # 需要认证
+def protected_route():
+    from flask_jwt_extended import get_jwt_identity
+    user_id = get_jwt_identity()
+    return {'user_id': user_id}
+```
+
+**重要**: HTTPTokenAuth 实例化时**严禁**指定 `header` 参数:
+```python
+# ✅ 正确
+auth = HTTPTokenAuth(scheme='Bearer')
+
+# ❌ 错误 - 会导致 Swagger UI 无法正确处理 Bearer 前缀
+auth = HTTPTokenAuth(scheme='Bearer', header='Authorization')
+```
+
+### 权限控制 (RBAC)
+
+**使用装饰器进行权限检查**:
+
+```python
+from app.decorators import permission_required
+
+@bp.route('/products', methods=['POST'])
+@bp.auth_required(auth)
+@permission_required('product:create')  # 功能权限
+def create_product():
+    pass
+```
+
+## 异常处理
+
+**使用统一异常类**:
+
+```python
+from app.errors import BusinessError
+
+def create_product(data):
+    if Product.query.filter_by(name=data['name']).first():
+        raise BusinessError('商品名称已存在', code=400)
+    # 业务逻辑...
+```
+
+**禁止在视图层随意 `abort` 且不记录日志！**
+
+## 分页与搜索
+
+**列表接口必须支持分页**:
+
+```python
+from app.schemas.pagination import PaginationQuerySchema, PaginationSchema
+
+@bp.input(PaginationQuerySchema, location='query', arg_name='pagination')
+@bp.output(PaginationSchema)
+def get_list(pagination):
+    page = pagination['page']
+    per_page = pagination['per_page']
+    q = pagination.get('q')  # 搜索关键词
+    # 实现分页逻辑...
+```
+
+## 日志规范
+
+**使用结构化日志**:
+
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+
+# ✅ 使用 extra 传递结构化数据
+logger.info('用户登录成功', extra={
+    'user_id': user.id,
+    'ip': request.remote_addr
+})
+
+# ❌ 避免字符串拼接
+logger.info(f'用户 {user.id} 登录成功')
+```
+
+## Service 层模式 (Business Logic Layer)
+
+**原则**: 禁止在 `routes.py` 中编写复杂的业务逻辑（如事务控制、复杂计算、多表操作）。所有业务逻辑必须封装在 `app/services/` 目录下。
+
+**结构**:
+- `routes.py`: 仅负责请求参数解析、调用 Service、返回响应
+- `services/*.py`: 负责具体的业务逻辑、数据库操作、异常抛出
+
+**示例**:
+```python
+# services/product_service.py
+class ProductService:
+    def create_product(self, data):
+        # 业务逻辑...
+        return product
+```
+
+## 自动化测试
+
+### 测试架构
+- **核心框架**: `pytest`
+- **数据工厂**: `factory_boy` + `Faker`
+- **数据库策略**: SQLite 内存数据库 (`sqlite:///:memory:`)
+- **事务回滚**: 每个测试用例运行在独立的数据库事务中
+
+### 常用命令
+
+```bash
+# 在项目根目录执行
+
+# 运行所有测试
+docker compose exec backend env PYTHONPATH=/app pytest
+
+# 运行特定测试文件
+docker compose exec backend env PYTHONPATH=/app pytest tests/api/test_auth.py
+
+# 查看覆盖率报告
+docker compose exec backend env PYTHONPATH=/app pytest --cov=app
+```
+
+### 测试目录结构
+
+```
+backend/tests/
+├── conftest.py          # 全局 Fixture (App, Client, DB Session, AdminUser)
+├── factories.py         # 数据工厂 (UserFactory, ProductFactory)
+├── api/                 # 集成测试 (测试 API 接口权限、逻辑)
+└── unit/                # 单元测试 (测试 Service 层复杂算法)
+```
+
+## 开发环境
+
+### Docker 命令执行
+
+**重要**: 所有命令都在项目根目录执行
+
+```bash
+# 启动服务
+docker compose up -d
+
+# 重启后端服务
+docker compose restart backend
+
+# 执行 Flask 命令
+docker compose exec backend flask routes
+docker compose exec backend flask shell
+
+# 数据库初始化
+docker compose exec backend flask init-dev --reset
+
+# 生成模拟数据
+docker compose exec backend flask forge-mock --volume small
+```
+
+### 默认账号
+
+- **用户名**: `admin`
+- **密码**: `password`
+- **角色**: 管理员
+
+## 代码质量要求
+
+### 格式化工具
+- **格式化**: 使用 Ruff
+- **类型提示**: 所有函数必须有类型注解
+- **文档字符串**: 复杂函数必须有 docstring
+
+### 代码注释
+**关键业务逻辑必须添加行内注释，解释"为什么这样做"**
+
+### 正确示例
+
+```python
+from typing import Optional
+from sqlalchemy import select
+from app.extensions import db
+from app.models import Product
+
+def get_product_by_name(name: str) -> Optional[Product]:
+    """
+    根据商品名称获取商品信息
+    
+    Args:
+        name: 商品名称
+        
+    Returns:
+        Product 对象，如果不存在则返回 None
+    """
+    stmt = select(Product).where(Product.name == name)
+    return db.session.execute(stmt).scalar_one_or_none()
+```
+
+## AI 行为规范总结
+
+1. **分层架构**: 业务逻辑必须在 Service 层，禁止在 routes.py 中编写
+2. **返回值规范**: 注意 BASE_RESPONSE_SCHEMA 的包装规则
+3. **N+1 查询**: 使用 selectinload/joinedload 预加载关联
+4. **数据迁移**: 必须通过 Alembic，使用 `docker compose exec backend` 执行
+5. **异常处理**: 使用 BusinessError 统一抛出业务异常
+6. **API 文档**: 所有接口必须有 @doc 装饰器和完整的 metadata
+7. **认证配置**: HTTPTokenAuth 实例化时严禁指定 header 参数
+8. **类型注解**: 所有函数必须有类型提示
+9. **结构化日志**: 使用 extra 传递结构化数据
+10. **Docker 命令**: 所有命令都在项目根目录执行，使用 `docker compose exec backend` 前缀
