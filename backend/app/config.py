@@ -23,6 +23,13 @@ class Config:
         'timeout': int(os.getenv('SYNOLOGY_NAS_TIMEOUT', 30)),
         'root_dir': '/serc_files/default' # 默认值，防报错
     }
+    
+    # === 领星ERP API配置 ===
+    LINGXING_API_BASE_URL = os.getenv('LINGXING_API_BASE_URL', 'https://api.lingxing.com')
+    LINGXING_APP_KEY = os.getenv('LINGXING_APP_KEY', '')
+    LINGXING_APP_SECRET = os.getenv('LINGXING_APP_SECRET', '')
+    LINGXING_TIMEOUT = int(os.getenv('LINGXING_TIMEOUT', '30'))
+    LINGXING_MAX_RETRIES = int(os.getenv('LINGXING_MAX_RETRIES', '3'))
 
 class DevelopmentConfig(Config):
     DEBUG = True
