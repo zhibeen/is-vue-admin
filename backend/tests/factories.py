@@ -7,6 +7,13 @@ from app.models.vehicle import VehicleAux
 from app.models.purchase.supplier import SysSupplier
 from app.models.supply.delivery import ScmDeliveryContract, ScmDeliveryContractItem, ScmSourceDoc
 from app.models.serc.enums import ContractStatus, SourceDocType
+from app.models.logistics.logistics_provider import LogisticsProvider
+from app.models.logistics.shipment import ShipmentOrder
+from app.models.logistics.shipment_logistics_service import ShipmentLogisticsService
+from app.models.logistics.logistics_statement import LogisticsStatement
+from app.models.serc.payable import FinPayable, FinPaymentPool
+from decimal import Decimal
+from datetime import date, datetime
 
 class PermissionFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
@@ -144,3 +151,116 @@ class ScmDeliveryContractItemFactory(factory.alchemy.SQLAlchemyModelFactory):
     confirmed_qty = 10
     unit_price = 100
     total_price = 1000
+
+
+# ==================== 物流相关 Factories ==================== #
+
+class LogisticsProviderFactory(factory.alchemy.SQLAlchemyModelFactory):
+    """物流服务商 Factory"""
+    class Meta:
+        model = LogisticsProvider
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = 'commit'
+    
+    provider_name = factory.Sequence(lambda n: f'物流商_{n}')
+    provider_code = factory.Sequence(lambda n: f'LP{n:03d}')
+    service_type = 'express'
+    payment_method = 'monthly'
+    settlement_cycle = 'monthly'
+    contact_name = factory.Faker('name')
+    contact_phone = factory.Faker('phone_number')
+    bank_name = '中国工商银行'
+    bank_account = factory.Sequence(lambda n: f'6222{n:014d}')
+    bank_account_name = factory.Sequence(lambda n: f'物流商_{n}')
+    is_active = True
+
+
+class ShipmentOrderFactory(factory.alchemy.SQLAlchemyModelFactory):
+    """发货单 Factory"""
+    class Meta:
+        model = ShipmentOrder
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = 'commit'
+    
+    shipment_no = factory.Sequence(lambda n: f'SH{datetime.now().strftime("%Y%m%d")}{n:04d}')
+    source = 'manual'
+    status = 'confirmed'
+    shipper_company_id = 1  # 需要预先存在
+    consignee_name = factory.Faker('name')
+    consignee_address = factory.Faker('address')
+    consignee_country = 'US'
+
+
+class ShipmentLogisticsServiceFactory(factory.alchemy.SQLAlchemyModelFactory):
+    """物流服务记录 Factory"""
+    class Meta:
+        model = ShipmentLogisticsService
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = 'commit'
+    
+    shipment = factory.SubFactory(ShipmentOrderFactory)
+    logistics_provider = factory.SubFactory(LogisticsProviderFactory)
+    service_type = 'main_transport'
+    service_description = '国际运输'
+    estimated_amount = Decimal('1000.00')
+    actual_amount = Decimal('1050.00')
+    currency = 'CNY'
+    status = 'confirmed'
+    confirmed_at = factory.LazyFunction(datetime.now)
+
+
+class LogisticsStatementFactory(factory.alchemy.SQLAlchemyModelFactory):
+    """物流对账单 Factory"""
+    class Meta:
+        model = LogisticsStatement
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = 'commit'
+    
+    statement_no = factory.Sequence(lambda n: f'LS{datetime.now().strftime("%Y%m%d")}{n:04d}')
+    logistics_provider = factory.SubFactory(LogisticsProviderFactory)
+    statement_period_start = factory.LazyFunction(lambda: date.today().replace(day=1))
+    statement_period_end = factory.LazyFunction(date.today)
+    total_amount = Decimal('5000.00')
+    currency = 'CNY'
+    status = 'draft'
+
+
+# ==================== 财务相关 Factories ==================== #
+
+class FinPayableFactory(factory.alchemy.SQLAlchemyModelFactory):
+    """财务应付单 Factory"""
+    class Meta:
+        model = FinPayable
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = 'commit'
+    
+    payable_no = factory.Sequence(lambda n: f'AP{datetime.now().strftime("%Y%m%d")}{n:04d}')
+    source_type = 'logistics'
+    source_id = 1
+    source_no = factory.Sequence(lambda n: f'LS{datetime.now().strftime("%Y%m%d")}{n:04d}')
+    payee_type = 'logistics_provider'
+    payee_id = 1
+    payee_name = '测试物流商'
+    bank_name = '中国工商银行'
+    bank_account = '6222000000000001'
+    bank_account_name = '测试物流商'
+    payable_amount = Decimal('5000.00')
+    paid_amount = Decimal('0.00')
+    currency = 'CNY'
+    priority = 3
+    status = 'pending'
+
+
+class FinPaymentPoolFactory(factory.alchemy.SQLAlchemyModelFactory):
+    """付款池 Factory"""
+    class Meta:
+        model = FinPaymentPool
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = 'commit'
+    
+    pool_no = factory.Sequence(lambda n: f'PP{datetime.now().strftime("%Y%m")}{n:03d}')
+    pool_name = factory.LazyFunction(lambda: f'{datetime.now().year}年{datetime.now().month}月付款池')
+    scheduled_date = factory.LazyFunction(date.today)
+    total_amount = Decimal('0.00')
+    total_count = 0
+    status = 'draft'

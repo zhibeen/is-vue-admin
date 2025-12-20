@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 from app.extensions import db
 from app.models.supply import ScmDeliveryContract, ScmDeliveryContractItem
-from app.models.serc.finance import FinSupplyContract, FinSupplyContractItem, FinPurchaseSOA, FinPurchaseSOADetail, FinPaymentPool, SysPaymentTerm
+from app.models.serc.finance import FinSupplyContract, FinSupplyContractItem, FinPurchaseSOA, FinPurchaseSOADetail, FinPaymentPoolOld, SysPaymentTerm
 from app.models.purchase.supplier import SysSupplier
 from app.models.product import Product, SysTaxCategory
 from app.errors import BusinessError
@@ -193,7 +193,7 @@ class FinanceService:
             due_date = due_date + timedelta(days=term.days_offset)
             
         # 4. Generate Payment Pool Entry
-        pool_item = FinPaymentPool(
+        pool_item = FinPaymentPoolOld(
             soa_id=soa.id,
             amount=soa.total_payable,
             currency=soa.currency,

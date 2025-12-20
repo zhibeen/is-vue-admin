@@ -14,6 +14,9 @@ def register_commands(app: Flask):
     from .core import init_dev_cmd, forge_mock_cmd
     from .rebuild import rebuild_cmd
     from .warehouse import warehouse_cli
+    from .lingxing import lingxing
+    from .shipment import shipment
+    from .logistics import logistics
     
     # 2. 注册 Command Groups (带前缀)
     app.cli.add_command(user_cli)
@@ -24,6 +27,9 @@ def register_commands(app: Flask):
     app.cli.add_command(serc_cli)
     app.cli.add_command(customs_cli)
     app.cli.add_command(warehouse_cli)
+    app.cli.add_command(lingxing)
+    app.cli.add_command(shipment)
+    app.cli.add_command(logistics)
     
     # 3. 注册 Top-Level Commands (无前缀，为了方便使用)
     # flask init-dev

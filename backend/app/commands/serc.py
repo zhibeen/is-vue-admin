@@ -95,11 +95,11 @@ def seed_soas_cmd(count, clear):
 @click.option('--clear', is_flag=True, help='清除现有资金池数据')
 def seed_pool_cmd(clear):
     """根据现有SOA生成虚拟资金池条目 (L3 Payment Pool)"""
-    from app.models.serc.finance import FinPurchaseSOA, FinPaymentPool
+    from app.models.serc.finance import FinPurchaseSOA, FinPaymentPoolOld
 
     if clear:
         click.echo("正在清除现有资金池数据...")
-        db.session.query(FinPaymentPool).delete()
+        db.session.query(FinPaymentPoolOld).delete()
         db.session.commit()
         click.echo("✅ 已清除资金池数据")
 
@@ -118,11 +118,11 @@ def seed_pool_cmd(clear):
     count = 0
     for soa in soas:
         # 检查是否已经在池子里
-        exists = db.session.query(FinPaymentPool).filter_by(soa_id=soa.id).first()
+        exists = db.session.query(FinPaymentPoolOld).filter_by(soa_id=soa.id).first()
         if exists:
             continue
             
-        pool_item = FinPaymentPool(
+        pool_item = FinPaymentPoolOld(
             soa_id=soa.id,
             amount=soa.total_payable,
             currency=soa.currency,

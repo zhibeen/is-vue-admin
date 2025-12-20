@@ -1,7 +1,7 @@
 import pytest
 from decimal import Decimal
 from app.services.serc.finance_service import finance_service
-from app.models.serc.finance import FinPurchaseSOA, FinPaymentPool, FinPurchaseSOADetail
+from app.models.serc.finance import FinPurchaseSOA, FinPaymentPoolOld, FinPurchaseSOADetail
 from app.models.serc.enums import SettlementStatus, ContractStatus, PaymentPoolStatus, PaymentType
 from tests.factories import (
     SysSupplierFactory, ProductFactory, 
@@ -50,7 +50,7 @@ class TestFinanceFlow:
         assert details[0].allocated_payment == 0
         
         # 断言: 自动入池
-        pool_items = db_session.query(FinPaymentPool).filter_by(soa_id=soa.id).all()
+        pool_items = db_session.query(FinPaymentPoolOld).filter_by(soa_id=soa.id).all()
         assert len(pool_items) == 1
         pool_item = pool_items[0]
         assert pool_item.amount == 3000
@@ -79,7 +79,7 @@ class TestFinanceFlow:
         
         # 5. 再次付款 (付剩余 1500)
         # 需要手动再造一个 Pool Item (模拟尾款申请)
-        pool_item_2 = FinPaymentPool(
+        pool_item_2 = FinPaymentPoolOld(
             soa_id=soa.id, 
             amount=1500, 
             type=PaymentType.BALANCE.value,

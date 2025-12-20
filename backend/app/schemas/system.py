@@ -85,7 +85,14 @@ class RoleUserAddSchema(Schema):
 
 # --- User Schemas ---
 
-class UserBaseSchema(Schema):
+class UserSimpleSchema(Schema):
+    """用户简化 Schema - 用于嵌套引用"""
+    id = Integer(metadata={'description': '用户ID'})
+    username = String(metadata={'description': '用户名'})
+    nickname = String(metadata={'description': '昵称'})
+
+class UserManageBaseSchema(Schema):
+    """用户管理基础 Schema"""
     username = String(required=True, validate=Length(min=3, max=50), metadata={'description': '用户名'})
     realname = String(load_default='', metadata={'description': '真实姓名', 'example': '张三'})
     nickname = String(load_default='', metadata={'description': '昵称', 'example': '小张'})
@@ -93,11 +100,13 @@ class UserBaseSchema(Schema):
     email = String(required=True, validate=Email(), metadata={'description': '邮箱'})
     is_active = Boolean(load_default=True, metadata={'description': '是否激活'})
 
-class UserCreateSchema(UserBaseSchema):
+class UserManageCreateSchema(UserManageBaseSchema):
+    """用户创建 Schema"""
     password = String(required=True, validate=Length(min=6), metadata={'description': '密码'})
     role_ids = List(Integer(), load_default=[], metadata={'description': '关联的角色ID列表'})
 
-class UserUpdateSchema(Schema):
+class UserManageUpdateSchema(Schema):
+    """用户更新 Schema"""
     username = String(validate=Length(min=3, max=50))
     realname = String(metadata={'description': '真实姓名'})
     nickname = String(metadata={'description': '昵称'})
@@ -107,7 +116,8 @@ class UserUpdateSchema(Schema):
     is_active = Boolean()
     role_ids = List(Integer())
 
-class UserOutSchema(UserBaseSchema):
+class UserManageOutSchema(UserManageBaseSchema):
+    """用户输出 Schema"""
     id = Integer()
     realname = String(metadata={'description': '真实姓名'})
     nickname = String(metadata={'description': '昵称'})

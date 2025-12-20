@@ -5,7 +5,7 @@ from app.schemas.serc.finance import (
     PaymentPoolItemSchema, PaymentCreateSchema, PaymentRequestSchema
 )
 from app.schemas.serc.common import PaymentTermSchema
-from app.models.serc.finance import FinPurchaseSOA, FinPaymentPool, SysPaymentTerm
+from app.models.serc.finance import FinPurchaseSOA, FinPaymentPoolOld, SysPaymentTerm
 from app.models.serc.enums import PaymentPoolStatus
 from app.services.serc.finance_service import finance_service
 from app.extensions import db
@@ -62,12 +62,12 @@ class PaymentPoolAPI(MethodView):
     def get(self):
         """获取付款池 (待审批项)"""
         # 只显示待审批或待支付的
-        stmt = select(FinPaymentPool).where(
-            FinPaymentPool.status.in_([
+        stmt = select(FinPaymentPoolOld).where(
+            FinPaymentPoolOld.status.in_([
                 PaymentPoolStatus.PENDING_APPROVAL.value, 
                 PaymentPoolStatus.PENDING_PAYMENT.value
             ])
-        ).order_by(FinPaymentPool.priority.desc())
+        ).order_by(FinPaymentPoolOld.priority.desc())
         
         return {'data': db.session.scalars(stmt).all()}
 

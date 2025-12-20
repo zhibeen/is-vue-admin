@@ -108,7 +108,7 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   return client;
 }
 
-// 确保 baseURL 指向 /api，这样配合 proxy 转发到 localhost:5000/api
+// 确保 baseURL 指向 /api，这样配合 proxy 转发到 localhost:5555/api
 export const requestClient = createRequestClient('/api', {
   responseReturn: 'data', // 直接返回 response.data
 });

@@ -229,7 +229,8 @@ const policyGridOptions = reactive<VxeGridProps>({
     layouts: ['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'Total']
   },
   toolbarConfig: {
-    refresh: { code: 'query' },
+    refresh: true,
+    refreshOptions: { code: 'query' },
     custom: true
   },
   proxyConfig: {

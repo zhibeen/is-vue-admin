@@ -126,8 +126,13 @@ class FinPurchaseSOADetail(db.Model):
 # L3: Payment & Treasury (Cash Flow)
 # -------------------------------------------------------------------------
 
-class FinPaymentPool(db.Model):
-    """L3: 资金池/付款计划 (Payment Schedule)"""
+class FinPaymentPoolOld(db.Model):
+    """
+    L3: 资金池/付款计划 (Payment Schedule) - 旧版本
+    
+    注意：此模型已废弃，保留用于向后兼容。
+    新系统请使用 app.models.serc.payable.FinPaymentPool
+    """
     __tablename__ = "fin_payment_pool"
 
     id: Mapped[int] = mapped_column(primary_key=True)

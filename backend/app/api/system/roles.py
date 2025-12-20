@@ -1,7 +1,7 @@
 from apiflask.views import MethodView
 from app.schemas.system import (
     RoleOutSchema, RoleCreateSchema, RoleUpdateSchema, PermissionOutSchema,
-    PermissionModuleSchema, RoleUserAddSchema, UserOutSchema,
+    PermissionModuleSchema, RoleUserAddSchema, UserManageOutSchema,
     DataPermMetaSchema, RoleDataPermConfigSchema, RoleDataPermBulkSchema,
     FieldPermMetaSchema, RoleFieldPermUpdateSchema, RoleFieldPermConfigSchema
 )
@@ -148,7 +148,7 @@ class RoleUsersAPI(MethodView):
         
         result = service.get_role_users(role_id, page, per_page, q)
         # 手动序列化 items
-        serialized_items = UserOutSchema(many=True).dump(result['items'])
+        serialized_items = UserManageOutSchema(many=True).dump(result['items'])
         result['items'] = serialized_items
         
         # APIFlask BaseResponseSchema is only applied when @output is used.

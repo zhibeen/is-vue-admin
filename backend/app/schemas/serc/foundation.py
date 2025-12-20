@@ -241,10 +241,3 @@ class HSCodeUpdateSchema(Schema):
     elements = String()
     note = String()
 
-class TaxCategorySchema(Schema):
-    id = Integer()
-    code = String()
-    name = String()
-    short_name = String()
-    description = String()
-    reference_rate = Decimal(places=4)

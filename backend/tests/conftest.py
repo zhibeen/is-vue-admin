@@ -12,11 +12,17 @@ from tests.factories import (
 
 # Monkey-patch JSONB for SQLite
 sqlalchemy.dialects.sqlite.base.SQLiteDialect.supports_json = True
+
 # Register JSONB to compile as JSON in SQLite
 def compile_jsonb(type_, compiler, **kw):
     return "JSON"
 
+# Register ARRAY to compile as TEXT in SQLite (will store as JSON string)
+def compile_array(type_, compiler, **kw):
+    return "TEXT"
+
 sqlalchemy.dialects.sqlite.base.SQLiteTypeCompiler.visit_JSONB = compile_jsonb
+sqlalchemy.dialects.sqlite.base.SQLiteTypeCompiler.visit_ARRAY = compile_array
 
 
 @pytest.fixture

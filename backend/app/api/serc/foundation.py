@@ -2,9 +2,10 @@ from apiflask import APIBlueprint, abort
 from apiflask.views import MethodView
 from app.schemas.serc.foundation import (
     CompanySimpleSchema, CompanyDetailSchema, HSCodeSimpleSchema,
-    CompanyCreateSchema, CompanyUpdateSchema, TaxCategorySchema,
+    CompanyCreateSchema, CompanyUpdateSchema,
     HSCodeCreateSchema, HSCodeUpdateSchema
 )
+from app.schemas.product.product import TaxCategorySchema
 from app.models.serc.foundation import SysCompany, SysHSCode
 from app.models.product import SysTaxCategory
 from app.extensions import db
