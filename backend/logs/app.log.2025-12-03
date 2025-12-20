@@ -1,1 +1,0 @@
-{"timestamp": "2025-12-04T00:01:56.442994Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/app/services/code_builder.py', reloading", "logger": "werkzeug"}

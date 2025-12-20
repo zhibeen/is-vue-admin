@@ -1,1 +1,0 @@
-{"timestamp": "2025-12-06T00:13:31.627703Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/scripts/assign_vehicle_codes.py', reloading", "logger": "werkzeug"}

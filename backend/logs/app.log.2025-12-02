@@ -1,1 +1,0 @@
-{"timestamp": "2025-12-03T02:29:11.899398Z", "level": "INFO", "module": "_internal", "function": "_log", "message": " * Detected change in '/app/force_seed.py', reloading", "logger": "werkzeug"}
