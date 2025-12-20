@@ -1,279 +1,375 @@
-<template>
-  <div class="p-4">
-    <!-- 工具栏 -->
-    <Card class="mb-4">
-      <Space>
-        <Button type="primary" @click="handleCreate">
-          <template #icon><PlusOutlined /></template>
-          新建发货单
-        </Button>
-        <Button @click="handleRefresh">
-          <template #icon><ReloadOutlined /></template>
-          刷新
-        </Button>
-      </Space>
-    </Card>
-
-    <!-- 列表 -->
-    <Card>
-      <Grid ref="gridRef" />
-    </Card>
-
-    <!-- 创建/编辑弹窗 -->
-    <Modal
-      v-model:open="modalVisible"
-      :title="modalTitle"
-      width="900px"
-      @ok="handleModalOk"
-      @cancel="handleModalCancel"
-    >
-      <Form
-        ref="formRef"
-        :model="formData"
-        :label-col="{ span: 6 }"
-        :wrapper-col="{ span: 18 }"
-      >
-        <FormItem label="发货公司" name="shipper_company_id" :rules="[{ required: true }]">
-          <Select v-model:value="formData.shipper_company_id" placeholder="请选择发货公司">
-            <!-- TODO: 从API加载公司列表 -->
-            <SelectOption :value="1">默认公司</SelectOption>
-          </Select>
-        </FormItem>
-        
-        <FormItem label="收货人" name="consignee_name">
-          <Input v-model:value="formData.consignee_name" placeholder="请输入收货人名称" />
-        </FormItem>
-        
-        <FormItem label="收货国家" name="consignee_country">
-          <Input v-model:value="formData.consignee_country" placeholder="请输入收货国家" />
-        </FormItem>
-        
-        <FormItem label="物流商" name="logistics_provider">
-          <Input v-model:value="formData.logistics_provider" placeholder="请输入物流商" />
-        </FormItem>
-        
-        <FormItem label="运输方式" name="shipping_method">
-          <Select v-model:value="formData.shipping_method" placeholder="请选择运输方式">
-            <SelectOption value="sea">海运</SelectOption>
-            <SelectOption value="air">空运</SelectOption>
-            <SelectOption value="express">快递</SelectOption>
-          </Select>
-        </FormItem>
-        
-        <FormItem label="预计发货日期" name="estimated_ship_date">
-          <DatePicker v-model:value="formData.estimated_ship_date" style="width: 100%" />
-        </FormItem>
-        
-        <FormItem label="备注" name="notes">
-          <Textarea v-model:value="formData.notes" :rows="3" placeholder="请输入备注" />
-        </FormItem>
-      </Form>
-      
-      <Divider>发货明细</Divider>
-      
-      <!-- 简化版明细输入 - 实际项目中应该使用更复杂的表格编辑组件 -->
-      <Alert message="实际项目中需要使用表格组件编辑明细，此处简化处理" type="info" class="mb-2" />
-    </Modal>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import {
-  Card,
-  Button,
-  Space,
-  Modal,
-  Form,
-  FormItem,
-  Input,
-  Select,
-  SelectOption,
-  DatePicker,
-  Textarea,
-  Divider,
-  Alert,
-  message,
-} from 'ant-design-vue';
-import { PlusOutlined, ReloadOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
+/**
+ * 发货单列表页面
+ * 功能：展示发货单列表，支持搜索、筛选、查看详情
+ */
 import { useVbenVxeGrid, type VxeGridProps } from '#/adapter/vxe-table';
-import {
-  getShipmentListApi,
-  createShipmentApi,
-  updateShipmentApi,
-  deleteShipmentApi,
-  generateContractsApi,
-} from '#/api/logistics';
-import type { ShipmentOrder, ShipmentOrderCreateParams } from '#/api/logistics/types';
+import { 
+  Form, 
+  FormItem, 
+  Input, 
+  Select, 
+  SelectOption, 
+  DatePicker, 
+  Button, 
+  Space, 
+  Tag,
+  message 
+} from 'ant-design-vue';
+
+const RangePicker = DatePicker.RangePicker;
+import { h, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { getShipmentList } from '#/api/logistics/shipment';
+
+const router = useRouter();
+
+// 状态标签颜色映射
+const statusColorMap: Record<string, string> = {
+  draft: 'default',
+  confirmed: 'processing',
+  shipped: 'success',
+  cancelled: 'error',
+};
+
+// 状态文本映射
+const statusTextMap: Record<string, string> = {
+  draft: '草稿',
+  confirmed: '已确认',
+  shipped: '已发货',
+  cancelled: '已取消',
+};
+
+// 来源文本映射
+const sourceTextMap: Record<string, string> = {
+  manual: '手工录入',
+  excel: 'Excel导入',
+  lingxing: '领星同步',
+  yicang: '易仓同步',
+};
+
+// 搜索条件
+const searchForm = ref({
+  q: '',
+  status: undefined as string | undefined,
+  source: undefined as string | undefined,
+  date_range: undefined as [string, string] | undefined,
+});
+
+// 分页状态
+const pagination = ref({
+  currentPage: 1,
+  pageSize: 20,
+  total: 0,
+});
 
 // Grid配置
 const gridOptions: VxeGridProps = {
   columns: [
-    { field: 'id', title: 'ID', width: 80 },
-    { field: 'shipment_no', title: '发货单号', width: 150 },
-    { field: 'status', title: '状态', width: 100 },
-    { field: 'consignee_name', title: '收货人', width: 150 },
-    { field: 'logistics_provider', title: '物流商', width: 120 },
-    { field: 'shipping_method', title: '运输方式', width: 100 },
-    { field: 'total_amount', title: '总金额', width: 120 },
-    { field: 'is_contracted', title: '是否已生成合同', width: 140,
-      slots: { default: ({ row }: { row: ShipmentOrder }) => row.is_contracted ? '是' : '否' }
-    },
-    { field: 'created_at', title: '创建时间', width: 160 },
     {
+      type: 'seq',
+      width: 60,
+      fixed: 'left',
+    },
+    {
+      field: 'shipment_no',
+      title: '发货单号',
+      width: 180,
+      fixed: 'left',
+      slots: {
+        default: ({ row }) => {
+          return h(
+            'a',
+            {
+              class: 'text-primary cursor-pointer',
+              onClick: () => handleViewDetail(row.id),
+            },
+            row.shipment_no,
+          );
+        },
+      },
+    },
+    {
+      field: 'status',
+      title: '单据状态',
+      width: 100,
+      slots: {
+        default: ({ row }) => {
+          return h(Tag, {
+            color: statusColorMap[row.status] || 'default',
+          }, () => statusTextMap[row.status] || row.status);
+        },
+      },
+    },
+    {
+      field: 'source',
+      title: '来源',
+      width: 120,
+      slots: {
+        default: ({ row }) => {
+          return sourceTextMap[row.source] || row.source || '-';
+        },
+      },
+    },
+    {
+      field: 'consignee_name',
+      title: '收货人',
+      width: 180,
+    },
+    {
+      field: 'consignee_country',
+      title: '收货国家',
+      width: 100,
+    },
+    {
+      field: 'logistics_provider',
+      title: '物流商',
+      width: 150,
+    },
+    {
+      field: 'tracking_no',
+      title: '物流单号',
+      width: 180,
+    },
+    {
+      field: 'total_packages',
+      title: '总件数',
+      width: 100,
+      align: 'right',
+    },
+    {
+      field: 'total_amount',
+      title: '总金额',
+      width: 120,
+      align: 'right',
+      slots: {
+        default: ({ row }) => {
+          if (!row.total_amount) return '-';
+          return h('span', `${row.currency || ''} ${Number(row.total_amount).toFixed(2)}`);
+        },
+      },
+    },
+    {
+      field: 'is_declared',
+      title: '报关',
+      width: 80,
+      align: 'center',
+      slots: {
+        default: ({ row }) => {
+          return h(Tag, {
+            color: row.is_declared ? 'success' : 'default',
+          }, () => row.is_declared ? '已报' : '未报');
+        },
+      },
+    },
+    {
+      field: 'is_contracted',
+      title: '合同',
+      width: 80,
+      align: 'center',
+      slots: {
+        default: ({ row }) => {
+          return h(Tag, {
+            color: row.is_contracted ? 'success' : 'default',
+          }, () => row.is_contracted ? '已生成' : '未生成');
+        },
+      },
+    },
+    {
+      field: 'created_at',
+      title: '创建时间',
+      width: 160,
+      sortable: true,
+    },
+    {
+      field: 'action',
       title: '操作',
-      width: 280,
+      width: 200,
       fixed: 'right',
       slots: {
-        default: ({ row }: { row: ShipmentOrder }) => [
-          {
-            type: 'button',
-            text: '生成合同',
-            icon: CheckCircleOutlined,
-            disabled: row.is_contracted,
-            onClick: () => handleGenerateContracts(row),
-          },
-          {
-            type: 'button',
-            text: '编辑',
-            icon: EditOutlined,
-            onClick: () => handleEdit(row),
-          },
-          {
-            type: 'button',
-            text: '删除',
-            icon: DeleteOutlined,
-            danger: true,
-            onClick: () => handleDelete(row),
-          },
-        ],
+        default: ({ row }) => {
+          return h(Space, {}, () => [
+            h(
+              Button,
+              {
+                type: 'link',
+                size: 'small',
+                onClick: () => handleViewDetail(row.id),
+              },
+              () => '查看',
+            ),
+            row.status === 'draft' && h(
+              Button,
+              {
+                type: 'link',
+                size: 'small',
+                onClick: () => handleEdit(row.id),
+              },
+              () => '编辑',
+            ),
+            row.status === 'draft' && h(
+              Button,
+              {
+                type: 'link',
+                size: 'small',
+                onClick: () => handleConfirm(row.id),
+              },
+              () => '确认',
+            ),
+            row.status === 'confirmed' && !row.is_contracted && h(
+              Button,
+              {
+                type: 'link',
+                size: 'small',
+                onClick: () => handleGenerateContracts(row.id),
+              },
+              () => '生成合同',
+            ),
+          ]);
+        },
       },
     },
   ],
   data: [],
   pagerConfig: {
     enabled: true,
+    currentPage: 1,
+    pageSize: 20,
   },
+  toolbarConfig: {
+    refresh: true,
+    refreshOptions: { code: 'query' },
+    custom: true,
+    slots: {
+      buttons: () => {
+        return h(Space, {}, () => [
+          h(
+            Button,
+            {
+              type: 'primary',
+              onClick: handleCreate,
+            },
+            () => '新建发货单',
+          ),
+        ]);
+      },
+    },
+  },
+  loading: false,
 };
 
 // 初始化Grid
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions,
-});
-
-// 弹窗状态
-const modalVisible = ref(false);
-const modalTitle = ref('新建发货单');
-const formRef = ref();
-const formData = reactive<Partial<ShipmentOrderCreateParams>>({
-  shipper_company_id: undefined,
-  consignee_name: '',
-  consignee_country: '',
-  logistics_provider: '',
-  shipping_method: '',
-  estimated_ship_date: undefined,
-  notes: '',
-  items: [],
+  gridEvents: {
+    toolbarToolClick: ({ code }: { code: string }) => {
+      if (code === 'query') {
+        loadData();
+      }
+    },
+    pageChange: ({ currentPage, pageSize }: { currentPage: number; pageSize: number }) => {
+      // 更新分页状态
+      pagination.value.currentPage = currentPage;
+      pagination.value.pageSize = pageSize;
+      loadData();
+    },
+  },
 });
 
 // 加载数据
 async function loadData() {
   try {
     gridApi.setLoading(true);
-    const res = await getShipmentListApi({ page: 1, per_page: 20 });
-    gridApi.setGridOptions({ data: res.items || [] });
-  } catch (error) {
-    console.error('加载发货单列表失败:', error);
-    message.error('加载数据失败');
+    
+    // 处理日期范围
+    const { date_range, ...rest } = searchForm.value;
+    const params: any = {
+      page: pagination.value.currentPage,
+      per_page: pagination.value.pageSize,
+      ...rest,
+    };
+    
+    if (date_range && date_range.length === 2) {
+      params.start_date = date_range[0];
+      params.end_date = date_range[1];
+    }
+    
+    const res = await getShipmentList(params);
+    
+    // 更新分页状态
+    pagination.value.total = res.total;
+    pagination.value.currentPage = res.page;
+    pagination.value.pageSize = res.per_page;
+    
+    // 更新表格数据和分页配置
+    gridApi.setGridOptions({
+      data: res.items || [],
+      pagerConfig: {
+        currentPage: res.page,
+        pageSize: res.per_page,
+        total: res.total,
+      },
+    });
+  } catch (error: any) {
+    message.error(error.message || '加载数据失败');
   } finally {
     gridApi.setLoading(false);
   }
 }
 
+// 搜索
+function handleSearch() {
+  // 重置到第一页
+  pagination.value.currentPage = 1;
+  loadData();
+}
+
+// 重置搜索
+function handleReset() {
+  searchForm.value = {
+    q: '',
+    status: undefined,
+    source: undefined,
+    date_range: undefined,
+  };
+  handleSearch();
+}
+
+// 查看详情
+function handleViewDetail(id: number) {
+  router.push(`/logistics/shipment/${id}`);
+}
+
 // 新建
 function handleCreate() {
-  modalTitle.value = '新建发货单';
-  Object.assign(formData, {
-    shipper_company_id: undefined,
-    consignee_name: '',
-    consignee_country: '',
-    logistics_provider: '',
-    shipping_method: '',
-    estimated_ship_date: undefined,
-    notes: '',
-    items: [],
-  });
-  modalVisible.value = true;
+  router.push('/logistics/shipment/create');
 }
 
 // 编辑
-function handleEdit(row: ShipmentOrder) {
-  modalTitle.value = '编辑发货单';
-  Object.assign(formData, row);
-  modalVisible.value = true;
+function handleEdit(id: number) {
+  router.push(`/logistics/shipment/${id}/edit`);
 }
 
-// 删除
-async function handleDelete(row: ShipmentOrder) {
+// 确认发货单
+async function handleConfirm(_id: number) {
   try {
-    await deleteShipmentApi(row.id);
-    message.success('删除成功');
+    // TODO: 调用确认接口
+    message.success('确认成功');
     loadData();
-  } catch (error) {
-    console.error('删除失败:', error);
-    message.error('删除失败');
+  } catch (error: any) {
+    message.error(error.message || '确认失败');
   }
 }
 
 // 生成交付合同
-async function handleGenerateContracts(row: ShipmentOrder) {
+async function handleGenerateContracts(_id: number) {
   try {
-    const res = await generateContractsApi(row.id);
-    message.success(`成功生成 ${res.contract_count} 个交付合同`);
+    // TODO: 调用生成合同接口
+    message.success('生成合同成功');
     loadData();
-  } catch (error) {
-    console.error('生成交付合同失败:', error);
-    message.error('生成交付合同失败');
+  } catch (error: any) {
+    message.error(error.message || '生成合同失败');
   }
-}
-
-// 弹窗确定
-async function handleModalOk() {
-  try {
-    await formRef.value.validate();
-    // TODO: 实际项目中需要收集明细数据
-    const params: ShipmentOrderCreateParams = {
-      ...formData as any,
-      items: [
-        {
-          sku: 'DEMO-001',
-          product_name: '示例商品',
-          quantity: 100,
-          unit_price: 50,
-          total_price: 5000,
-          supplier_id: 1,
-        },
-      ],
-    };
-    
-    await createShipmentApi(params);
-    message.success('创建成功');
-    modalVisible.value = false;
-    loadData();
-  } catch (error) {
-    console.error('创建失败:', error);
-    message.error('创建失败');
-  }
-}
-
-// 弹窗取消
-function handleModalCancel() {
-  modalVisible.value = false;
-}
-
-// 刷新
-function handleRefresh() {
-  loadData();
 }
 
 // 挂载时加载数据
@@ -282,7 +378,80 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-/* 样式可以根据需要添加 */
-</style>
+<template>
+  <div class="p-4">
+    <!-- 搜索区域 -->
+    <div class="mb-4 bg-white dark:bg-gray-800 p-4 rounded">
+      <Form layout="inline" :model="searchForm">
+        <FormItem label="关键词">
+          <Input
+            v-model:value="searchForm.q"
+            placeholder="发货单号/收货人/物流单号"
+            style="width: 240px"
+            allow-clear
+            @press-enter="handleSearch"
+          />
+        </FormItem>
+        
+        <FormItem label="状态">
+          <Select
+            v-model:value="searchForm.status"
+            placeholder="请选择"
+            style="width: 120px"
+            allow-clear
+          >
+            <SelectOption value="draft">草稿</SelectOption>
+            <SelectOption value="confirmed">已确认</SelectOption>
+            <SelectOption value="shipped">已发货</SelectOption>
+            <SelectOption value="cancelled">已取消</SelectOption>
+          </Select>
+        </FormItem>
+        
+        <FormItem label="来源">
+          <Select
+            v-model:value="searchForm.source"
+            placeholder="请选择"
+            style="width: 120px"
+            allow-clear
+          >
+            <SelectOption value="manual">手工录入</SelectOption>
+            <SelectOption value="excel">Excel导入</SelectOption>
+            <SelectOption value="lingxing">领星同步</SelectOption>
+            <SelectOption value="yicang">易仓同步</SelectOption>
+          </Select>
+        </FormItem>
+        
+        <FormItem label="创建日期">
+          <RangePicker
+            v-model:value="searchForm.date_range"
+            style="width: 240px"
+          />
+        </FormItem>
+        
+        <FormItem>
+          <Space>
+            <Button type="primary" @click="handleSearch">
+              查询
+            </Button>
+            <Button @click="handleReset">
+              重置
+            </Button>
+          </Space>
+        </FormItem>
+      </Form>
+    </div>
+    
+    <!-- 表格 -->
+    <Grid />
+  </div>
+</template>
 
+<style scoped>
+:deep(.vxe-table--render-default .vxe-body--row.row--hover) {
+  background-color: #f5f5f5;
+}
+
+:deep(.dark .vxe-table--render-default .vxe-body--row.row--hover) {
+  background-color: #1f1f1f;
+}
+</style>

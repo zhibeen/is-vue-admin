@@ -2,6 +2,7 @@
 from apiflask import APIBlueprint
 from apiflask.views import MethodView
 from flask_jwt_extended import get_jwt_identity
+from sqlalchemy import or_
 
 from app.security import auth
 from app.decorators import permission_required
@@ -10,9 +11,10 @@ from app.schemas.logistics.shipment import (
     ShipmentOrderCreateSchema,
     ShipmentOrderUpdateSchema
 )
-from app.schemas.pagination import PaginationQuerySchema, PaginationSchema
+from app.schemas.pagination import PaginationQuerySchema, PaginationSchema, make_pagination_schema
 from app.services.logistics.shipment_service import ShipmentService
 from app.models.logistics.shipment import ShipmentOrder
+from app.extensions import db
 
 logistics_bp = APIBlueprint('logistics', __name__, url_prefix='/logistics', tag='物流管理')
 
@@ -21,23 +23,44 @@ class ShipmentOrderListAPI(MethodView):
     """发货单列表API"""
     decorators = [logistics_bp.auth_required(auth)]
     
-    @logistics_bp.doc(summary='获取发货单列表', description='支持分页查询')
+    @logistics_bp.doc(summary='获取发货单列表', description='支持分页、搜索、状态过滤')
     @logistics_bp.input(PaginationQuerySchema, location='query', arg_name='pagination')
-    @logistics_bp.output(PaginationSchema)
+    @logistics_bp.output(make_pagination_schema(ShipmentOrderSchema))
     def get(self, pagination):
         """获取发货单列表"""
         page = pagination['page']
         per_page = pagination['per_page']
         
-        query = ShipmentOrder.query.order_by(ShipmentOrder.created_at.desc())
+        query = ShipmentOrder.query
         
-        # 搜索过滤
+        # 搜索过滤（发货单号、外部订单号、收货人）
         if pagination.get('q'):
             q = f"%{pagination['q']}%"
             query = query.filter(
-                ShipmentOrder.shipment_no.ilike(q) |
-                ShipmentOrder.external_order_no.ilike(q)
+                or_(
+                    ShipmentOrder.shipment_no.ilike(q),
+                    ShipmentOrder.external_order_no.ilike(q),
+                    ShipmentOrder.consignee_name.ilike(q),
+                    ShipmentOrder.tracking_no.ilike(q)
+                )
             )
+        
+        # 状态过滤
+        if pagination.get('status'):
+            query = query.filter(ShipmentOrder.status == pagination['status'])
+        
+        # 来源过滤
+        if pagination.get('source'):
+            query = query.filter(ShipmentOrder.source == pagination['source'])
+        
+        # 日期范围过滤
+        if pagination.get('start_date'):
+            query = query.filter(ShipmentOrder.created_at >= pagination['start_date'])
+        if pagination.get('end_date'):
+            query = query.filter(ShipmentOrder.created_at <= pagination['end_date'])
+        
+        # 排序
+        query = query.order_by(ShipmentOrder.created_at.desc())
         
         # 分页
         pagination_obj = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -59,7 +82,7 @@ class ShipmentOrderListAPI(MethodView):
         """创建发货单"""
         user_id = get_jwt_identity()
         shipment = ShipmentService.create_shipment(data, created_by=user_id)
-        return shipment
+        return {'data': shipment}
 
 
 class ShipmentOrderItemAPI(MethodView):
@@ -70,10 +93,11 @@ class ShipmentOrderItemAPI(MethodView):
     @logistics_bp.output(ShipmentOrderSchema)
     def get(self, shipment_id):
         """获取发货单详情"""
+        from app.errors import BusinessError
         shipment = ShipmentService.get_shipment_by_id(shipment_id)
         if not shipment:
-            return {'message': '发货单不存在'}, 404
-        return shipment
+            raise BusinessError('发货单不存在', code=404)
+        return {'data': shipment}
     
     @logistics_bp.doc(summary='更新发货单', description='更新发货单信息')
     @logistics_bp.input(ShipmentOrderUpdateSchema, arg_name='data')
@@ -82,14 +106,14 @@ class ShipmentOrderItemAPI(MethodView):
     def put(self, shipment_id, data):
         """更新发货单"""
         shipment = ShipmentService.update_shipment(shipment_id, data)
-        return shipment
+        return {'data': shipment}
     
     @logistics_bp.doc(summary='删除发货单', description='删除发货单')
     @permission_required('logistics:shipment:delete')
     def delete(self, shipment_id):
         """删除发货单"""
         ShipmentService.delete_shipment(shipment_id)
-        return None
+        return {'data': {'success': True}}
 
 
 class ShipmentGenerateContractsAPI(MethodView):
@@ -109,20 +133,19 @@ class ShipmentGenerateContractsAPI(MethodView):
             created_by=user_id
         )
         
+        # 返回格式：框架会自动包装到data中
         return {
-            'data': {
-                'success': True,
-                'contract_count': len(contracts),
-                'contracts': [
-                    {
-                        'id': c.id,
-                        'contract_no': c.contract_no,
-                        'supplier_id': c.supplier_id,
-                        'total_amount': float(c.total_amount)
-                    }
-                    for c in contracts
-                ]
-            }
+            'success': True,
+            'contract_count': len(contracts),
+            'contracts': [
+                {
+                    'id': c.id,
+                    'contract_no': c.contract_no,
+                    'supplier_id': c.supplier_id,
+                    'total_amount': float(c.total_amount)
+                }
+                for c in contracts
+            ]
         }
 
 
@@ -143,5 +166,55 @@ logistics_bp.add_url_rule(
     '/shipments/<int:shipment_id>/generate-contracts',
     view_func=ShipmentGenerateContractsAPI.as_view('shipment_generate_contracts'),
     methods=['POST']
+)
+
+
+class ShipmentConfirmAPI(MethodView):
+    """发货单确认API"""
+    decorators = [logistics_bp.auth_required(auth)]
+    
+    @logistics_bp.doc(
+        summary='确认发货单',
+        description='将草稿状态的发货单确认，确认后可生成报关单和交付合同'
+    )
+    @logistics_bp.output(ShipmentOrderSchema)
+    @permission_required('logistics:shipment:confirm')
+    def post(self, shipment_id):
+        """确认发货单"""
+        shipment = ShipmentService.confirm_shipment(shipment_id)
+        return {'data': shipment}
+
+
+class ShipmentSuppliersPreviewAPI(MethodView):
+    """发货单供应商拆分预览API"""
+    decorators = [logistics_bp.auth_required(auth)]
+    
+    @logistics_bp.doc(
+        summary='预览按供应商拆分',
+        description='预览发货单按供应商拆分的结果，用于生成交付合同前的确认'
+    )
+    def get(self, shipment_id):
+        """预览供应商拆分"""
+        suppliers = ShipmentService.get_suppliers_from_shipment(shipment_id)
+        
+        return {
+            'data': {
+                'shipment_id': shipment_id,
+                'supplier_count': len(suppliers),
+                'suppliers': suppliers
+            }
+        }
+
+
+logistics_bp.add_url_rule(
+    '/shipments/<int:shipment_id>/confirm',
+    view_func=ShipmentConfirmAPI.as_view('shipment_confirm'),
+    methods=['POST']
+)
+
+logistics_bp.add_url_rule(
+    '/shipments/<int:shipment_id>/suppliers-preview',
+    view_func=ShipmentSuppliersPreviewAPI.as_view('shipment_suppliers_preview'),
+    methods=['GET']
 )
 
